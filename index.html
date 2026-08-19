@@ -54,15 +54,6 @@
     padding: 24px;
   }
 
-  .rainbow-rule {
-    width: 90px;
-    height: 3px;
-    border-radius: 2px;
-    background: linear-gradient(90deg, #e24b4a, #ef9f27, #639922, #378add, #7f77dd);
-    opacity: 0.55;
-    margin-bottom: 22px;
-  }
-
   h1.wordmark {
     font-family: 'Fraunces', serif;
     font-style: italic;
@@ -100,11 +91,7 @@
   }
 
   footer {
-    background-image: repeating-linear-gradient(
-      90deg,
-      var(--brick-1) 0px, var(--brick-1) 58px,
-      var(--brick-2) 58px, var(--brick-2) 60px
-    );
+    background-color: var(--brick-1);
     padding: 14px 24px;
     display: flex;
     flex-wrap: wrap;
@@ -153,7 +140,6 @@
 <body>
 
   <section class="hero">
-    <div class="rainbow-rule" aria-hidden="true"></div>
     <h1 class="wordmark">thunderbird.cafe</h1>
     <p class="tagline">full city</p>
   </section>
@@ -163,7 +149,7 @@
   </section>
 
   <footer>
-    <a class="link" href="https://bsky.app/profile/thunderbird.cafe" rel="noopener">follow on bluesky</a>
+    <a class="link" href="https://bsky.app/profile/thunderbird.cafe" rel="noopener">follow on atproto</a>
     <span class="did">did:plc:6vxjigxrqizmbo56gojxico3</span>
   </footer>
 
