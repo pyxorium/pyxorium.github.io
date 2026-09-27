@@ -34,6 +34,13 @@ const { title, description, image = FallbackImage } = Astro.props;
 
 <Font cssVariable="--font-atkinson" preload />
 
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+	href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;1,500;1,600&family=IBM+Plex+Sans:wght@400;500&display=swap"
+	rel="stylesheet"
+/>
+
 <!-- Canonical URL -->
 <link rel="canonical" href={canonicalURL} />
 

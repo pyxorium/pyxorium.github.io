@@ -1,0 +1,44 @@
+---
+title: 'Atproto Web Tile Embeds'
+description: 'Embedding a live, interactive Web Tile in a blog post, and the workflow behind making it work.'
+pubDate: 'Sep 27 2026'
+atUri: "at://did:plc:6vxjigxrqizmbo56gojxico3/site.standard.document/3mwjap2qjij2v"
+heroImage: '../../assets/niagara-cover.jpg'
+---
+
+import WebTile from '../../components/WebTile.astro';
+
+When you look at a webpage, most of what you see embedded there is a fixed snapshot, such as a photo, a video, or an animated GIF. You cannot interact with it.
+
+Web Tiles are different.
+
+A Web Tile is a small, live piece of interactive content that runs right there in your browser, loaded fresh from wherever it's actually stored, rather than being baked into the page itself. You can interact with it directly, wherever it is embedded.
+
+Unlike a typical app, however, a Web Tile can't reach out to the internet with your data. It only has access to whatever content was bundled with it when it was published, which is exactly what makes it safe to drop into a blog page (or elsewhere) without worrying what it might do.
+
+Here is a demo Web Tile I made recently. Drag it, spin it, zoom in. In the settings panel, you can select automatic rotation, or change the shape of the object.
+
+<WebTile uri="at://did:plc:6vxjigxrqizmbo56gojxico3/ing.dasl.masl/3mw763im3qw2t" height={650} />
+
+As mentioned above, the actual content for this Web Tile is not stored on this blog post. Instead, this blog post pulls it in from the actual location, which is on an Atproto PDS repo.
+
+## How it works
+
+[Web Tiles](https://dasl.ing/tiles.html) are a new kind of embeddable content on the AT Protocol, laid out in more detail in [Robin Berjon's writeup](https://berjon.com/web-tiles/). They're small, sandboxed web apps and documents that can be published to your PDS and safely dropped into someone else's page, whether that's a website or a social profile.
+
+Getting an embedded Web Tile to work properly in this blog post touched a few different layers, since Web Tiles were only recently introduced to the AT Protocol. The short version:
+
+- **The tile itself** lives as a record on my own PDS, published under the `ing.dasl.masl` lexicon, the AT Protocol's answer to how you store a small sandboxed app as a piece of atproto data.
+- **Loading it safely** requires the browser to run it in an isolated origin, with a specific set of security headers (a strict CSP, cross origin isolation, no referrers, the works). GitHub Pages, where this blog lives, can't set custom headers at all, so that piece had to live elsewhere.
+- **A small dedicated server**, running on Fly.io, handles that isolation. It's built on `@dasl/tile-server`, the official reference implementation from the Web Tiles spec author. Its only job is redirecting requests to a distinct hosting origin and serving a tiny bootstrap page with the right headers attached.
+- **In the browser**, `@dasl/tile-loader` does the real work. It resolves the tile's AT URI, fetches the manifest and resources straight from the PDS, and renders the result into a normal DOM element I can drop into any blog post.
+- One wrinkle: the fully spec compliant version of this setup uses a wildcard DNS subdomain, so every tile gets a fresh, random origin, which is also the approach [Twinkl uses in their own tile loading sidecar](https://next.tangled.org/mihaizaurus.at/twinkl/blob/main/AGENTS.md), isolating each tile's browser storage from every other tile and from the host app. My registrar doesn't support wildcard records, so instead I run a small fixed pool of pre-registered subdomains that the server rotates through. It's a minor tradeoff in isolation purity for something that works today without switching domain registrars.
+
+The result is a small reusable component I can drop into any future post, `<WebTile uri="..." height={...} />`, to embed any tile I publish going forward.
+
+**Sources:**
+- [DASL: Web Tiles specification](https://dasl.ing/tiles.html)
+- [Web Tiles, by Robin Berjon](https://berjon.com/web-tiles/)
+- [webtil.es](https://webtil.es/), a public tile browser and quickstart tutorial
+- [@dasl/tiles](https://github.com/darobin/dasl-tiles), the monorepo covering `tile-server`, `tile-loader`, and related packages
+- [Twinkl's tile isolation architecture (AGENTS.md)](https://next.tangled.org/mihaizaurus.at/twinkl/blob/main/AGENTS.md)

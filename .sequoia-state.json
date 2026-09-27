@@ -1,0 +1,18 @@
+{
+  "posts": {
+    "src\\content\\blog\\embedding-a-web-tile.mdx": {
+      "contentHash": "1e4205dceaed2d7d6949f1baecbb2ba24d9b201c35ebcd23162f3a9e53600ef0",
+      "atUri": "at://did:plc:6vxjigxrqizmbo56gojxico3/site.standard.document/3mwjap2qjij2v",
+      "lastPublished": "2026-09-27T17:12:32.148Z",
+      "slug": "embedding-a-web-tile",
+      "bskyPostRef": {
+        "uri": "at://did:plc:6vxjigxrqizmbo56gojxico3/app.bsky.feed.post/3mwjd5thjhf27",
+        "cid": "bafyreihxmlrx7n4buffehxh245eqokfv3b6yuhl5tanutqfggijgav3wti"
+      }
+    }
+  },
+  "publication": {
+    "cid": "bafyreie6vm4opy7mknn26txcfq2zuenpbjczmziht2abedxjlncfqdnsyy",
+    "uri": "at://did:plc:6vxjigxrqizmbo56gojxico3/site.standard.publication/3mwhy6xsszo27"
+  }
+}

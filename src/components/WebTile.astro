@@ -1,0 +1,56 @@
+---
+interface Props {
+  uri: string;
+  height?: number;
+}
+const { uri, height = 500 } = Astro.props;
+---
+<div class="web-tile-mount" data-uri={uri} data-height={height} style={`min-height: ${height}px;`}>
+  <p class="web-tile-loading">Loading tile…</p>
+</div>
+
+<style>
+  .web-tile-mount {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #111;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .web-tile-loading {
+    color: #888;
+    font-family: sans-serif;
+    font-size: 0.9rem;
+  }
+</style>
+
+<script>
+  import { TileMothership } from '@dasl/tile-loader';
+  import { ATTileLoader } from '@dasl/tile-loader/at';
+
+  async function mountTile(el: HTMLElement) {
+    const uri = el.dataset.uri;
+    const height = Number(el.dataset.height) || 500;
+    if (!uri) return;
+
+    try {
+      const tl = new TileMothership({ loadDomain: 'load.tiles.thunderbird.cafe' });
+      tl.init();
+      tl.addLoader(new ATTileLoader());
+
+      const tile = await tl.loadTile(uri);
+      if (!tile) {
+        el.textContent = 'Could not load this tile.';
+        return;
+      }
+      el.innerHTML = '';
+      el.appendChild(await tile.renderContent(height));
+    } catch (err) {
+      console.error('Tile load failed:', err);
+      el.textContent = 'Could not load this tile.';
+    }
+  }
+
+  document.querySelectorAll<HTMLElement>('.web-tile-mount').forEach(mountTile);
+</script>

@@ -1,0 +1,18 @@
+{
+  "$schema": "https://tangled.org/stevedylan.dev/sequoia/raw/main/sequoia.schema.json",
+  "siteUrl": "https://thunderbird.cafe",
+  "contentDir": "./src/content/blog",
+  "outputDir": "./dist",
+  "pathPrefix": "/blog",
+  "publicationUri": "at://did:plc:6vxjigxrqizmbo56gojxico3/site.standard.publication/3mwhy6xsszo27",
+  "pdsUrl": "https://fibercap.us-west.host.bsky.network",
+  "frontmatter": {
+    "publishDate": "pubDate",
+    "coverImage": "heroImage"
+  },
+  "publishContent": true,
+  "bluesky": {
+    "enabled": true,
+    "maxAgeDays": 30
+  }
+}
