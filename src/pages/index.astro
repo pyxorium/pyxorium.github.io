@@ -1,49 +1,164 @@
 ---
-import BaseHead from '../components/BaseHead.astro';
-import Footer from '../components/Footer.astro';
-import Header from '../components/Header.astro';
-import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 ---
-
 <!doctype html>
 <html lang="en">
-	<head>
-		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
-	</head>
-	<body>
-		<Header />
-		<main>
-			<h1>🧑‍🚀 Hello, Astronaut!</h1>
-			<p>
-				Welcome to the official <a href="https://astro.build/">Astro</a> blog starter template. This template
-				serves as a lightweight, minimally-styled starting point for anyone looking to build a personal
-				website, blog, or portfolio with Astro.
-			</p>
-			<p>
-				This template comes with a few integrations already configured in your{' '}
-				<code>astro.config.mjs</code> file. You can customize your setup with{' '}
-				<a href="https://astro.build/integrations">Astro Integrations</a> to add tools like Tailwind,
-				React, or Vue to your project.
-			</p>
-			<p>Here are a few ideas on how to get started with the template:</p>
-			<ul>
-				<li>Edit this page in <code>src/pages/index.astro</code></li>
-				<li>Edit the site header items in <code>src/components/Header.astro</code></li>
-				<li>Add your name to the footer in <code>src/components/Footer.astro</code></li>
-				<li>Check out the included blog posts in <code>src/content/blog/</code></li>
-				<li>Customize the blog post page layout in <code>src/layouts/BlogPost.astro</code></li>
-			</ul>
-			<p>
-				Have fun! If you get stuck, remember to{' '}
-				<a href="https://docs.astro.build/">read the docs</a>{' '}
-				or <a href="https://astro.build/chat">join us on Discord</a> to ask questions.
-			</p>
-			<p>
-				Looking for a blog template with a bit more personality? Check out{' '}
-				<a href="https://github.com/Charca/astro-blog-template">astro-blog-template</a>{' '}
-				by <a href="https://twitter.com/Charca">Maxi Ferreira</a>.
-			</p>
-		</main>
-		<Footer />
-	</body>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>thunderbird.cafe</title>
+<meta name="description" content="thunderbird.cafe — full city. coming soon.">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/icon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;1,500;1,600&family=IBM+Plex+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal-050: #e1f5ee;
+    --teal-200: #5dcaa5;
+    --teal-600: #0f6e56;
+    --teal-800: #085041;
+    --teal-900: #04342c;
+    --brick-1: #4a1b0c;
+    --brick-2: #712b13;
+    --brick-3: #d85a30;
+    --cream: #f1e7d2;
+    --muted: #b9d9cd;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--teal-900);
+  }
+
+  body {
+    font-family: 'IBM Plex Sans', sans-serif;
+    color: var(--cream);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .hero {
+    position: relative;
+    min-height: 78vh;
+    background-image:
+      linear-gradient(180deg, rgba(4,52,44,0.28) 0%, rgba(4,52,44,0.55) 65%, rgba(4,52,44,0.88) 100%),
+      url('/niagara.jpg');
+    background-size: cover;
+    background-position: center 65%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 24px;
+  }
+
+  h1.wordmark {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 600;
+    font-size: clamp(2.4rem, 7vw, 3.6rem);
+    margin: 0 0 10px 0;
+    letter-spacing: -0.01em;
+    color: var(--teal-050);
+  }
+
+  p.tagline {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-weight: 500;
+    font-size: 0.95rem;
+    letter-spacing: 0.08em;
+    text-transform: lowercase;
+    color: var(--muted);
+    margin: 0;
+  }
+
+  .below {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--teal-800);
+    padding: 40px 24px;
+  }
+
+  p.status {
+    font-size: 1rem;
+    color: var(--teal-050);
+    margin: 0;
+    letter-spacing: 0.02em;
+  }
+
+  footer {
+    background-color: var(--brick-1);
+    padding: 14px 24px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    row-gap: 8px;
+  }
+
+  a.link {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--brick-3);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(216,90,48,0.4);
+    padding-bottom: 2px;
+    transition: border-color 0.2s ease, color 0.2s ease;
+  }
+
+  a.link:hover, a.link:focus-visible {
+    border-color: var(--brick-3);
+    color: #f2a37f;
+  }
+
+  a.link:focus-visible {
+    outline: 2px solid var(--teal-200);
+    outline-offset: 4px;
+  }
+
+  .did {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    color: #e3b6a3;
+    letter-spacing: 0.01em;
+    word-break: break-all;
+  }
+
+  @media (max-width: 480px) {
+    .hero { min-height: 70vh; padding: 20px; }
+    .below { padding: 32px 20px; }
+    footer { flex-direction: column; gap: 8px; padding: 16px 20px; }
+  }
+</style>
+</head>
+<body>
+
+  <section class="hero">
+    <h1 class="wordmark">thunderbird.cafe</h1>
+    <p class="tagline">full city</p>
+  </section>
+
+  <section class="below">
+    <p class="status">coming soon</p>
+  </section>
+
+  <footer>
+    <a class="link" href="/blog" rel="prefetch">blog</a>
+    <a class="link" href="https://bsky.app/profile/thunderbird.cafe" rel="noopener">follow on atproto</a>
+    <span class="did">did:plc:6vxjigxrqizmbo56gojxico3</span>
+  </footer>
+
+</body>
 </html>
