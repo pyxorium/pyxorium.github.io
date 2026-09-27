@@ -13,7 +13,7 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 
 <html lang="en">
 	<head>
-		<BaseHead title={title} description={description} image={heroImage}/>
+		<BaseHead title={title} description={description} image={heroImage} />
 		<style>
 			main {
 				width: calc(100% - 2em);
@@ -43,7 +43,11 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 				line-height: 1;
 			}
 			.title h1 {
-				margin: 0 0 0.5em 0; font-size: 2rem;
+				margin: 0 0 0.5em 0;
+				font-size: 2rem;
+			}
+			.prose :global(h2) {
+				font-size: 1.6rem;
 			}
 			.date {
 				margin-bottom: 0.5em;
