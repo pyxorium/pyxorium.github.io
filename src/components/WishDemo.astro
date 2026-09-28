@@ -1,0 +1,272 @@
+---
+// WishDemo.astro -- the real, tier-1 version of the host page.
+// Loads both tiles for real via TileMothership/ATTileLoader (same
+// mechanism WebTile.astro uses), then relays wish/grant/confirmation
+// messages between them using the real, shipped `data.js` Tiles
+// Protocol's up/down forwarding channel -- see
+// ../shared/wish-protocol.md ("Transport tiers") for the full
+// reasoning on why this relay is genuinely new ground, not an
+// existing pattern, and what it deliberately doesn't solve (no
+// trust/permission model -- fine for a host that wrote and controls
+// both tiles, not a claim this generalizes).
+//
+// host-demo/test-harness.html implements the identical relay/arrow/
+// reset logic against tier 2 (plain iframes) for local testing without
+// needing real publishing -- this file is the real thing, wired to
+// the two tiles actually published under wish-demo/publish/accounts.md.
+
+interface Props {
+  bobUri?: string;
+  aliceUri?: string;
+  height?: number;
+}
+const {
+  bobUri = "at://did:plc:ro563p5faldqu44apudq44k4/ing.dasl.masl/3mwm2n3mnr42m",
+  aliceUri = "at://did:plc:6vxjigxrqizmbo56gojxico3/ing.dasl.masl/3mwm2sljdes2m",
+  height = 640,
+} = Astro.props;
+---
+
+<div class="wish-demo">
+  <div class="topbar">
+    <span class="label">Wish Demo</span>
+    <button class="reset-btn" id="wishDemoResetBtn">Reset demo</button>
+  </div>
+
+  <div class="stage" id="wishDemoStage">
+    <div class="tile-col">
+      <div class="tile-caption">Bob's tile</div>
+      <div class="tile-mount" id="wishDemoBobMount" data-uri={bobUri} data-height={height}>
+        <p class="loading">Loading tile…</p>
+      </div>
+    </div>
+    <div class="tile-col">
+      <div class="tile-caption">Alice's tile</div>
+      <div class="tile-mount" id="wishDemoAliceMount" data-uri={aliceUri} data-height={height}>
+        <p class="loading">Loading tile…</p>
+      </div>
+    </div>
+    <div class="track" id="wishDemoTrack"></div>
+  </div>
+</div>
+
+<style>
+  .wish-demo {
+    --blue: #6fb3ff;
+    --orange: #ffaa50;
+    --mint: #99ffbb;
+    background: #0a0b0f;
+    color: #eaf0f6;
+    border-radius: 12px;
+    padding: 0 0 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    overflow: hidden;
+  }
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    border-bottom: 1px solid #2a2d33;
+  }
+  .label { font-size: 14px; color: #8ea0b3; font-weight: 600; }
+  .reset-btn {
+    appearance: none;
+    border: 1px solid #3a3d44;
+    background: #1a1c22;
+    color: #eaf0f6;
+    padding: 7px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+  }
+  .reset-btn:hover { background: #24272e; }
+
+  .stage {
+    position: relative;
+    display: flex;
+    gap: 24px;
+    padding: 24px;
+    align-items: flex-start;
+  }
+  @media (max-width: 720px) {
+    .stage { flex-direction: column; }
+  }
+  .tile-col { flex: 1; min-width: 0; }
+  .tile-caption { text-align: center; font-size: 12px; color: #6b7a8a; margin-bottom: 8px; }
+  .tile-mount {
+    border: 1px solid #2a2d33;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #05070d;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .loading { color: #888; font-size: 0.9rem; }
+
+  .track { position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; }
+</style>
+
+<!--
+  Unscoped deliberately: Astro's CSS scoping only tags elements present
+  in this component's own template at build time. The .packet divs are
+  created dynamically in the client script below, so a normal scoped
+  <style> block would never match them at all (confirmed the hard way
+  -- this is exactly what caused the "strange rendering" the first
+  version had: the arrow existed in the DOM but had none of its
+  intended styling, since the scoped selector simply didn't apply).
+-->
+<style is:global>
+  .packet {
+    position: absolute;
+    top: 50%;
+    width: 56px;
+    height: 56px;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    transition: left 0.7s ease-in-out, opacity 0.25s ease;
+  }
+  .packet.visible { opacity: 1; }
+  .packet svg { width: 100%; height: 100%; display: block; transition: transform 0.2s ease; }
+  .packet.flip svg { transform: scaleX(-1); }
+</style>
+
+<script>
+  import { TileMothership } from '@dasl/tile-loader';
+  import { ATTileLoader } from '@dasl/tile-loader/at';
+
+  // =====================================================================
+  // Load both tiles for real -- same mechanism as WebTile.astro. ONE
+  // shared mothership for both tiles (it natively supports multiple
+  // simultaneous tiles, see tile-loader/src/index.ts) -- a separate
+  // instance per tile was tried first and was wrong: both instances'
+  // message listeners sit on the same window, so every message either
+  // tile's shuttle sends gets picked up by both, and whichever
+  // instance doesn't own that tile's ID throws "No tile shuttle with
+  // ID ..." trying to look it up. Harmless to the tiles themselves
+  // (the owning instance still handles it correctly) but genuinely
+  // wrong and noisy -- one shared instance avoids it entirely.
+  // =====================================================================
+  const mothership = new TileMothership({ loadDomain: 'load.tiles.thunderbird.cafe' });
+  mothership.init();
+  mothership.addLoader(new ATTileLoader());
+
+  async function mountTile(mountEl: HTMLElement) {
+    const uri = mountEl.dataset.uri!;
+    const height = Number(mountEl.dataset.height) || 500;
+    const tile = await mothership.loadTile(uri);
+    if (!tile) {
+      mountEl.textContent = 'Could not load this tile.';
+      return null;
+    }
+    const ifr = tile.renderContent(height) as HTMLIFrameElement;
+    mountEl.innerHTML = '';
+    mountEl.appendChild(ifr);
+    return ifr;
+  }
+
+  const bobMount = document.getElementById('wishDemoBobMount')!;
+  const aliceMount = document.getElementById('wishDemoAliceMount')!;
+  const stage = document.getElementById('wishDemoStage')!;
+  const track = document.getElementById('wishDemoTrack')!;
+  const resetBtn = document.getElementById('wishDemoResetBtn')!;
+
+  let bobIframe: HTMLIFrameElement | null = null;
+  let aliceIframe: HTMLIFrameElement | null = null;
+
+  Promise.all([mountTile(bobMount), mountTile(aliceMount)]).then(([b, a]) => {
+    bobIframe = b;
+    aliceIframe = a;
+  });
+
+  // =====================================================================
+  // Arrow -- identical shape/behavior to host-demo/test-harness.html.
+  // See ../shared/design-notes.md ("Traveling packet") for the
+  // persistence rules (W rests at Alice's until she sends the grant,
+  // G rests at Bob's until he locks in, C rests at Alice's until
+  // reset -- not a quick flash).
+  // =====================================================================
+  function arrowSVG(color: string) {
+    return `<svg viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="10,44 76,44 76,20 118,64 76,108 76,84 10,84" fill="${color}"/>
+    </svg>`;
+  }
+  const COLORS: Record<string, string> = { W: '#6fb3ff', G: '#ffaa50', C: '#99ffbb' };
+  let currentPacket: { el: HTMLElement } | null = null;
+
+  function clearPacket() {
+    if (currentPacket) { currentPacket.el.remove(); currentPacket = null; }
+  }
+
+  function travel(kind: string, direction: 'toAlice' | 'toBob') {
+    clearPacket();
+    const el = document.createElement('div');
+    el.className = 'packet' + (direction === 'toBob' ? ' flip' : '');
+    el.style.transition = 'none';
+    el.innerHTML = arrowSVG(COLORS[kind]);
+    track.appendChild(el);
+    currentPacket = { el };
+
+    const stageRect = stage.getBoundingClientRect();
+    const bobRect = bobMount.getBoundingClientRect();
+    const aliceRect = aliceMount.getBoundingClientRect();
+
+    const startX = direction === 'toAlice' ? (bobRect.right - stageRect.left) : (aliceRect.left - stageRect.left);
+    const endX   = direction === 'toAlice' ? (aliceRect.left - stageRect.left) : (bobRect.right - stageRect.left);
+
+    el.style.left = startX + 'px';
+    el.getBoundingClientRect();
+    el.style.transition = '';
+    requestAnimationFrame(() => {
+      el.classList.add('visible');
+      el.style.left = endX + 'px';
+    });
+  }
+
+  // =====================================================================
+  // The relay -- the actual answer to the plumbing gap (see
+  // wish-protocol.md). Watches for the real data.js protocol's
+  // up-channel messages, identifies which tile sent them via
+  // event.source (safe to compare across origins), and forwards them
+  // down into the OTHER tile's data.js down-channel.
+  // =====================================================================
+  const UP = 'tiles-protocol-up-data-payload';
+  const DOWN = 'tiles-protocol-down-data-payload';
+
+  function sendDown(iframe: HTMLIFrameElement | null, payload: unknown) {
+    if (!iframe) return;
+    iframe.contentWindow?.postMessage({ action: DOWN, payload }, '*');
+  }
+
+  window.addEventListener('message', (e: MessageEvent) => {
+    const data = e.data;
+    if (!data || data.action !== UP) return;
+    const payload = data.payload;
+    if (!payload || typeof payload !== 'object') return;
+
+    const fromBob = bobIframe && e.source === bobIframe.contentWindow;
+    const fromAlice = aliceIframe && e.source === aliceIframe.contentWindow;
+
+    if (fromBob) {
+      if (payload.action === 'supply') {
+        travel('W', 'toAlice');
+        sendDown(aliceIframe, payload);
+      } else if (payload.type === 'confirmation') {
+        travel('C', 'toAlice');
+        sendDown(aliceIframe, payload);
+      }
+    } else if (fromAlice) {
+      if (payload.schemes) {
+        travel('G', 'toBob');
+        sendDown(bobIframe, payload);
+      }
+    }
+  });
+
+  resetBtn.addEventListener('click', () => {
+    clearPacket();
+    sendDown(bobIframe, { type: 'reset' });
+    sendDown(aliceIframe, { type: 'reset' });
+  });
+</script>
