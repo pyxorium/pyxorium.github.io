@@ -1,0 +1,47 @@
+---
+title: 'Wishes: Creating Two Web Tiles that Talk to Each Other'
+description: 'A working demo of Web Tiles composing with one another via "wishes," and the small piece of new plumbing it took to make two independently-published tiles actually talk.'
+pubDate: 'Sep 28 2026'
+heroImage: '../../assets/wishes-color-scheme-demo-cover.jpg'
+bobAtUri: "at://did:plc:ro563p5faldqu44apudq44k4/ing.dasl.masl/3mwm2n3mnr42m"
+aliceAtUri: "at://did:plc:6vxjigxrqizmbo56gojxico3/ing.dasl.masl/3mwm2sljdes2m"
+---
+
+import WishDemo from '../../components/WishDemo.astro';
+
+In [the last post](/blog/embedding-a-web-tile/), a Web Tile was presented as a self-contained thing, dropped into a page and providing interactivity within the confines of itself. That's already useful, but Web Tiles can be built to incorporate additional functionality. Robin Berjon's own [Web Tiles writeup](https://berjon.com/web-tiles/) describes something further: tiles that can call on *each other*, without either one knowing in advance who they'd end up working with.
+
+He calls the mechanism **wishes**. A tile can wish for something ("I need a color scheme," say) without knowing which other tile will answer, or whether one will answer at all. Any tile that's willing to grant the original wish can respond, and neither tile has to be built with the other in mind.
+
+Here are two tiles doing exactly that. One is a small rotating cube that starts out plain and undecided. The other is a palette that offers curated color schemes to anything that asks. Each Web Tile does not need to know that the other exists, but they are each written to share a common wish vocabulary.
+
+<WishDemo height={640} />
+
+In this demo, you can first play the role of Bob, and click through his tile to send the wish. Next, you can play the role of Alice, and answer Bob's wish with a gift by presenting three color schemes for him to select from.
+
+After receiving the gift from Alice, Bob choses a favorite scheme and locks it in. Alice can then see Bob's choice confirmation.
+
+During the exchanges, you can watch the colored arrow, as communication between Bob's Web tile (client) and Alice's Web Tile (service) travels back and forth.
+
+First, Bob's wish travels from his tile to Alice's tile (blue arrow).
+
+Next, Alice's grant travels from Alice's tile to Bob's tile (orange arrow).
+
+Finally, Bob's confirmation travels from Bob's tile to Alice's tile (green arrow).
+
+Uniquely, Bob's tile and Alice's tile do not have to be stored on the same server. In this demo, they are each pulled from completely different PDS repos.
+
+That independence between tiles runs deeper than just hosting. Alice's tile doesn't know it's Bob asking, only that a wish matching her vocabulary arrived; if you refresh this page and play both roles yourself, her tile has no way to tell the difference between that and if two separate people were playing two separate tiles on two separate computers. Neither tile was built with knowledge of what page it might eventually sit on. And because a Web Tile is content-addressed and immutable once published, whatever a tile can wish for or grant is sealed the moment it goes out; a tile can't be quietly updated later to start asking for or offering something new. That's exactly why a shared, discoverable wish vocabulary or lexicon matters: it's the only way a future tile, built by someone who's never heard of this one, could ever end up cooperating with it.
+
+## The part that didn't already exist
+
+Getting these two tiles to actually exchange messages required some additional plumbing. `@dasl/tile-loader`'s shipped [Tiles Protocols](https://dasl.ing/tiles-protocols.html) framework (`data.js`) already gives a tile a real channel to talk to *whatever embedded it*, but nothing in the shipped code lets a host take a message from one tile and hand it to a *different*, specific tile. That's the actual composition primitive a wish mechanism needs, and is what was created here. This page's own script watches for a message coming up from one tile, checks which tile it came from, and forwards it down into the other one.
+
+This solution, as a proof of concept, allows two Web Tiles to talk with each other, but there are still security issues that will likely need to be addressed before cross-tile communication like this is used at scale. Specifically, the relay on this page will pass along anything either tile hands it, no questions asked, the way a mail carrier delivers whatever's in an envelope without checking whether the sender should really be writing to that recipient. That's harmless here, since there are only two tiles and they were created as a demo only. Security becomes important the moment you imagine a page holding tiles built by total strangers, where something needs to decide who's actually allowed to wish for what from whom. That part is still wide open, not something this post claims to have solved.
+
+**Sources:**
+- [Web Tiles, by Robin Berjon](https://berjon.com/web-tiles/)
+- [DASL: Web Tiles specification](https://dasl.ing/tiles.html)
+- [DASL: Tiles Protocols](https://dasl.ing/tiles-protocols.html)
+- [W3C Web Intents (Working Group Note, 2013)](https://www.w3.org/TR/web-intents/)
+- [@dasl/tiles](https://github.com/darobin/dasl-tiles), the monorepo covering `tile-loader`, `tile-server`, and `atile`
