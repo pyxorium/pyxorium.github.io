@@ -31,7 +31,11 @@ Finally, Bob's confirmation travels from Bob's tile to Alice's tile (green arrow
 
 Uniquely, Bob's tile and Alice's tile do not have to be stored on the same server. In this demo, they are each pulled from completely different PDS repos.
 
-That independence between tiles runs deeper than just hosting. Alice's tile doesn't know it's Bob asking, only that a wish matching her vocabulary arrived; if you refresh this page and play both roles yourself, her tile has no way to tell the difference between that and if two separate people were playing two separate tiles on two separate computers. Neither tile was built with knowledge of what page it might eventually sit on. And because a Web Tile is content-addressed and immutable once published, whatever a tile can wish for or grant is sealed the moment it goes out; a tile can't be quietly updated later to start asking for or offering something new. That's exactly why a shared, discoverable wish vocabulary or lexicon matters: it's the only way a future tile, built by someone who's never heard of this one, could ever end up cooperating with it.
+That independence between tiles runs deeper than just hosting. Alice's tile doesn't know it's Bob asking, only that a wish matching her vocabulary arrived; in principle, it would have no way to tell who's actually operating it, whether that's someone playing both roles in one browser tab in a demo like this, or, hypothetically, two different people, each at their own keyboard. Neither tile was built with knowledge of what page it might eventually sit on.
+
+In this particular demo, the actual mechanism moving messages between the two tiles is a small relay living in this page's own memory, forwarding between the two iframes it personally created, which means it only ever works within a single browser tab. Real communication between two tiles independently operated by two different people, each on their own separate computer, would involve additional coding considerations, and that will be covered in a future post.
+
+And because a Web Tile is content-addressed and immutable once published, whatever a tile can wish for or grant is sealed the moment it goes out; a tile can't be quietly updated later to start asking for or offering something new. That's exactly why a shared, discoverable wish vocabulary or lexicon matters: it's the only way a future tile, built by someone who's never heard of this one, could ever end up cooperating with it.
 
 ## The part that didn't already exist
 
