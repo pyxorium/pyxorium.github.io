@@ -35,13 +35,19 @@ const {
 
   <div class="stage" id="wishDemoStage">
     <div class="tile-col">
-      <div class="tile-caption">Bob's tile</div>
+      <div class="tile-caption">
+        <div class="tile-caption-name">Bob's tile</div>
+        <div class="tile-caption-repo">colorado.atprotocol.space</div>
+      </div>
       <div class="tile-mount" id="wishDemoBobMount" data-uri={bobUri} data-height={height}>
         <p class="loading">Loading tile…</p>
       </div>
     </div>
     <div class="tile-col">
-      <div class="tile-caption">Alice's tile</div>
+      <div class="tile-caption">
+        <div class="tile-caption-name">Alice's tile</div>
+        <div class="tile-caption-repo">thunderbird.cafe</div>
+      </div>
       <div class="tile-mount" id="wishDemoAliceMount" data-uri={aliceUri} data-height={height}>
         <p class="loading">Loading tile…</p>
       </div>
@@ -69,7 +75,7 @@ const {
     padding: 12px 20px;
     border-bottom: 1px solid #2a2d33;
   }
-  .label { font-size: 14px; color: #8ea0b3; font-weight: 600; }
+  .label { font-size: 17px; color: #8ea0b3; font-weight: 600; }
   .reset-btn {
     appearance: none;
     border: 1px solid #3a3d44;
@@ -93,7 +99,9 @@ const {
     .stage { flex-direction: column; }
   }
   .tile-col { flex: 1; min-width: 0; }
-  .tile-caption { text-align: center; font-size: 12px; color: #6b7a8a; margin-bottom: 8px; }
+  .tile-caption { text-align: center; margin-bottom: 8px; }
+  .tile-caption-name { font-size: 15px; color: #8ea0b3; font-weight: 600; }
+  .tile-caption-repo { font-size: 13px; color: #5a6774; margin-top: 2px; }
   .tile-mount {
     border: 1px solid #2a2d33;
     border-radius: 12px;
@@ -120,16 +128,22 @@ const {
 <style is:global>
   .packet {
     position: absolute;
-    top: 50%;
     width: 56px;
     height: 56px;
     transform: translate(-50%, -50%);
     opacity: 0;
-    transition: left 0.7s ease-in-out, opacity 0.25s ease;
+    transition: left 0.7s ease-in-out, top 0.7s ease-in-out, opacity 0.25s ease;
   }
   .packet.visible { opacity: 1; }
   .packet svg { width: 100%; height: 100%; display: block; transition: transform 0.2s ease; }
-  .packet.flip svg { transform: scaleX(-1); }
+  /* Orientation is set fresh per-arrow based on which layout is active
+     at the moment it fires (see travel()) -- side-by-side moves left/
+     right (dir-right is the unrotated default, dir-left flips), stacked
+     moves up/down (rotates 90deg either way). Checked once per arrow,
+     not continuously on resize -- see design-notes.md. */
+  .packet.dir-left svg { transform: scaleX(-1); }
+  .packet.dir-down svg { transform: rotate(90deg); }
+  .packet.dir-up svg { transform: rotate(-90deg); }
 </style>
 
 <script>
@@ -202,25 +216,60 @@ const {
   function travel(kind: string, direction: 'toAlice' | 'toBob') {
     clearPacket();
     const el = document.createElement('div');
-    el.className = 'packet' + (direction === 'toBob' ? ' flip' : '');
+    el.className = 'packet';
     el.style.transition = 'none';
     el.innerHTML = arrowSVG(COLORS[kind]);
     track.appendChild(el);
     currentPacket = { el };
 
+    // Checked fresh for THIS arrow only, not watched continuously --
+    // see design-notes.md for why (an in-flight resize is a rare
+    // enough edge case that "the next arrow picks up the new layout"
+    // is an acceptable tradeoff for not needing a resize listener).
+    const stacked = window.matchMedia('(max-width: 720px)').matches;
+
     const stageRect = stage.getBoundingClientRect();
     const bobRect = bobMount.getBoundingClientRect();
     const aliceRect = aliceMount.getBoundingClientRect();
 
-    const startX = direction === 'toAlice' ? (bobRect.right - stageRect.left) : (aliceRect.left - stageRect.left);
-    const endX   = direction === 'toAlice' ? (aliceRect.left - stageRect.left) : (bobRect.right - stageRect.left);
+    let axis: 'left' | 'top';
+    let startPos: number, endPos: number, orientation: string;
 
-    el.style.left = startX + 'px';
+    if (stacked) {
+      // Bob's tile sits above Alice's in this layout -- "toAlice" moves
+      // down, "toBob" moves up.
+      axis = 'top';
+      el.style.left = '50%';
+      if (direction === 'toAlice') {
+        startPos = bobRect.bottom - stageRect.top;
+        endPos = aliceRect.top - stageRect.top;
+        orientation = 'down';
+      } else {
+        startPos = aliceRect.top - stageRect.top;
+        endPos = bobRect.bottom - stageRect.top;
+        orientation = 'up';
+      }
+    } else {
+      axis = 'left';
+      el.style.top = '50%';
+      if (direction === 'toAlice') {
+        startPos = bobRect.right - stageRect.left;
+        endPos = aliceRect.left - stageRect.left;
+        orientation = 'right';
+      } else {
+        startPos = aliceRect.left - stageRect.left;
+        endPos = bobRect.right - stageRect.left;
+        orientation = 'left';
+      }
+    }
+
+    el.classList.add('dir-' + orientation); // 'dir-right' matches no CSS rule -- unrotated default, intentional
+    el.style[axis] = startPos + 'px';
     el.getBoundingClientRect();
     el.style.transition = '';
     requestAnimationFrame(() => {
       el.classList.add('visible');
-      el.style.left = endX + 'px';
+      el.style[axis] = endPos + 'px';
     });
   }
 
