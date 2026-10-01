@@ -9,6 +9,8 @@
 // The refusal test uses its OWN connection, never one of the two seats, because the relay closes a
 // connection after five bad frames and two bad frames here must not be able to disturb the demo.
 
+// Note: the code snippets reset background, padding and border on purpose. A blog's global `code` style
+// (often a light box with padding) would otherwise show through and make the pale text unreadable.
 export const WIRE_CSS = `
 .die-demo .dd-wire { border-top:1px solid var(--line); padding:0 20px; }
 .die-demo .dd-wire > summary { cursor:pointer; padding:12px 0; font-size:14px; color:var(--dim); font-weight:600; }
@@ -19,7 +21,7 @@ export const WIRE_CSS = `
 .die-demo .dd-wire-table th { text-align:left; font-weight:600; color:#6b7a8a; padding:4px 10px 4px 0; border-bottom:1px solid var(--line); white-space:nowrap; }
 .die-demo .dd-wire-table td { padding:4px 10px 4px 0; vertical-align:top; border-bottom:1px solid #1c1f25; }
 .die-demo .dd-wire-table td.num { text-align:right; font-variant-numeric:tabular-nums; }
-.die-demo .dd-wire-table code { font-family:ui-monospace,Menlo,Consolas,monospace; font-size:11.5px; color:#b9c6d3; word-break:break-all; }
+.die-demo .dd-wire-table code { font-family:ui-monospace,Menlo,Consolas,monospace; font-size:11.5px; color:#b9c6d3; word-break:break-all; background:none; padding:0; border-radius:0; margin:0; border:0; }
 .die-demo .dd-wire-empty { color:#6b7a8a; font-style:italic; }
 .die-demo .dd-wire-try { margin-top:16px; }
 .die-demo .dd-wire-btn { appearance:none; border:1px solid #3a3d44; background:#1a1c22; color:var(--text); padding:8px 14px;
@@ -29,7 +31,7 @@ export const WIRE_CSS = `
 .die-demo .dd-wire-btn:focus-visible { outline:2px solid #6fb3ff; outline-offset:2px; }
 .die-demo .dd-wire-out { margin-top:10px; }
 .die-demo .dd-wire-out p { margin:0 0 4px; }
-.die-demo .dd-wire-out code { font-family:ui-monospace,Menlo,Consolas,monospace; font-size:11.5px; color:#b9c6d3; word-break:break-all; }
+.die-demo .dd-wire-out code { font-family:ui-monospace,Menlo,Consolas,monospace; font-size:11.5px; color:#b9c6d3; word-break:break-all; background:none; padding:0; border-radius:0; margin:0; border:0; }
 .die-demo .dd-wire-out .ok { color:#99ffbb; }
 .die-demo .dd-wire-out .bad { color:#ff9a9a; }
 `;
