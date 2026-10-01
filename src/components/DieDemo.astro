@@ -1,0 +1,67 @@
+---
+// DieDemo.astro -- the shared-die demo: two tiles, one die, a live relay between them.
+//
+// Loads both tiles through the real tile loader (from their published records) and connects them to the relay.
+// The work is done by the code in src/lib/die-demo/ (bridge.js holds the relay connections and the forwarding;
+// die-demo.js builds the page; arrows.js and wire-panel.js draw the arrows and the "What the relay sees" section).
+// This file follows the same pattern as WebTile.astro: a mount element, and a script that imports the loader.
+//
+// Use ONE DieDemo per page (the demo uses a single shared loader instance, and its relay session is per page load).
+// The relay only accepts connections from https://thunderbird.cafe (set in relay/fly.toml, ALLOWED_ORIGINS).
+
+interface Props {
+  bobUri?: string;
+  aliceUri?: string;
+  height?: number;
+  relayUrl?: string;
+  loadDomain?: string;
+}
+const {
+  bobUri = "at://did:plc:ro563p5faldqu44apudq44k4/ing.dasl.masl/3mwr5sobinc2f",
+  aliceUri = "at://did:plc:6vxjigxrqizmbo56gojxico3/ing.dasl.masl/3mwr6fpldri2m",
+  height = 420,
+  relayUrl = "wss://die-relay.thunderbird.cafe/",
+  loadDomain = "load.tiles.thunderbird.cafe",
+} = Astro.props;
+---
+
+<div
+  class="die-demo-mount"
+  data-bob={bobUri}
+  data-alice={aliceUri}
+  data-height={height}
+  data-relay={relayUrl}
+  data-load={loadDomain}
+>
+  <p class="die-demo-loading">Loading the demo…</p>
+</div>
+
+<style>
+  .die-demo-mount { margin: 1.5rem 0; }
+  .die-demo-loading { color: #888; font-family: sans-serif; font-size: 0.9rem; }
+</style>
+
+<script>
+  import { ATTileLoader } from '@dasl/tile-loader/at';
+  import { mountDieDemo } from '../lib/die-demo/die-demo.js';
+
+  document.querySelectorAll<HTMLElement>('.die-demo-mount').forEach((root) => {
+    const d = root.dataset;
+    mountDieDemo(root, {
+      loadDomain: d.load!,
+      relayUrl: d.relay!,
+      height: Number(d.height) || 420,
+      prepare(mothership: { addLoader(loader: unknown): void }) {
+        mothership.addLoader(new ATTileLoader());      // the tiles come from their published records
+      },
+      tileUris: { bob: d.bob!, alice: d.alice! },
+      captions: {
+        bob: { name: "Bob's tile", sub: 'colorado.atprotocol.space' },
+        alice: { name: "Alice's tile", sub: 'thunderbird.cafe' },
+      },
+    }).catch((err: Error) => {
+      root.textContent = 'The demo could not start: ' + err.message;
+      console.error('[die-demo]', err);
+    });
+  });
+</script>
