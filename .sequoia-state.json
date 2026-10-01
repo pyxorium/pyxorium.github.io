@@ -9,6 +9,26 @@
         "uri": "at://did:plc:6vxjigxrqizmbo56gojxico3/app.bsky.feed.post/3mwjd5thjhf27",
         "cid": "bafyreihxmlrx7n4buffehxh245eqokfv3b6yuhl5tanutqfggijgav3wti"
       }
+    },
+    "src\\content\\blog\\wishes-color-scheme-demo.mdx": {
+      "contentHash": "a3bc3a1140e2d91a6b3edf3fcf19a0025addcc5433e6c8824bc9516530728422",
+      "atUri": "at://did:plc:6vxjigxrqizmbo56gojxico3/site.standard.document/3mwme2l3tll2z",
+      "lastPublished": "2026-09-28T22:22:43.015Z",
+      "slug": "wishes-color-scheme-demo",
+      "bskyPostRef": {
+        "uri": "at://did:plc:6vxjigxrqizmbo56gojxico3/app.bsky.feed.post/3mwme2luvkc2f",
+        "cid": "bafyreigxmk2oiuip2ebqtflgwtbe52suqj56jusbfipk4ccwlhogj3lsum"
+      }
+    },
+    "src\\content\\blog\\wishes-shared-die-demo.mdx": {
+      "contentHash": "034b1043e96221d510a22eb246ccc8584b979efce4762654556a81b42da6ebb9",
+      "atUri": "at://did:plc:6vxjigxrqizmbo56gojxico3/site.standard.document/3mwrpl3tq372z",
+      "lastPublished": "2026-10-01T01:32:06.478Z",
+      "slug": "wishes-shared-die-demo",
+      "bskyPostRef": {
+        "uri": "at://did:plc:6vxjigxrqizmbo56gojxico3/app.bsky.feed.post/3mwrpl4k5e42m",
+        "cid": "bafyreifxxqo3hvxgvii4rl3a5ak4q2jlg33azoucyiyxq3wd4umzlf22a4"
+      }
     }
   },
   "publication": {
