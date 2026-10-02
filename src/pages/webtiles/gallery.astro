@@ -1,0 +1,307 @@
+---
+// /webtiles/gallery: every Web Tile currently published on the AT Protocol.
+// The page itself is static; all data loads in the visitor's browser.
+// Logic lives in src/lib/tile-gallery/ (see config.js for upgrade settings).
+import BaseHead from '../../components/BaseHead.astro';
+import Footer from '../../components/Footer.astro';
+import Header from '../../components/Header.astro';
+
+const title = 'Web Tiles Gallery';
+const description =
+	'A live gallery of every Web Tile published on the AT Protocol, updated as new tiles appear.';
+---
+
+<html lang="en">
+	<head>
+		<BaseHead title={title} description={description} />
+	</head>
+	<body>
+		<Header />
+		<main class="tg" id="tile-gallery">
+			<section class="tg-intro">
+				<h1>Web Tiles Gallery</h1>
+				<p>
+					Every <a href="https://dasl.ing/tiles.html">Web Tile</a> currently published on the AT
+					Protocol, gathered straight from each author's own repository. New tiles appear as
+					they're published. <a href="/blog/web-tiles-gallery/">More about this gallery</a>.
+				</p>
+				<div class="tg-stats">
+					<span><b data-tg="n-tiles">0</b> tiles</span>
+					<span><b data-tg="n-authors">0</b> authors</span>
+					<span class="tg-live" data-tg="live"><span class="tg-dot"></span><span data-tg="live-text">Connecting…</span></span>
+				</div>
+			</section>
+
+			<div class="tg-controls">
+				<label class="sr-only" for="tg-search">Search tiles</label>
+				<input id="tg-search" type="search" data-tg="search" placeholder="Search name, description or author" />
+				<label class="sr-only" for="tg-author">Filter by author</label>
+				<select id="tg-author" data-tg="author"><option value="">All authors</option></select>
+				<label class="sr-only" for="tg-sort">Sort</label>
+				<select id="tg-sort" data-tg="sort">
+					<option value="new">Newest first</option>
+					<option value="old">Oldest first</option>
+					<option value="author">By author</option>
+					<option value="name">By name</option>
+				</select>
+				<label class="tg-toggle"><input type="checkbox" data-tg="images" checked /> Images</label>
+				<button type="button" data-tg="export">Export CSV</button>
+			</div>
+
+			<p class="tg-status" data-tg="status" aria-live="polite">Loading…</p>
+			<noscript><p class="tg-status">This gallery loads tiles live from the AT Protocol and needs JavaScript.</p></noscript>
+			<div class="tg-grid" data-tg="grid"></div>
+
+			<p class="tg-note">
+				Dates come from each tile's own <code>createdAt</code> field, or, where that's missing
+				(marked *), from the time encoded in its record key. Neither is independently verified. A
+				✓ means the author's handle currently points back to the same account. Images load from
+				each author's server.
+			</p>
+		</main>
+		<Footer />
+
+		<script>
+			import { initGallery } from '../../lib/tile-gallery/gallery.js';
+			const root = document.getElementById('tile-gallery');
+			if (root) initGallery(root);
+		</script>
+	</body>
+</html>
+
+<style is:global>
+	/* Gallery styles, prefixed tg- so they can't leak into other pages. */
+	main.tg {
+		width: 1240px;
+		max-width: calc(100% - 2em);
+		padding: 2.5em 1em 3em;
+		font-size: 16px;
+		line-height: 1.5;
+	}
+	.tg-intro h1 {
+		font-size: clamp(2.2rem, 5vw, 3rem);
+		margin-bottom: 0.3em;
+	}
+	.tg-intro p {
+		max-width: 46em;
+		font-size: 1.1rem;
+		margin: 0 0 1em;
+	}
+	.tg-stats {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 1.25em;
+		color: rgb(var(--gray));
+		font-size: 0.95rem;
+	}
+	.tg-stats b {
+		color: rgb(var(--black));
+		font-variant-numeric: tabular-nums;
+	}
+	.tg-live {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4em;
+	}
+	.tg-dot {
+		width: 8px;
+		height: 8px;
+		border-radius: 50%;
+		background: rgb(var(--gray));
+	}
+	.tg-live.tg-on .tg-dot {
+		background: var(--teal-200);
+		box-shadow: 0 0 0 3px rgba(93, 202, 165, 0.3);
+	}
+
+	.tg-controls {
+		position: sticky;
+		top: 0;
+		z-index: 5;
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5em;
+		align-items: center;
+		margin: 1.5em 0 0.75em;
+		padding: 0.75em 0;
+		background: var(--bg);
+		border-bottom: 1px solid rgb(var(--gray-light));
+	}
+	.tg-controls input[type='search'],
+	.tg-controls select,
+	.tg-controls button {
+		font: inherit;
+		font-size: 15px;
+		color: rgb(var(--gray-dark));
+		background: white;
+		border: 1px solid rgb(var(--gray-light));
+		border-radius: 8px;
+		padding: 0.45em 0.7em;
+	}
+	.tg-controls input[type='search'] {
+		flex: 1 1 220px;
+		min-width: 0;
+	}
+	.tg-controls button {
+		cursor: pointer;
+	}
+	.tg-controls button:hover,
+	.tg-controls select:hover {
+		border-color: var(--teal-600);
+	}
+	.tg-toggle {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.35em;
+		color: rgb(var(--gray));
+		font-size: 15px;
+	}
+
+	.tg-status {
+		color: rgb(var(--gray));
+		font-size: 0.9rem;
+		min-height: 1.5em;
+		margin: 0 0 1em;
+	}
+	.tg-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+		gap: 1em;
+	}
+	.tg-card {
+		display: flex;
+		flex-direction: column;
+		background: white;
+		border: 1px solid rgb(var(--gray-light));
+		border-radius: 12px;
+		overflow: hidden;
+		transition: background-color 1.5s ease, box-shadow 0.2s ease;
+	}
+	.tg-card:hover {
+		box-shadow: 0 4px 16px rgba(var(--gray), 18%);
+	}
+	.tg-card.tg-fresh {
+		background: var(--teal-050);
+	}
+	.tg-thumb {
+		aspect-ratio: 16 / 9;
+		display: grid;
+		place-items: center;
+		overflow: hidden;
+		background: var(--teal-800);
+	}
+	.tg-thumb.tg-noimg {
+		aspect-ratio: 5 / 1;
+	}
+	.tg-thumb.tg-noimg .tg-ph {
+		font-size: 1.4rem;
+	}
+	.tg-thumb.tg-live {
+		aspect-ratio: auto;
+		min-height: 360px;
+		background: #111;
+	}
+	.tg-thumb img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		border-radius: 0;
+	}
+	.tg-thumb img.tg-icon {
+		width: 72px;
+		height: 72px;
+		object-fit: contain;
+	}
+	.tg-ph {
+		font-size: 2rem;
+		color: var(--teal-200);
+	}
+	.tg-thumb.tg-live .tg-ph {
+		font-size: 0.9rem;
+		color: #888;
+	}
+	.tg-body {
+		display: flex;
+		flex-direction: column;
+		gap: 0.35em;
+		flex: 1;
+		padding: 0.8em 1em 0.9em;
+	}
+	.tg-name {
+		font-family: 'Fraunces', serif;
+		font-size: 1.15rem;
+		margin: 0;
+		overflow-wrap: anywhere;
+	}
+	.tg-desc {
+		margin: 0;
+		color: rgb(var(--gray));
+		font-size: 0.9rem;
+		overflow-wrap: anywhere;
+		display: -webkit-box;
+		-webkit-line-clamp: 3;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+	}
+	.tg-meta {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.25em 0.7em;
+		margin-top: auto;
+		padding-top: 0.4em;
+		color: rgb(var(--gray));
+		font-size: 0.82rem;
+	}
+	.tg-author {
+		color: rgb(var(--gray-dark));
+		overflow-wrap: anywhere;
+	}
+	.tg-badge {
+		font-size: 0.7rem;
+		padding: 0 0.4em;
+		border: 1px solid currentColor;
+		border-radius: 99px;
+	}
+	.tg-ok {
+		color: var(--teal-600);
+	}
+	.tg-links {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.4em;
+		padding: 0.6em 1em;
+		border-top: 1px solid rgb(var(--gray-light));
+	}
+	.tg-links a,
+	.tg-links button {
+		font: inherit;
+		font-size: 0.82rem;
+		padding: 0.25em 0.65em;
+		border: 0;
+		border-radius: 6px;
+		color: var(--teal-800);
+		background: var(--teal-050);
+		cursor: pointer;
+	}
+	.tg-links a:hover,
+	.tg-links button:hover {
+		color: var(--teal-900);
+		background: #c9ecdf;
+	}
+	.tg-links button:disabled {
+		opacity: 0.5;
+		cursor: default;
+	}
+	.tg-empty {
+		grid-column: 1 / -1;
+		text-align: center;
+		color: rgb(var(--gray));
+		padding: 3em 0;
+	}
+	.tg-note {
+		margin-top: 2.5em;
+		font-size: 0.85rem;
+		color: rgb(var(--gray));
+		max-width: 46em;
+	}
+</style>

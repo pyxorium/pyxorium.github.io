@@ -1,0 +1,68 @@
+---
+title: 'A Live Gallery of Every Web Tile'
+description: 'A new page on this site gathers every Web Tile published on the AT Protocol into one live gallery. Here is what tiles are, why they exist, and how they are built.'
+pubDate: 'Oct 01 2026'
+heroImage: '../../assets/web-tiles-gallery-cover.png'
+---
+
+import WebTile from '../../components/WebTile.astro';
+
+Web Tiles are still new, and until now there hasn't been an easy way to see everything people have made with them. This [Web Tiles Gallery](/webtiles/gallery) page was built to fill that gap. In the gallery, we gather every tile currently published on the AT Protocol, and it is all kept up to date as new ones appear.
+
+The gallery doesn't keep a copy of anything. Each time you open it, your browser asks the network which accounts have published tiles, then reads them directly from each author's own repository. It also stays connected to a live stream of new activity, so a tile published while you're looking at the page shows up there within moments, briefly highlighted. A tile its author deletes disappears the same way.
+
+At the time of writing, that's over a hundred tiles from about thirty accounts: games, 3D toys, little utilities, experiments, and a few tiles that exist mostly to test what the format can do.
+
+## What a Web Tile is
+
+A Web Tile is a small web app or document, built with the same tools as any web page: HTML, CSS and JavaScript, along with everything browsers can do with them, like 3D graphics, animation and sound. The difference is that it's packaged so it can be dropped safely into someone else's page. [My first post on tiles](/blog/embedding-a-web-tile/) goes into the details of embedding one. The short version is that a tile is a sealed bundle: once it's loaded, it can't reach out to the internet, so it can't phone home, track you, or quietly pull in something new.
+
+Here is one of mine, a small game of Pong. Like every Web Tile, it isn't stored on this website; this page fetches it from my AT Protocol PDS repository using XRPC and runs it in a sandbox. The shape of a Web Tile record is defined by the `ing.dasl.masl` lexicon.
+
+<WebTile uri="at://did:plc:6vxjigxrqizmbo56gojxico3/ing.dasl.masl/3mwbkd6kudm2m" height={520} />
+
+## Why they exist
+
+Web Tiles come from the [DASL](https://dasl.ing/) project, and the [spec](https://dasl.ing/tiles.html) is written by Robin Berjon. Read on its own, the spec looks like a technical answer to a narrow question: how do you safely put a small interactive thing inside a post? But it's one entry in a [series of essays](https://berjon.com/user-agency/) in which Berjon argues that the web is best understood not as a set of technologies but as a political project, one whose purpose is to increase what people can do for themselves, on their own terms.
+
+His [founding essay on tiles](https://berjon.com/web-tiles/) starts from the ways we currently decide whether to trust code, and finds all of them wanting. The browser's usual sandboxing keeps web pages from doing much of anything together. App stores restore power to apps, but only by making one company the gatekeeper for what you can run. And permission prompts ask people to approve things they can't realistically evaluate, which mostly teaches them to click "Allow."
+
+The tile's answer is to take the dangerous capability away entirely, rather than trying to police how it's used. In Berjon's words, a tile is content that, "once loaded, cannot communicate further with the network." It isn't asked nicely not to, and it doesn't need anyone's approval process. It structurally can't.
+
+What that buys is composability you can trust. Because a tile can't leak what you give it, tiles can be allowed to work with each other and with your data in ways a normal web page never could. Tiles can make **wishes**, asking for something like "a color scheme" or "control of a shared object" without knowing which other tile will answer, the mechanism I explored in the following two earlier posts.
+
+- [Wishes: Creating Two Web Tiles that Talk to Each Other](/blog/wishes-color-scheme-demo/)
+- [Wishes, Continued: Shared View Between Two Web Tiles Via External Relay](/blog/wishes-shared-die-demo/)
+
+Berjon describes links as nouns, naming things, and wishes as verbs, getting things done.
+
+My own reading is that this makes trust a property of the artifact rather than a promise from a company. You don't have to believe anyone's terms of service, or hope a review process caught something. You can check what a tile is and know what it can't do. Once loaded, it can't change itself, and if its author ever publishes a new version, the new version has a new fingerprint, so the change can always be detected.
+
+## How tiles are built
+
+Making a tile is closer to making an ordinary web page than you might expect.
+
+- **Start with plain web files.** A tile is a folder of HTML, CSS, JavaScript and any images or other assets it needs, all bundled locally. It can't load a font or a library from elsewhere at runtime, so everything it uses has to be in the folder.
+- **Describe it in a manifest.** A small metadata file gives the tile a name, a description, optional icons and screenshots, and a preferred size. The gallery's cards are drawn from exactly this information.
+- **Publish it to your repository.** Publishing uploads each file to your AT Protocol account as a blob, and then writes one record, in the `ing.dasl.masl` collection, that maps each path in the tile (`/`, `/style.css`, and so on) to the content address of the matching blob. A content address is a fingerprint of the file's exact bytes, so the record pins down precisely what the tile contains. Change a single byte and you'd have a different tile. The [`@dasl/tiles`](https://github.com/darobin/dasl-tiles) toolkit includes a command line tool that handles this step.
+- **Load it anywhere.** Any page that wants to show the tile hands its `at://` address to a tile loader. The loader reads the record, fetches the files, and runs the result in an isolated sandbox with the network shut off.
+
+That record is also what makes a gallery like this possible. Because every tile lives in the same well-known collection on the open network, anyone can list them, and anyone can build their own way of browsing them.
+
+## What's next for the gallery
+
+Right now each card shows a tile's name, description, author and date, plus an image when the author provided one, with links to open the tile, view its raw record, or copy its address. A few things are planned:
+
+- **Live previews,** so you can run a tile right inside its card, using the same loader as the Pong tile above.
+- **A small index of my own,** so the page loads instantly instead of asking dozens of servers each time, and so it can keep a history of when each tile was first seen.
+- **More under `/webtiles/`.** The gallery lives at [/webtiles/gallery](/webtiles/gallery) to leave room for other tile pages later, such as a guide to building one.
+
+If you've published a tile, it's probably already in the [gallery](/webtiles/gallery). Go take a look.
+
+**Sources:**
+- [Web Tiles, by Robin Berjon](https://berjon.com/web-tiles/) (Nov 3, 2023)
+- [The Web Is For User Agency, by Robin Berjon](https://berjon.com/user-agency/) (Oct 16, 2023)
+- [DASL: Web Tiles specification](https://dasl.ing/tiles.html)
+- [DASL: MASL specification](https://dasl.ing/masl.html)
+- [@dasl/tiles](https://github.com/darobin/dasl-tiles), the toolkit for building, publishing and loading tiles
+- [webtil.es](https://webtil.es/), a public tile browser and quickstart tutorial
