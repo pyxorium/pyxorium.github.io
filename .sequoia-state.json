@@ -11,9 +11,9 @@
       }
     },
     "src\\content\\blog\\wishes-color-scheme-demo.mdx": {
-      "contentHash": "a3bc3a1140e2d91a6b3edf3fcf19a0025addcc5433e6c8824bc9516530728422",
+      "contentHash": "33309a945a9108d9f626de717b7ede124a6c7995b3a6d1ef38f8f712ef09dd78",
       "atUri": "at://did:plc:6vxjigxrqizmbo56gojxico3/site.standard.document/3mwme2l3tll2z",
-      "lastPublished": "2026-09-28T22:22:43.015Z",
+      "lastPublished": "2026-10-02T01:25:18.921Z",
       "slug": "wishes-color-scheme-demo",
       "bskyPostRef": {
         "uri": "at://did:plc:6vxjigxrqizmbo56gojxico3/app.bsky.feed.post/3mwme2luvkc2f",
@@ -28,6 +28,16 @@
       "bskyPostRef": {
         "uri": "at://did:plc:6vxjigxrqizmbo56gojxico3/app.bsky.feed.post/3mwrpl4k5e42m",
         "cid": "bafyreifxxqo3hvxgvii4rl3a5ak4q2jlg33azoucyiyxq3wd4umzlf22a4"
+      }
+    },
+    "src\\content\\blog\\web-tiles-gallery.mdx": {
+      "contentHash": "0bad541f1494f88c23cf7ddca55bbd3ce1c91fee70cf96965f8f3996d5137862",
+      "atUri": "at://did:plc:6vxjigxrqizmbo56gojxico3/site.standard.document/3mwu6ozmlu324",
+      "lastPublished": "2026-10-02T01:08:03.694Z",
+      "slug": "web-tiles-gallery",
+      "bskyPostRef": {
+        "uri": "at://did:plc:6vxjigxrqizmbo56gojxico3/app.bsky.feed.post/3mwu6p2gyef24",
+        "cid": "bafyreidjrbfg5gvdxfhvriumkw3yryg4qya73lnafcqv3jfap57k5c6oky"
       }
     }
   },
