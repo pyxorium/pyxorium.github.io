@@ -39,6 +39,16 @@
         "uri": "at://did:plc:6vxjigxrqizmbo56gojxico3/app.bsky.feed.post/3mwu6p2gyef24",
         "cid": "bafyreidjrbfg5gvdxfhvriumkw3yryg4qya73lnafcqv3jfap57k5c6oky"
       }
+    },
+    "src\\content\\blog\\cosmic-junkyard-tile.mdx": {
+      "contentHash": "5d0d58c3fc99a0f797f10659475e378d0b0d162bf7143cba2869158c1b89dc5b",
+      "atUri": "at://did:plc:6vxjigxrqizmbo56gojxico3/site.standard.document/3mwvrzywwxc2d",
+      "lastPublished": "2026-10-02T16:26:52.621Z",
+      "slug": "cosmic-junkyard-tile",
+      "bskyPostRef": {
+        "uri": "at://did:plc:6vxjigxrqizmbo56gojxico3/app.bsky.feed.post/3mwvrzz2xv42r",
+        "cid": "bafyreifqyjph4m7nszusjw6x4jk5vugdukihhytkctoggnc3dzaakfewjm"
+      }
     }
   },
   "publication": {
