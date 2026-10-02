@@ -1,0 +1,93 @@
+---
+// CosmicJunkyardDemo.astro -- the Cosmic Junkyard tile, plus the host page
+// half that loads a player's own RPG actor sprite into it.
+//
+// The tile can't reach the network, so this page does the lookup for it:
+// the tile sends { kind: "sprite-request" }, this page shows an inline handle
+// search below the tile, fetches the chosen account's sprite sheet, and
+// sends it down as { kind: "sprite", ... }. The search panel and lookup live
+// in ../lib/cosmic-junkyard/sprite-host.js (shared with the local test
+// harness); this file only loads the tile and relays messages over the real
+// data.js Tiles Protocol channel, the same way WishDemo.astro does.
+//
+// Use ONE CosmicJunkyardDemo per page, and don't put it on the same page as
+// WishDemo or DieDemo: each makes its own tile loader, and two loaders on one
+// page both hear every tile's messages (see the note in WishDemo.astro).
+//
+// imageFormat: "blob" sends the sprite as a real Blob. If a Blob turns out
+// not to survive the tile loader's frames, set imageFormat="dataurl" in the
+// post; the tile accepts both, so no tile republish is needed.
+
+import '../lib/cosmic-junkyard/sprite-host.css';
+
+interface Props {
+  uri: string;
+  height?: number;
+  imageFormat?: 'blob' | 'dataurl';
+}
+const { uri, height = 530, imageFormat = 'blob' } = Astro.props;
+---
+
+<div class="cj-demo" data-uri={uri} data-height={height} data-format={imageFormat}>
+  <div class="cj-tile-mount"><p class="cj-loading">Loading the game…</p></div>
+  <div class="cj-panel-mount"></div>
+</div>
+
+<script>
+  import { TileMothership } from '@dasl/tile-loader';
+  import { ATTileLoader } from '@dasl/tile-loader/at';
+  import { createSpriteHost } from '../lib/cosmic-junkyard/sprite-host.js';
+
+  const UP = 'tiles-protocol-up-data-payload';
+  const DOWN = 'tiles-protocol-down-data-payload';
+
+  const mothership = new TileMothership({ loadDomain: 'load.tiles.thunderbird.cafe' });
+  mothership.init();
+  mothership.addLoader(new ATTileLoader());
+
+  // One window listener for the page; each demo registers its iframe here so
+  // a message can be matched to the tile that sent it (event.source).
+  const demos: { iframe: HTMLIFrameElement; host: { handleTileMessage(p: unknown): void } }[] = [];
+  window.addEventListener('message', (e: MessageEvent) => {
+    const data = e.data;
+    if (!data || data.action !== UP) return;
+    const demo = demos.find((d) => e.source === d.iframe.contentWindow);
+    if (demo) demo.host.handleTileMessage(data.payload);
+  });
+
+  async function mountDemo(root: HTMLElement) {
+    const tileMount = root.querySelector<HTMLElement>('.cj-tile-mount')!;
+    const panelMount = root.querySelector<HTMLElement>('.cj-panel-mount')!;
+    const uri = root.dataset.uri;
+    const height = Number(root.dataset.height) || 530;
+    const imageFormat = root.dataset.format === 'dataurl' ? 'dataurl' : 'blob';
+    if (!uri) {
+      tileMount.textContent = 'No tile address was given.';
+      return;
+    }
+    try {
+      const tile = await mothership.loadTile(uri);
+      if (!tile) {
+        tileMount.textContent = 'Could not load the game.';
+        return;
+      }
+      const iframe = tile.renderContent(height) as HTMLIFrameElement;
+      tileMount.innerHTML = '';
+      tileMount.appendChild(iframe);
+
+      const host = createSpriteHost({
+        panelMount,
+        imageFormat,
+        sendToTile(payload: unknown) {
+          iframe.contentWindow?.postMessage({ action: DOWN, payload }, '*');
+        },
+      });
+      demos.push({ iframe, host });
+    } catch (err) {
+      console.error('[cosmic-junkyard] tile load failed:', err);
+      tileMount.textContent = 'Could not load the game.';
+    }
+  }
+
+  document.querySelectorAll<HTMLElement>('.cj-demo').forEach(mountDemo);
+</script>

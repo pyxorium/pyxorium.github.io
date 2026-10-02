@@ -1,0 +1,79 @@
+/* sprite-host.css -- styles for the Cosmic Junkyard demo's host page parts.
+   Plain global CSS with a cj- prefix: the panel is built by sprite-host.js
+   at runtime, and Astro's scoped styles never reach elements created that
+   way (the lesson from WishDemo.astro's arrows). */
+
+.cj-demo {
+  margin: 1.5rem auto;
+  max-width: 420px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+.cj-tile-mount {
+  min-height: 530px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #05070d;
+  border: 1px solid #2a2d33;
+  border-radius: 12px;
+  overflow: hidden;
+}
+.cj-tile-mount iframe { display: block; border: 0; }
+.cj-loading { color: #888; font-size: 0.9rem; }
+
+.cj-panel {
+  margin-top: 12px;
+  padding: 14px 16px;
+  background: #0a0b0f;
+  color: #eaf0f6;
+  border: 1px solid #2a2d33;
+  border-radius: 12px;
+}
+.cj-panel[hidden] { display: none; }
+.cj-panel-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
+.cj-label { font-size: 14px; font-weight: 600; color: #8ea0b3; }
+.cj-close {
+  appearance: none; border: none; background: none; color: #8ea0b3;
+  font-size: 16px; cursor: pointer; padding: 2px 6px; border-radius: 6px;
+}
+.cj-close:hover { background: #1a1c22; color: #eaf0f6; }
+
+.cj-search { position: relative; display: flex; gap: 8px; }
+.cj-input {
+  flex: 1; min-width: 0;
+  background: #05070d; color: #eaf0f6;
+  border: 1px solid #3a3d44; border-radius: 8px;
+  padding: 9px 11px; font-size: 15px;
+}
+.cj-input:focus { outline: 2px solid rgba(140, 180, 255, 0.6); outline-offset: 1px; }
+.cj-go {
+  appearance: none; border: none; border-radius: 8px; cursor: pointer;
+  background: rgb(140, 180, 255); color: #14181f; font-weight: 700; font-size: 14px;
+  padding: 0 16px;
+}
+.cj-go:disabled, .cj-input:disabled { opacity: 0.6; cursor: default; }
+
+.cj-suggestions {
+  position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 10;
+  list-style: none; margin: 0; padding: 4px;
+  background: #12141a; border: 1px solid #3a3d44; border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+.cj-suggestions[hidden] { display: none; }
+.cj-suggestion {
+  display: flex; align-items: center; gap: 10px;
+  padding: 7px 8px; border-radius: 6px; cursor: pointer;
+}
+.cj-suggestion:hover, .cj-suggestion.cj-active { background: #22262f; }
+.cj-avatar { width: 28px; height: 28px; border-radius: 50%; flex: none; object-fit: cover; }
+.cj-avatar-blank { display: inline-block; background: #2a2d33; }
+.cj-suggestion-text { display: flex; flex-direction: column; min-width: 0; }
+.cj-suggestion-handle { font-size: 14px; color: #eaf0f6; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cj-suggestion-name { font-size: 12px; color: #8ea0b3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.cj-message { min-height: 1.3em; margin-top: 8px; font-size: 13px; color: #8ea0b3; }
+.cj-message[data-tone="ok"] { color: #99ffbb; }
+.cj-message[data-tone="warn"] { color: #ffaa50; }
+
+.cj-credit { margin-top: 6px; font-size: 11px; color: #5a6774; line-height: 1.4; }
+.cj-credit a { color: #8ea0b3; }
