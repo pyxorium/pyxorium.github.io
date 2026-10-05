@@ -1,4 +1,5 @@
 ---
+const today = new Date();
 ---
 <!doctype html>
 <html lang="en">
@@ -86,13 +87,45 @@
     margin: 0;
   }
 
+  /* The blog link, top right over the photo (placed like the other pages' header link). */
+  nav.top {
+    position: absolute;
+    top: 12px;
+    right: 16px;
+    padding: 0 1em;
+  }
+
+  nav.top a {
+    display: inline-block;
+    padding: 1em 0.5em;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 35px;
+    font-weight: 400;
+    color: var(--teal-050);
+    text-decoration: none;
+    text-shadow: 0 1px 3px rgba(4,52,44,0.6);
+    transition: color 0.2s ease;
+  }
+
+  nav.top a:hover, nav.top a:focus-visible {
+    color: var(--muted);
+  }
+
+  nav.top a:focus-visible {
+    outline: 2px solid var(--teal-200);
+    outline-offset: -4px;
+  }
+
   .below {
     flex: 1;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+    gap: 12px;
     background: var(--teal-800);
     padding: 40px 24px;
+    text-align: center;
   }
 
   a.status {
@@ -117,67 +150,48 @@
     outline-offset: 4px;
   }
 
-  footer {
-    background-color: var(--brick-1);
-    padding: 14px 24px;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
-    row-gap: 8px;
-  }
-
-  a.link {
-    font-family: 'IBM Plex Sans', sans-serif;
-    font-size: 0.85rem;
-    font-weight: 500;
-    color: var(--brick-3);
-    text-decoration: none;
-    border-bottom: 1px solid rgba(216,90,48,0.4);
-    padding-bottom: 2px;
-    transition: border-color 0.2s ease, color 0.2s ease;
-  }
-
-  a.link:hover, a.link:focus-visible {
-    border-color: var(--brick-3);
-    color: #f2a37f;
-  }
-
-  a.link:focus-visible {
-    outline: 2px solid var(--teal-200);
-    outline-offset: 4px;
-  }
-
   .did {
     font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.68rem;
-    color: #e3b6a3;
+    font-size: 0.75rem;
+    color: var(--muted);
     letter-spacing: 0.01em;
     word-break: break-all;
   }
 
+  footer {
+    background-color: var(--brick-1);
+    padding: 14px 24px;
+    text-align: center;
+    font-size: 0.85rem;
+    color: #e3b6a3;
+  }
+
   @media (max-width: 480px) {
     .hero { min-height: 70vh; padding: 20px; }
+    nav.top { top: 4px; right: 4px; }
+    nav.top a { font-size: 20px; }
     .below { padding: 32px 20px; }
-    footer { flex-direction: column; gap: 8px; padding: 16px 20px; }
+    footer { padding: 16px 20px; }
   }
 </style>
 </head>
 <body>
 
   <section class="hero">
+    <nav class="top">
+      <a href="/blog">blog</a>
+    </nav>
     <h1 class="wordmark">thunderbird.cafe</h1>
     <p class="tagline">full city</p>
   </section>
 
   <section class="below">
-    <a class="status" href="/blog">blog</a>
+    <a class="status" href="https://bsky.app/profile/thunderbird.cafe" rel="noopener">follow on atproto</a>
+    <span class="did">did:plc:6vxjigxrqizmbo56gojxico3</span>
   </section>
 
   <footer>
-    <a class="link" href="https://bsky.app/profile/thunderbird.cafe" rel="noopener">follow on atproto</a>
-    <span class="did">did:plc:6vxjigxrqizmbo56gojxico3</span>
+    &copy; {today.getFullYear()} thunderbird.cafe. All rights reserved.
   </footer>
 
 </body>
