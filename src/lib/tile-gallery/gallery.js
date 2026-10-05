@@ -32,7 +32,6 @@ export function initGallery(root, config = CONFIG) {
 	const store = new TileStore();
 	const resolveAuthor = createResolver(config, store);
 	const cards = new Map(); // uri -> { node, sig }
-	const previewing = new Set(); // uris with a live preview mounted
 
 	const setStatus = (t) => (el.status.textContent = t);
 
@@ -59,7 +58,7 @@ export function initGallery(root, config = CONFIG) {
 		return list.sort(sorters[el.sort.value] || sorters.new);
 	}
 
-	/* ---------- rendering (keyed, so live previews survive updates) ---------- */
+	/* ---------- rendering (keyed: only changed cards are redrawn) ---------- */
 	function render() {
 		const show = el.images.checked;
 		const list = visibleTiles();
@@ -77,7 +76,7 @@ export function initGallery(root, config = CONFIG) {
 				entry = { node, sig: null };
 				cards.set(tile.uri, entry);
 			}
-			if (entry.sig !== sig && !previewing.has(tile.uri)) {
+			if (entry.sig !== sig) {
 				entry.node.innerHTML = html;
 				entry.sig = sig;
 			}
@@ -87,14 +86,10 @@ export function initGallery(root, config = CONFIG) {
 
 		// Drop cards for deleted tiles.
 		for (const uri of cards.keys()) {
-			if (!store.tiles.has(uri)) {
-				cards.delete(uri);
-				previewing.delete(uri);
-			}
+			if (!store.tiles.has(uri)) cards.delete(uri);
 		}
 
-		// Only re-order the DOM when the order actually changed: moving a
-		// node that holds an iframe would reload the tile inside it.
+		// Only re-order the DOM when the order actually changed.
 		const current = [...el.grid.children].filter((n) => n.classList.contains('tg-card'));
 		const same = current.length === nodes.length && current.every((n, i) => n === nodes[i]);
 		if (!same) el.grid.replaceChildren(...nodes);
@@ -163,13 +158,10 @@ export function initGallery(root, config = CONFIG) {
 		}
 		const prev = e.target.closest('[data-preview]');
 		if (prev && config.livePreviews) {
-			const uri = prev.dataset.preview;
-			const thumb = prev.closest('.tg-card')?.querySelector('.tg-thumb');
-			if (!thumb || previewing.has(uri)) return;
-			previewing.add(uri);
-			prev.disabled = true;
-			const { mountPreview } = await import('./preview.js');
-			mountPreview(config, uri, thumb);
+			const tile = store.tiles.get(prev.dataset.preview);
+			if (!tile) return;
+			const { openPreview } = await import('./preview.js');
+			openPreview(config, tile, store.authors.get(tile.did));
 		}
 	});
 

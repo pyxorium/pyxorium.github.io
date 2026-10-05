@@ -28,7 +28,9 @@ const { uri, height = 500 } = Astro.props;
 
 <script>
   import { TileMothership } from '@dasl/tile-loader';
-  import { ATTileLoader } from '@dasl/tile-loader/at';
+  // Our own AT loader: same as the official ATTileLoader, plus did:web
+  // accounts. See src/lib/at-tile-loader.js.
+  import { ATTileLoaderWithDidWeb } from '../lib/at-tile-loader.js';
 
   async function mountTile(el: HTMLElement) {
     const uri = el.dataset.uri;
@@ -38,7 +40,7 @@ const { uri, height = 500 } = Astro.props;
     try {
       const tl = new TileMothership({ loadDomain: 'load.tiles.thunderbird.cafe' });
       tl.init();
-      tl.addLoader(new ATTileLoader());
+      tl.addLoader(new ATTileLoaderWithDidWeb());
 
       const tile = await tl.loadTile(uri);
       if (!tile) {

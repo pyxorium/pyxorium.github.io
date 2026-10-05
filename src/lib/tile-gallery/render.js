@@ -1,9 +1,9 @@
 // Card markup. Everything that comes from a record is escaped.
 //
-// `renderThumb` is the one place that decides what sits at the top of a
-// card. Today that's the tile's screenshot or icon; with
-// CONFIG.livePreviews on, the card also gets a "Preview" button, and
-// preview.js swaps the thumb for the running tile.
+// `renderThumb` decides what sits at the top of a card: the tile's
+// screenshot or icon. `renderPrimaryAction` adds either a "Preview" button
+// (runs the tile in a pop-up, see preview.js) or, for tiles that need their
+// demo page, a "Try the demo" link.
 
 import { esc, fmtDate, fmtBytes } from './util.js';
 
@@ -45,9 +45,29 @@ export function renderCard(config, tile, author, showImages) {
 			</div>
 		</div>
 		<div class="tg-links">
+			${renderPrimaryAction(config, tile)}
 			<a href="${esc(config.viewer + tile.uri)}" target="_blank" rel="noopener noreferrer">Open</a>
-			${config.livePreviews ? `<button type="button" data-preview="${esc(tile.uri)}">Preview</button>` : ''}
 			${recordUrl ? `<a href="${esc(recordUrl)}" target="_blank" rel="noopener noreferrer">Record</a>` : ''}
 			<button type="button" data-copy="${esc(tile.uri)}">Copy at://</button>
 		</div>`;
+}
+
+// Tiles listed in CONFIG.demoTiles only work alongside other tiles or their
+// page, so they link to that page. Other tiles get a Preview button.
+let demoByUri = null;
+function demoFor(config, uri) {
+	if (!demoByUri) {
+		demoByUri = new Map();
+		for (const d of config.demoTiles || []) for (const u of d.tiles) demoByUri.set(u, d);
+	}
+	return demoByUri.get(uri);
+}
+
+function renderPrimaryAction(config, tile) {
+	const demo = demoFor(config, tile.uri);
+	if (demo) return `<a class="tg-primary" href="${esc(demo.url)}">${esc(demo.label || 'Try the demo')}</a>`;
+	if (config.livePreviews && tile.previewable) {
+		return `<button type="button" class="tg-primary" data-preview="${esc(tile.uri)}">Preview</button>`;
+	}
+	return '';
 }

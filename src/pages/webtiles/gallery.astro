@@ -56,7 +56,8 @@ const description =
 				Dates come from each tile's own <code>createdAt</code> field, or, where that's missing
 				(marked *), from the time encoded in its record key. Neither is independently verified. A
 				✓ means the author's handle currently points back to the same account. Images load from
-				each author's server.
+				each author's server. Previews run one tile at a time, in a sandbox with no network access.
+				Tiles that only work alongside other tiles link to their demo instead.
 			</p>
 		</main>
 		<Footer />
@@ -196,11 +197,6 @@ const description =
 	.tg-thumb.tg-noimg .tg-ph {
 		font-size: 1.4rem;
 	}
-	.tg-thumb.tg-live {
-		aspect-ratio: auto;
-		min-height: 360px;
-		background: #111;
-	}
 	.tg-thumb img {
 		width: 100%;
 		height: 100%;
@@ -215,10 +211,6 @@ const description =
 	.tg-ph {
 		font-size: 2rem;
 		color: var(--teal-200);
-	}
-	.tg-thumb.tg-live .tg-ph {
-		font-size: 0.9rem;
-		color: #888;
 	}
 	.tg-body {
 		display: flex;
@@ -288,9 +280,13 @@ const description =
 		color: var(--teal-900);
 		background: #c9ecdf;
 	}
-	.tg-links button:disabled {
-		opacity: 0.5;
-		cursor: default;
+	.tg-links .tg-primary {
+		color: white;
+		background: var(--teal-600);
+	}
+	.tg-links .tg-primary:hover {
+		color: white;
+		background: var(--teal-800);
 	}
 	.tg-empty {
 		grid-column: 1 / -1;
@@ -301,6 +297,83 @@ const description =
 	.tg-note {
 		margin-top: 2.5em;
 		font-size: 0.85rem;
+		color: rgb(var(--gray));
+		max-width: 46em;
+	}
+
+	/* Preview pop-up (created by preview.js). */
+	.tg-modal {
+		max-width: calc(100vw - 16px);
+		max-height: calc(100vh - 16px);
+		padding: 0;
+		border: 0;
+		border-radius: 12px;
+		background: var(--bg);
+		color: rgb(var(--gray-dark));
+		box-shadow: 0 16px 48px rgba(var(--black), 35%);
+		font-size: 16px;
+		line-height: 1.5;
+	}
+	.tg-modal::backdrop {
+		background: rgba(4, 52, 44, 0.6);
+	}
+	.tg-modal-head {
+		display: flex;
+		align-items: flex-start;
+		justify-content: space-between;
+		gap: 1em;
+		padding: 0.8em 1em 0.6em;
+	}
+	.tg-modal-title {
+		font-family: 'Fraunces', serif;
+		font-size: 1.25rem;
+		margin: 0;
+		overflow-wrap: anywhere;
+	}
+	.tg-modal-by {
+		margin: 0;
+		font-size: 0.85rem;
+		color: rgb(var(--gray));
+		overflow-wrap: anywhere;
+	}
+	.tg-modal-close {
+		flex: none;
+		font: inherit;
+		font-size: 1.5rem;
+		line-height: 1;
+		width: 1.8em;
+		height: 1.8em;
+		border: 0;
+		border-radius: 50%;
+		color: var(--teal-800);
+		background: var(--teal-050);
+		cursor: pointer;
+	}
+	.tg-modal-close:hover {
+		background: #c9ecdf;
+	}
+	.tg-modal-stage {
+		display: grid;
+		place-items: center;
+		max-width: 100%;
+		margin: 0 1em;
+		overflow: hidden;
+		border-radius: 8px;
+		background: #111;
+	}
+	.tg-modal-stage iframe {
+		display: block;
+		border: 0;
+	}
+	.tg-modal-msg {
+		margin: 0;
+		color: #aaa;
+		font-size: 0.9rem;
+	}
+	.tg-modal-note {
+		margin: 0;
+		padding: 0.7em 1em 0.9em;
+		font-size: 0.8rem;
 		color: rgb(var(--gray));
 		max-width: 46em;
 	}

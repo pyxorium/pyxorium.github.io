@@ -47,6 +47,11 @@ export function normalize(collection, did, rkey, cid, value, firstSeen) {
 	const created = value.createdAt ? new Date(value.createdAt) : null;
 	const createdAt = created && !isNaN(created) ? created : null;
 
+	// The tile's preferred size, if it gives a sensible one (pixels).
+	const w = Number(t.sizing?.width);
+	const h = Number(t.sizing?.height);
+	const sizing = w >= 100 && w <= 4000 && h >= 100 && h <= 4000 ? { width: w, height: h } : null;
+
 	return {
 		uri: `at://${did}/${collection}/${rkey}`,
 		did,
@@ -58,6 +63,10 @@ export function normalize(collection, did, rkey, cid, value, firstSeen) {
 		image: pickImage(t, resources),
 		resourceCount,
 		totalBytes,
+		sizing,
+		// The tile loader runs records shaped { tile: {...} } from did:plc or
+		// did:web accounts. Older flat-shaped records can't be previewed.
+		previewable: !!value.tile && /^did:(plc|web):/.test(did),
 		createdAt,
 		date: createdAt || tidToDate(rkey),
 		dateSource: createdAt ? 'createdAt' : 'record key',
