@@ -5,6 +5,7 @@
 import BaseHead from '../../components/BaseHead.astro';
 import Footer from '../../components/Footer.astro';
 import Header from '../../components/Header.astro';
+import GalleryCover from '../../assets/web-tiles-gallery-cover.png';
 
 const title = 'Web Tiles Gallery';
 const description =
@@ -13,8 +14,7 @@ const description =
 
 <html lang="en">
 	<head>
-		<BaseHead title={title} description={description} />
-	</head>
+   		<BaseHead title={title} description={description} image={GalleryCover} />	</head>
 	<body>
 		<Header />
 		<main class="tg" id="tile-gallery">
