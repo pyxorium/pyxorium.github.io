@@ -2,7 +2,7 @@
 // offline. Saved tapes live in their own cache ("tileman-tapes"), which the
 // page fills; this worker never deletes it.
 
-const APP_CACHE = "tileman-app-v1";
+const APP_CACHE = "tileman-app-v2";
 const TAPE_CACHE = "tileman-tapes";
 const APP_FILES = [
   "./",
@@ -36,8 +36,8 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
   if (event.request.method !== "GET" || url.origin !== self.location.origin) return;
 
-  // Saved tape files (artwork) are served from the tape cache.
-  if (url.pathname.includes("/tape/")) {
+  // Saved tape files (artwork, tracks) are served from the tape cache.
+  if (url.pathname.includes("/tapes/") || url.pathname.includes("/tape/")) {
     event.respondWith(
       caches.open(TAPE_CACHE)
         .then((c) => c.match(event.request))

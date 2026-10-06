@@ -33,7 +33,7 @@
   section { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
   h2 { font-size: 15px; margin: 0 0 10px; color: var(--muted); font-weight: 600; }
   label { display: block; font-size: 13px; color: var(--muted); margin: 10px 0 4px; }
-  input {
+  input[type=text] {
     width: 100%; padding: 10px 12px; border-radius: 10px;
     border: 1px solid var(--line); background: var(--bg); color: var(--text);
     font: inherit; font-size: 14px;
@@ -44,26 +44,46 @@
   }
   button.secondary { background: transparent; color: var(--muted); border: 1px solid var(--line); }
   button:disabled { opacity: .5; cursor: default; }
-  button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-  .row { display: flex; gap: 10px; align-items: center; margin-top: 14px; }
+  button:focus-visible, input:focus-visible, li:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .row { display: flex; gap: 10px; align-items: center; margin-top: 14px; flex-wrap: wrap; }
   .progress { font-size: 13px; color: var(--muted); margin-top: 10px; min-height: 1.4em; }
   .error { color: var(--danger); }
+  .empty { color: var(--muted); font-size: 14px; margin: 0; }
+
+  ul.list { list-style: none; margin: 0; padding: 0; }
+  ul.list li {
+    display: flex; align-items: center; gap: 12px; padding: 10px; border-radius: 10px;
+    cursor: pointer; border: 1px solid transparent;
+  }
+  ul.list li + li { margin-top: 6px; }
+  ul.list li:hover { background: rgba(255,255,255,.03); }
+  ul.list li.current { border-color: var(--accent); }
+  .thumb { width: 52px; height: 52px; border-radius: 8px; object-fit: cover; background: var(--bg); flex: none; }
+  .li-text { flex: 1; min-width: 0; }
+  .li-title { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .li-sub { font-size: 13px; color: var(--muted); }
+  .num { width: 22px; color: var(--muted); font-variant-numeric: tabular-nums; flex: none; text-align: right; }
 
   .tape { display: flex; gap: 14px; align-items: center; }
   .tape img { width: 96px; height: 96px; border-radius: 10px; object-fit: cover; background: var(--bg); flex: none; }
-  .tape .title { font-size: 20px; font-weight: 700; }
+  .tape .tapeTitle { font-size: 13px; color: var(--muted); }
+  .tape .title { font-size: 20px; font-weight: 700; line-height: 1.2; }
   .tape .artist { font-size: 14px; color: var(--muted); }
-  .play {
-    width: 64px; height: 64px; border-radius: 50%; padding: 0;
+  .controls { display: flex; align-items: center; gap: 10px; margin-top: 14px; }
+  .round {
+    width: 44px; height: 44px; border-radius: 50%; padding: 0;
     display: grid; place-items: center; flex: none;
+    background: transparent; border: 1px solid var(--line);
   }
+  .round svg { width: 20px; height: 20px; fill: var(--text); }
+  .play { width: 64px; height: 64px; background: var(--accent); border: none; }
   .play svg { width: 26px; height: 26px; fill: #241400; }
-  input[type=range] { padding: 0; border: none; background: none; accent-color: var(--accent); }
+  input[type=range] { width: 100%; accent-color: var(--accent); }
   .times { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
-  .seekwrap { flex: 1; min-width: 0; }
+  .seekwrap { margin-top: 10px; }
 
   details summary { cursor: pointer; color: var(--muted); font-size: 14px; }
-  #log { font: 12px/1.5 ui-monospace, monospace; white-space: pre-wrap; color: var(--muted); margin-top: 8px; max-height: 260px; overflow: auto; }
+  #log { font: 12px/1.5 ui-monospace, monospace; white-space: pre-wrap; color: var(--muted); margin-top: 8px; max-height: 300px; overflow: auto; }
   .hidden { display: none !important; }
 </style>
 </head>
@@ -75,37 +95,57 @@
     <span class="net" id="net"></span>
   </header>
 
-  <section id="add">
+  <!-- shelf: the tapes saved on this phone -->
+  <section id="shelf">
+    <h2>Your tapes</h2>
+    <ul class="list" id="tapes"></ul>
+    <p class="empty hidden" id="noTapes">No tapes on this phone yet.</p>
+    <div class="row">
+      <button id="showAdd">Add a tape</button>
+    </div>
+  </section>
+
+  <section id="add" class="hidden">
     <h2>Add a tape</h2>
     <label for="addr">Tile address</label>
-    <input id="addr" autocomplete="off" spellcheck="false"
-           value="at://did:plc:joer5rzmwgec3dkr4srfmq45/ing.dasl.masl/3mwztqi2rl2i4">
+    <input type="text" id="addr" autocomplete="off" spellcheck="false" placeholder="at://did:plc:…/ing.dasl.masl/…">
     <label for="artistIn">Artist line (optional)</label>
-    <input id="artistIn" autocomplete="off" value="Grateful Dead · Alpine Valley 7/19/89">
+    <input type="text" id="artistIn" autocomplete="off" placeholder="Leave blank to use the tape's own">
     <div class="row">
       <button id="addBtn">Save to this phone</button>
+      <button class="secondary" id="cancelAdd">Cancel</button>
     </div>
     <div class="progress" id="addMsg"></div>
   </section>
 
+  <!-- player -->
   <section id="player" class="hidden">
     <div class="tape">
       <img id="art" alt="">
       <div>
+        <div class="tapeTitle" id="tapeTitle"></div>
         <div class="title" id="title"></div>
         <div class="artist" id="artist"></div>
       </div>
     </div>
-    <div class="row">
-      <button class="play" id="play" aria-label="Play">
+    <div class="seekwrap">
+      <input type="range" id="seek" min="0" max="1000" value="0" aria-label="Position in track">
+      <div class="times"><span id="now">0:00</span><span id="trackNum"></span><span id="total">0:00</span></div>
+    </div>
+    <div class="controls">
+      <button class="round" id="prev" aria-label="Previous track">
+        <svg viewBox="0 0 24 24"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg>
+      </button>
+      <button class="round play" id="play" aria-label="Play">
         <svg viewBox="0 0 24 24"><path id="icon" d="M7 4l13 8-13 8z"/></svg>
       </button>
-      <div class="seekwrap">
-        <input type="range" id="seek" min="0" max="1000" value="0" aria-label="Position">
-        <div class="times"><span id="now">0:00</span><span id="total">0:00</span></div>
-      </div>
+      <button class="round" id="next" aria-label="Next track">
+        <svg viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg>
+      </button>
     </div>
+    <ul class="list" id="tracks" style="margin-top:14px"></ul>
     <div class="row">
+      <button class="secondary" id="backBtn">Back to tapes</button>
       <button class="secondary" id="removeBtn">Remove from phone</button>
     </div>
   </section>
