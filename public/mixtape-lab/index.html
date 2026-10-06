@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Mixtape lab</title>
+<style>
+  :root {
+    --bg: #170f14; --panel: #241820; --line: #3a2a33;
+    --text: #f6ecd4; --muted: #b9ab93; --accent: #ffb703;
+    --ok: #7bd88f; --bad: #ff6b6b;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--text); }
+  body { font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; padding: 16px; }
+  main { max-width: 760px; margin: 0 auto; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  .lead { color: var(--muted); margin: 0 0 16px; }
+  section { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
+  h2 { font-size: 16px; margin: 0 0 8px; }
+  p.help { color: var(--muted); font-size: 14px; margin: 0 0 10px; }
+  label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 4px; }
+  input[type=text] {
+    width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line);
+    background: var(--bg); color: var(--text); font: inherit;
+  }
+  button {
+    font: inherit; font-weight: 600; border: none; border-radius: 10px; padding: 10px 14px;
+    cursor: pointer; background: var(--accent); color: #241400;
+  }
+  button.secondary { background: transparent; color: var(--text); border: 1px solid var(--line); }
+  button:disabled { opacity: .5; cursor: default; }
+  button:focus-visible, input:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 10px; }
+  .row input[type=text] { flex: 1; min-width: 180px; }
+  details.show { border-top: 1px solid var(--line); padding: 8px 0; }
+  details.show summary { cursor: pointer; font-weight: 600; }
+  details.show summary .count { color: var(--muted); font-weight: 400; }
+  .track { display: flex; gap: 10px; align-items: center; padding: 6px 0 6px 4px; font-size: 14px; }
+  .track input { width: 18px; height: 18px; flex: none; accent-color: var(--accent); }
+  .track .t { flex: 1; min-width: 0; }
+  .track .len { color: var(--muted); font-variant-numeric: tabular-nums; }
+  .where { font-size: 12px; padding: 1px 6px; border-radius: 6px; border: 1px solid var(--line); color: var(--muted); white-space: nowrap; }
+  .where.pds { color: var(--ok); border-color: #2f5a3a; }
+  #sel { color: var(--muted); font-size: 14px; }
+  #status { font-size: 14px; color: var(--muted); min-height: 1.4em; margin-top: 10px; }
+  #out { font: 12px/1.55 ui-monospace, Menlo, Consolas, monospace; white-space: pre-wrap; color: var(--text); max-height: 420px; overflow: auto; background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 10px; }
+  .players audio { width: 100%; margin-top: 8px; }
+  .players .jumps { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+  .players .jumps button { padding: 5px 9px; font-size: 13px; }
+  .players h3 { font-size: 14px; margin: 14px 0 0; }
+  footer { color: var(--muted); font-size: 12px; margin-top: 18px; }
+  footer a { color: var(--muted); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Mixtape lab</h1>
+  <p class="lead">Tests for the Foundry's mixtape type: can this browser fetch your plyr.fm songs, do they join into one side, and how fast can it shrink them for phones?</p>
+
+  <section>
+    <h2>1. Load your plyr.fm tracks</h2>
+    <p class="help">Only public information is read. Nothing is published or changed.</p>
+    <label for="handle">Handle</label>
+    <div class="row" style="margin-top:0">
+      <input type="text" id="handle" value="pyxorium.com" autocomplete="off" autocapitalize="none" spellcheck="false">
+      <button id="loadBtn">Load tracks</button>
+    </div>
+    <div id="shows"></div>
+    <div class="row"><span id="sel"></span></div>
+  </section>
+
+  <section>
+    <h2>2. Run the tests on the ticked songs</h2>
+    <p class="help"><b>Fetching</b> is quick (it only asks for each file, then stops). <b>Join</b> and <b>Convert</b> download the songs in full, so start with two or three short ones, on Wi-Fi.</p>
+    <div class="row">
+      <button id="fetchBtn">A. Test fetching</button>
+      <button id="joinBtn">B. Check format and join</button>
+      <button id="convertBtn">C. Convert to 96 kbps and join</button>
+    </div>
+    <div id="status" aria-live="polite"></div>
+    <div class="players" id="players"></div>
+  </section>
+
+  <section>
+    <h2>3. Results</h2>
+    <p class="help">Copy these and send them back.</p>
+    <div id="out"></div>
+    <div class="row">
+      <button class="secondary" id="copyBtn">Copy results</button>
+      <button class="secondary" id="clearBtn">Clear</button>
+    </div>
+  </section>
+
+  <footer>
+    MP3 encoding by <a href="https://github.com/zhuker/lamejs">lamejs</a>, a JavaScript port of
+    <a href="https://lame.sourceforge.io/">LAME</a>, used unmodified under the
+    <a href="https://www.gnu.org/licenses/lgpl-3.0.html">GNU LGPL 3.0</a>
+    (<a href="LAME-LICENSE.txt">notes</a>, <a href="lame.min.js">the file itself</a>).
+  </footer>
+</main>
+<script src="mp3join.js"></script>
+<script src="lab.js"></script>
+</body>
+</html>
