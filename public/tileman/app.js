@@ -1,13 +1,15 @@
-// Tileman, version 3: each tape plays as one continuous "side". When a tape
-// with several tracks is saved, its tracks are joined end to end into a single
-// file (see mp3join.js), so the audio never stops between songs, which keeps
-// Android playing with the screen off. Next/previous become jumps within the
-// side. Tapes whose tracks don't match are kept as separate tracks.
+// Tileman, version 5: each side of a tape plays as one continuous recording.
+// When a tape is saved, the tracks of each side are joined end to end into a
+// single file (see mp3join.js), so the audio never stops between songs, which
+// keeps Android playing with the screen off. Next/previous become jumps within
+// the side. A tape with sides (tape.json version 2) stops at the end of side A
+// and offers "Turn the tape", like a cassette. Tapes whose tracks don't match
+// are kept as separate tracks.
 
 (function () {
   "use strict";
 
-  var APP_VERSION = "4";
+  var APP_VERSION = "5";
   var TAPE_CACHE = "tileman-tapes";
   var INDEX_URL = abs("tapes/index.json");
   var LOG_KEY = "tileman-log";
@@ -23,7 +25,8 @@
   var tape = null;         // the open tape
   var idx = 0;             // the current track
   var urls = {};           // separate-track mode: track number -> blob: URL
-  var sideUrl = null;      // side mode: blob: URL of the joined side
+  var sideUrl = null;      // side mode: blob: URL of the joined side that's loaded
+  var sideUrlNo = -1;      // which side that is
   var artUrls = {};        // tape id -> blob: URL of its artwork
   var pendingSeek = null;  // where to start once the audio has loaded (seconds in the file)
   var quietPause = false;  // a pause we've already logged ourselves
@@ -31,9 +34,35 @@
 
   function abs(rel) { return new URL(rel, location.href).href; }
   function trackKey(t, n) { return abs("tapes/" + t.id + "/t" + n); }
-  function sideKey(t) { return abs("tapes/" + t.id + "/side"); }
+  // Side 0 keeps the name earlier versions used, so their saved tapes still play.
+  function sideKey(t, s) { return abs("tapes/" + t.id + "/side" + (s ? s : "")); }
   function artKey(t) { return abs("tapes/" + t.id + "/art"); }
-  function isSide() { return !!(tape && tape.side); }
+  function isSide() { return !!(tape && tape.sides); }
+
+  // Which side track n is on, and that side.
+  function sideNo(n) {
+    var ss = tape.sides;
+    for (var s = 0; s < ss.length; s++) if (n < ss[s].first + ss[s].count) return s;
+    return ss.length - 1;
+  }
+  function curSide() { return tape.sides[sideNo(idx)]; }
+  function sideName(sd) {
+    return sd.name ? (sd.name.length <= 2 ? "Side " + sd.name : sd.name) : "Side " + (tape.sides.indexOf(sd) + 1);
+  }
+
+  // Tapes saved by versions 3 and 4 have one joined side ("side"); describe it
+  // the way version 5 does ("sides").
+  function upgradeEntry(t) {
+    if (t.side && !t.sides) {
+      t.sides = [{ name: "", first: 0, count: t.tracks.length, starts: t.side.starts,
+                   durations: t.side.durations, total: t.side.total, format: t.side.format }];
+      delete t.side;
+    }
+    return t;
+  }
+  function tapeTotal(t) {
+    return (t.sides || []).reduce(function (n, sd) { return n + sd.total; }, 0);
+  }
 
   // ---------- test log (kept across restarts) ----------
 
@@ -93,15 +122,20 @@
 
   // Position within the current track, in seconds.
   function trackTime() {
-    return isSide() ? audio.currentTime - tape.side.starts[idx] : audio.currentTime;
+    if (!isSide()) return audio.currentTime;
+    var sd = curSide();
+    return audio.currentTime - sd.starts[idx - sd.first];
   }
   function trackLength() {
-    return isSide() ? tape.side.durations[idx] : audio.duration;
+    if (!isSide()) return audio.duration;
+    var sd = curSide();
+    return sd.durations[idx - sd.first];
   }
+  // The track playing at time t of the current side.
   function trackAt(t) {
-    var s = tape.side.starts, i = 0;
+    var sd = curSide(), s = sd.starts, i = 0;
     while (i + 1 < s.length && t >= s[i + 1] - 0.05) i++;
-    return i;
+    return sd.first + i;
   }
 
   // ---------- how the last session ended ----------
@@ -144,7 +178,7 @@
   function loadIndex() {
     return openCache().then(function (c) {
       return c.match(INDEX_URL).then(function (r) { return r ? r.json() : []; })
-        .then(function (list) { tapes = list; return migrateV1(c); });
+        .then(function (list) { tapes = list.map(upgradeEntry); return migrateV1(c); });
     });
   }
 
@@ -180,8 +214,11 @@
   // ---------- joining tracks into a side ----------
 
   // blobs: one Blob per track. Resolves to { blob, side } or { error }.
-  function tryJoin(blobs) {
-    if (blobs.length < 2 || !window.Mp3Join) return Promise.resolve({ error: "only one track" });
+  // allowOne: a side with a single track is still made a side (one side of a
+  // two-sided tape).
+  function tryJoin(blobs, allowOne) {
+    if (!window.Mp3Join) return Promise.resolve({ error: "joining isn't available" });
+    if (blobs.length < (allowOne ? 1 : 2)) return Promise.resolve({ error: "only one track" });
     return Promise.all(blobs.map(function (b) { return b.arrayBuffer(); })).then(function (bufs) {
       try {
         var j = Mp3Join.join(bufs.map(function (b) { return new Uint8Array(b); }));
@@ -197,7 +234,7 @@
 
   // Tapes saved by version 2 have separate tracks; join them the first time they're opened.
   function joinSavedTape(t) {
-    if (t.side || t.split || t.tracks.length < 2) return Promise.resolve();
+    if (t.sides || t.split || t.tracks.length < 2) return Promise.resolve();
     return openCache().then(function (c) {
       return Promise.all(t.tracks.map(function (_, i) { return c.match(trackKey(t, i)); })).then(function (rs) {
         if (rs.some(function (r) { return !r; })) return;
@@ -207,9 +244,10 @@
             log("kept \"" + t.title + "\" as separate tracks: " + res.error);
             return saveIndex();
           }
-          return c.put(sideKey(t), new Response(res.blob, { headers: { "Content-Type": "audio/mpeg" } }))
+          return c.put(sideKey(t, 0), new Response(res.blob, { headers: { "Content-Type": "audio/mpeg" } }))
             .then(function () {
               t.side = res.side;
+              upgradeEntry(t);
               return saveIndex();
             }).then(function () {
               return Promise.all(t.tracks.map(function (_, i) { return c.delete(trackKey(t, i)); }));
@@ -253,7 +291,8 @@
       var sub = document.createElement("div");
       sub.className = "li-sub";
       sub.textContent = t.tracks.length + (t.tracks.length === 1 ? " track" : " tracks") +
-        (t.side ? " · " + fmt(t.side.total) : "") + (t.artist ? " · " + t.artist : "");
+        (t.sides ? " · " + fmt(tapeTotal(t)) : "") + (t.sides && t.sides.length > 1 ? " · " + t.sides.length + " sides" : "") +
+        (t.artist ? " · " + t.artist : "");
       text.appendChild(title); text.appendChild(sub);
       li.appendChild(img); li.appendChild(text);
       li.addEventListener("click", function () { openTape(t.id); });
@@ -387,24 +426,29 @@
           .then(function (b) { return b.text(); })
           .then(function (txt) {
             var tj = JSON.parse(txt);
-            // Version 2 may group tracks into sides; for now they play straight through.
-            var list = Array.isArray(tj.sides)
-              ? tj.sides.reduce(function (all, sd) { return all.concat(sd.tracks || []); }, [])
-              : (tj.tracks || []);
+            // Version 2 groups tracks into sides; version 1 is one side.
+            var rawSides = Array.isArray(tj.sides) && tj.sides.length ? tj.sides : [{ name: "", tracks: tj.tracks || [] }];
             var tapeArtist = tj.artist || (tj.madeBy && tj.madeBy.name) || "";
-            return {
-              title: String(tj.title || tile.name || "Untitled"), artist: String(tapeArtist),
-              tracks: list.filter(function (t) { return t && res[t.path]; }).map(function (t) {
-                return { path: t.path, title: String(t.title || t.path.split("/").pop()), artist: String(t.artist || "") };
-              })
-            };
+            var tracks = [], groups = [];
+            rawSides.forEach(function (sd) {
+              var list = (Array.isArray(sd && sd.tracks) ? sd.tracks : []).filter(function (t) {
+                return t && typeof t.path === "string" && res[t.path];
+              });
+              if (!list.length) return;
+              groups.push({ name: String((sd && sd.name) || "").slice(0, 30), count: list.length });
+              list.forEach(function (t) {
+                // No artist line? The show it's from (the album) says the most.
+                tracks.push({ path: t.path, title: String(t.title || t.path.split("/").pop()), artist: String(t.artist || t.album || "") });
+              });
+            });
+            return { title: String(tj.title || tile.name || "Untitled"), artist: String(tapeArtist), tracks: tracks, groups: groups };
           });
       }
       var paths = Object.keys(res).filter(function (k) {
         return String(res[k]["content-type"] || "").indexOf("audio/") === 0;
       }).sort();
       return {
-        title: tile.name || "Untitled", artist: "",
+        title: tile.name || "Untitled", artist: "", groups: null,
         tracks: paths.map(function (p) {
           var name = paths.length === 1 ? (tile.name || p) : p.split("/").pop().replace(/\.[^.]+$/, "");
           return { path: p, title: name, artist: "" };
@@ -430,9 +474,31 @@
         return download(blobUrl(art), "the artwork", say).then(function (b) { return checkCid(b, art.src.ref.$link, "The artwork"); });
       }).then(function (artBlob) { return { tracks: blobs, art: artBlob }; });
     }).then(function (got) {
-      say(got.tracks.length > 1 ? "Joining the tracks into one side…" : "Saving to this phone…");
-      return tryJoin(got.tracks).then(function (joined) {
-        got.joined = joined;
+      var groups = plan.groups && plan.groups.length > 1 ? plan.groups : null;
+      if (!groups) {
+        say(got.tracks.length > 1 ? "Joining the tracks into one side…" : "Saving to this phone…");
+        return tryJoin(got.tracks).then(function (joined) {
+          got.joined = joined.error ? joined : { sides: [{ name: (plan.groups && plan.groups[0] && plan.groups[0].name) || "",
+            first: 0, count: got.tracks.length, side: joined.side, blob: joined.blob }] };
+          return got;
+        });
+      }
+      // Each side becomes its own continuous recording.
+      say("Joining each side…");
+      var first = 0, made = [];
+      return groups.reduce(function (p, g) {
+        var from = first;
+        first += g.count;
+        return p.then(function (failed) {
+          if (failed) return failed;
+          return tryJoin(got.tracks.slice(from, from + g.count), true).then(function (j) {
+            if (j.error) return { error: (g.name ? "side " + g.name : "a side") + ": " + j.error };
+            made.push({ name: g.name, first: from, count: g.count, side: j.side, blob: j.blob });
+            return null;
+          });
+        });
+      }, Promise.resolve(null)).then(function (failed) {
+        got.joined = failed || { sides: made };
         return got;
       });
     }).then(function (got) {
@@ -454,8 +520,12 @@
           };
         })
       };
-      if (got.joined.side) t.side = got.joined.side;
-      else if (got.tracks.length > 1) t.split = got.joined.error;
+      if (got.joined.sides) {
+        t.sides = got.joined.sides.map(function (j) {
+          return { name: j.name, first: j.first, count: j.count, starts: j.side.starts,
+                   durations: j.side.durations, total: j.side.total, format: j.side.format };
+        });
+      } else if (got.tracks.length > 1) t.split = got.joined.error;
 
       // Clear out any earlier copy of this tape first.
       var old = tapes.filter(function (x) { return x.id === t.id; })[0];
@@ -463,8 +533,10 @@
         var clear = old ? removeFiles(c, old) : Promise.resolve();
         return clear.then(function () {
           var puts = [];
-          if (t.side) {
-            puts.push(c.put(sideKey(t), new Response(got.joined.blob, { headers: { "Content-Type": "audio/mpeg" } })));
+          if (t.sides) {
+            got.joined.sides.forEach(function (j, s) {
+              puts.push(c.put(sideKey(t, s), new Response(j.blob, { headers: { "Content-Type": "audio/mpeg" } })));
+            });
           } else {
             got.tracks.forEach(function (b, i) {
               puts.push(c.put(trackKey(t, i), new Response(b, { headers: { "Content-Type": t.tracks[i].type } })));
@@ -481,7 +553,10 @@
           var mb = t.tracks.reduce(function (s, x) { return s + x.size; }, 0) / 1048576;
           log((old ? "updated" : "saved") + " \"" + t.title + "\" (" + t.tracks.length +
               (t.tracks.length === 1 ? " track, " : " tracks, ") + mb.toFixed(1) + " MB)");
-          if (t.side) log("joined into one side: " + fmt(t.side.total) + ", " + t.side.format);
+          if (t.sides) t.sides.forEach(function (sd, s) {
+            log("joined " + (t.sides.length > 1 ? "side " + (sd.name || s + 1) : "into one side") + ": " +
+                sd.count + (sd.count === 1 ? " track, " : " tracks, ") + fmt(sd.total) + ", " + sd.format);
+          });
           else if (t.split) log("kept as separate tracks: " + t.split);
           return t;
         });
@@ -649,7 +724,9 @@
 
   function removeFiles(c, t) {
     var dels = t.tracks.map(function (_, i) { return c.delete(trackKey(t, i)); });
-    dels.push(c.delete(sideKey(t)), c.delete(artKey(t)));
+    var nSides = Math.max(1, (t.sides || []).length);
+    for (var s = 0; s < nSides; s++) dels.push(c.delete(sideKey(t, s)));
+    dels.push(c.delete(artKey(t)));
     return Promise.all(dels);
   }
 
@@ -659,6 +736,7 @@
     Object.keys(urls).forEach(function (k) { URL.revokeObjectURL(urls[k]); });
     urls = {};
     if (sideUrl) { URL.revokeObjectURL(sideUrl); sideUrl = null; }
+    sideUrlNo = -1;
   }
 
   function closeTape() {
@@ -681,15 +759,20 @@
     });
   }
 
-  function getSideUrl() {
-    if (sideUrl) return Promise.resolve(sideUrl);
+  // The blob: URL of side s. Switching sides lets go of the other side's URL
+  // once the player has moved over (see loadTrack).
+  function getSideUrl(s) {
+    if (sideUrl && sideUrlNo === s) return Promise.resolve(sideUrl);
     var t = tape;
-    return openCache().then(function (c) { return c.match(sideKey(t)); }).then(function (r) {
-      if (!r) throw new Error("the side is missing from the phone");
+    return openCache().then(function (c) { return c.match(sideKey(t, s)); }).then(function (r) {
+      if (!r) throw new Error("side " + (s + 1) + " is missing from the phone");
       return r.blob();
     }).then(function (b) {
       if (tape !== t) throw new Error("tape changed");
+      var old = sideUrl;
       sideUrl = URL.createObjectURL(b);
+      sideUrlNo = s;
+      if (old) setTimeout(function () { URL.revokeObjectURL(old); }, 2000);
       return sideUrl;
     });
   }
@@ -729,14 +812,23 @@
   function renderTracks() {
     var ul = $("tracks");
     ul.innerHTML = "";
+    var multi = isSide() && tape.sides.length > 1;
     tape.tracks.forEach(function (tr, i) {
+      var sd = isSide() ? tape.sides[sideNo(i)] : null;
+      if (multi && i === sd.first) {
+        var head = document.createElement("li");
+        head.className = "side-head";
+        head.textContent = sideName(sd) + " · " + fmt(sd.total);
+        ul.appendChild(head);
+      }
       var li = document.createElement("li");
       li.tabIndex = 0;
-      var n = document.createElement("span"); n.className = "num"; n.textContent = i + 1;
+      li.dataset.idx = i;
+      var n = document.createElement("span"); n.className = "num"; n.textContent = multi ? i - sd.first + 1 : i + 1;
       var text = document.createElement("div"); text.className = "li-text";
       var title = document.createElement("div"); title.className = "li-title"; title.textContent = tr.title;
       text.appendChild(title);
-      var subText = [tr.artist, tape.side ? fmt(tape.side.durations[i]) : ""].filter(Boolean).join(" · ");
+      var subText = [tr.artist, sd ? fmt(sd.durations[i - sd.first]) : ""].filter(Boolean).join(" · ");
       if (subText) {
         var sub = document.createElement("div"); sub.className = "li-sub"; sub.textContent = subText;
         text.appendChild(sub);
@@ -750,14 +842,19 @@
   }
 
   function markTrack() {
-    Array.prototype.forEach.call($("tracks").children, function (li, i) {
-      li.classList.toggle("current", i === idx);
+    Array.prototype.forEach.call($("tracks").children, function (li) {
+      if (li.dataset.idx !== undefined) li.classList.toggle("current", Number(li.dataset.idx) === idx);
     });
     var tr = tape.tracks[idx];
     $("title").textContent = tr.title;
     $("artist").textContent = tr.artist || tape.artist || "";
-    $("trackNum").textContent = tape.tracks.length > 1 ? (idx + 1) + " / " + tape.tracks.length : "";
-    if (isSide()) $("total").textContent = fmt(tape.side.durations[idx]);
+    if (isSide() && tape.sides.length > 1) {
+      var sd = curSide();
+      $("trackNum").textContent = sideName(sd) + " · " + (idx - sd.first + 1) + " / " + sd.count;
+    } else {
+      $("trackNum").textContent = tape.tracks.length > 1 ? (idx + 1) + " / " + tape.tracks.length : "";
+    }
+    if (isSide()) $("total").textContent = fmt(trackLength());
   }
 
   function startPlaying() {
@@ -772,9 +869,11 @@
     markTrack();
     setMetadata();
 
+    showTurn(-1);
     if (isSide()) {
-      var target = tape.side.starts[n] + (offset || 0);
-      return getSideUrl().then(function (u) {
+      var s = sideNo(n), sd = tape.sides[s];
+      var target = sd.starts[n - sd.first] + (offset || 0);
+      return getSideUrl(s).then(function (u) {
         if (audio.getAttribute("src") !== u) {
           pendingSeek = target > 0 ? target : null;
           audio.src = u;
@@ -796,6 +895,22 @@
       if (n + 1 < tape.tracks.length) getTrackUrl(n + 1).catch(function () {});
     }).catch(function (e) { log("couldn't load track " + (n + 1) + ": " + e.message); });
   }
+
+  // "Turn the tape": shown at the end of a side; -1 hides it.
+  var turnTo = -1;
+  function showTurn(s) {
+    turnTo = s;
+    var btn = $("turnBtn");
+    if (!btn) return;
+    btn.classList.toggle("hidden", s < 0);
+    if (s >= 0) btn.textContent = "Turn the tape: play " + sideName(tape.sides[s]).replace(/^Side/, "side");
+  }
+  if ($("turnBtn")) $("turnBtn").addEventListener("click", function () {
+    if (!tape || turnTo < 0) return;
+    var sd = tape.sides[turnTo];
+    log("turned the tape to " + sideName(sd).toLowerCase());
+    loadTrack(sd.first, 0, true);
+  });
 
   // ---------- controls ----------
 
@@ -902,6 +1017,17 @@
     }
     $("icon").setAttribute("d", PLAY); $("play").setAttribute("aria-label", "Play");
     if ("mediaSession" in navigator) navigator.mediaSession.playbackState = "paused";
+    // The end of a side, with another side to come: stop, like a cassette.
+    if (tape && isSide() && sideNo(idx) + 1 < tape.sides.length) {
+      var next = tape.sides[sideNo(idx) + 1];
+      log("end of " + sideName(curSide()).toLowerCase() + screenNote());
+      try {
+        localStorage.setItem(POS_KEY, JSON.stringify({ tapeId: tape.id, idx: next.first, time: 0 }));
+        localStorage.setItem(LAST_KEY, JSON.stringify({ playing: false }));
+      } catch (e) {}
+      showTurn(sideNo(idx) + 1);
+      return;
+    }
     log("end of tape" + screenNote());
     try {
       if (tape) localStorage.setItem(POS_KEY, JSON.stringify({ tapeId: tape.id, idx: 0, time: 0 }));

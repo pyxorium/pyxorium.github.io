@@ -65,6 +65,8 @@
   ul.list li + li { margin-top: 6px; }
   ul.list li:hover { background: rgba(255,255,255,.03); }
   ul.list li.current { border-color: var(--accent); }
+  ul.list li.side-head { border: none; background: none; padding: 10px 2px 2px; cursor: default; font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+  ul.list li.side-head:hover { background: none; }
   .thumb { width: 52px; height: 52px; border-radius: 8px; object-fit: cover; background: var(--bg); flex: none; }
   .li-text { flex: 1; min-width: 0; }
   .li-title { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -160,6 +162,7 @@
         <svg viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg>
       </button>
     </div>
+    <button id="turnBtn" class="hidden" style="margin-top:14px;width:100%">Turn the tape</button>
     <ul class="list" id="tracks" style="margin-top:14px"></ul>
     <div class="row">
       <button class="secondary" id="backBtn">Back to tapes</button>
