@@ -2,7 +2,7 @@
 // offline. Saved tapes live in their own cache ("tileman-tapes"), which the
 // page fills; this worker never deletes it.
 
-const APP_CACHE = "tileman-app-v3";
+const APP_CACHE = "tileman-app-v4";
 const TAPE_CACHE = "tileman-tapes";
 const APP_FILES = [
   "./",
@@ -17,7 +17,11 @@ const APP_FILES = [
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(APP_CACHE).then((c) => c.addAll(APP_FILES)).then(() => self.skipWaiting())
+    // "reload" skips the browser's own short-term copy, so an update always
+    // stores the files that are on the website now.
+    caches.open(APP_CACHE)
+      .then((c) => c.addAll(APP_FILES.map((f) => new Request(f, { cache: "reload" }))))
+      .then(() => self.skipWaiting())
   );
 });
 
@@ -50,7 +54,9 @@ self.addEventListener("fetch", (event) => {
   // The app: try the network first so updates arrive, fall back to the copy
   // on the phone when offline.
   event.respondWith(
-    fetch(event.request)
+    // "no-cache" asks the website whether the file changed, instead of reusing
+    // the browser's short-term copy (GitHub Pages allows 10 minutes).
+    fetch(event.request, { cache: "no-cache" })
       .then((res) => {
         if (res.ok) {
           const copy = res.clone();
