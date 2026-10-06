@@ -8,7 +8,9 @@ self.onmessage = function (e) {
   try {
     var left = d.left, right = d.right, kbps = d.kbps, rate = d.sampleRate;
     var enc = new lamejs.Mp3Encoder(2, rate, kbps);
-    var block = 1152 * 16;
+    // lamejs mis-encodes (near silence) when given more than one MP3 frame's
+    // worth of samples per call, so feed it exactly 1152 at a time.
+    var block = 1152;
     var l16 = new Int16Array(block), r16 = new Int16Array(block);
     var parts = [], total = 0, lastPct = -1;
 
