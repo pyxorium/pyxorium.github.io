@@ -9,7 +9,7 @@
 (function () {
   "use strict";
 
-  var APP_VERSION = "5";
+  var APP_VERSION = "5.1";
   var TAPE_CACHE = "tileman-tapes";
   var INDEX_URL = abs("tapes/index.json");
   var LOG_KEY = "tileman-log";
@@ -154,7 +154,13 @@
   function savePosition() {
     if (!tape) return;
     try {
-      localStorage.setItem(POS_KEY, JSON.stringify({ tapeId: tape.id, idx: idx, time: trackTime() || 0 }));
+      // turn: the side has ended and "Turn the tape" is waiting (kept if the
+      // phone closes and reopens Tileman meanwhile).
+      if (turnTo >= 0 && isSide()) {
+        localStorage.setItem(POS_KEY, JSON.stringify({ tapeId: tape.id, idx: tape.sides[turnTo].first, time: 0, turn: true }));
+      } else {
+        localStorage.setItem(POS_KEY, JSON.stringify({ tapeId: tape.id, idx: idx, time: trackTime() || 0 }));
+      }
       localStorage.setItem(LAST_KEY, JSON.stringify({
         playing: !audio.paused, pos: trackTime() || 0, at: Date.now(),
         track: tape.title + " #" + (idx + 1)
@@ -805,6 +811,12 @@
       show("player");
       return loadTrack(startIdx, startTime, false).then(function () {
         if (startIdx || startTime > 1) log("opened \"" + t.title + "\" at track " + (startIdx + 1) + ", " + fmt(startTime));
+        // Side A ended while Tileman was closed by the phone: the button is still waiting.
+        if (pos && pos.turn && pos.tapeId === t.id && isSide() && sideNo(startIdx) > 0 && startIdx === tape.sides[sideNo(startIdx)].first) {
+          showTurn(sideNo(startIdx));
+          savePosition();
+          log("side ended while closed: \"Turn the tape\" is waiting");
+        }
       });
     });
   }
@@ -899,16 +911,19 @@
   // "Turn the tape": shown at the end of a side; -1 hides it.
   var turnTo = -1;
   function showTurn(s) {
+    var was = turnTo;
     turnTo = s;
     var btn = $("turnBtn");
-    if (!btn) return;
+    if (!btn) { if (s >= 0) log("the Turn the tape button is missing from the page"); return; }
     btn.classList.toggle("hidden", s < 0);
     if (s >= 0) btn.textContent = "Turn the tape: play " + sideName(tape.sides[s]).replace(/^Side/, "side");
+    if (s >= 0 && was !== s) log("showing \"" + btn.textContent + "\"");
+    if (s < 0 && was >= 0) log("Turn the tape put away");
   }
   if ($("turnBtn")) $("turnBtn").addEventListener("click", function () {
     if (!tape || turnTo < 0) return;
     var sd = tape.sides[turnTo];
-    log("turned the tape to " + sideName(sd).toLowerCase());
+    log("turned the tape to " + sideName(sd).replace(/^Side/, "side"));
     loadTrack(sd.first, 0, true);
   });
 
@@ -996,6 +1011,7 @@
     updatePosition();
   });
   audio.addEventListener("play", function () {
+    if (turnTo >= 0) showTurn(-1);
     $("icon").setAttribute("d", PAUSE); $("play").setAttribute("aria-label", "Pause");
     if ("mediaSession" in navigator) navigator.mediaSession.playbackState = "playing";
     log("playing track " + (idx + 1) + " from " + fmt(trackTime()) + screenNote());
@@ -1020,9 +1036,9 @@
     // The end of a side, with another side to come: stop, like a cassette.
     if (tape && isSide() && sideNo(idx) + 1 < tape.sides.length) {
       var next = tape.sides[sideNo(idx) + 1];
-      log("end of " + sideName(curSide()).toLowerCase() + screenNote());
+      log("end of " + sideName(curSide()).replace(/^Side/, "side") + screenNote());
       try {
-        localStorage.setItem(POS_KEY, JSON.stringify({ tapeId: tape.id, idx: next.first, time: 0 }));
+        localStorage.setItem(POS_KEY, JSON.stringify({ tapeId: tape.id, idx: next.first, time: 0, turn: true }));
         localStorage.setItem(LAST_KEY, JSON.stringify({ playing: false }));
       } catch (e) {}
       showTurn(sideNo(idx) + 1);
@@ -1100,6 +1116,11 @@
                     (audio.paused ? " (paused)" : " (playing)"));
       savePosition();
     } else if (hiddenAt) {
+      // Back on screen after a side ended: the button must be waiting.
+      if (tape && isSide() && audio.ended && sideNo(idx) + 1 < tape.sides.length && turnTo < 0) {
+        log("side had ended while away; showing Turn the tape again");
+        showTurn(sideNo(idx) + 1);
+      }
       var away = Date.now() - hiddenAt;
       if (tape) {
         var where = idx === hiddenTrack

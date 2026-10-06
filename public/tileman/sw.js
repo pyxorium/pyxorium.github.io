@@ -2,7 +2,7 @@
 // offline. Saved tapes live in their own cache ("tileman-tapes"), which the
 // page fills; this worker never deletes it.
 
-const APP_CACHE = "tileman-app-v6";
+const APP_CACHE = "tileman-app-v7";
 const TAPE_CACHE = "tileman-tapes";
 const APP_FILES = [
   "./",
