@@ -29,6 +29,13 @@
   header img { width: 32px; height: 32px; border-radius: 8px; }
   header h1 { font-size: 20px; margin: 0; letter-spacing: .02em; }
   .net { margin-left: auto; font-size: 12px; color: var(--muted); }
+  .ver { font-size: 12px; color: var(--muted); border: 1px solid var(--line); border-radius: 6px; padding: 1px 6px; }
+  .badge { font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 6px; flex: none; }
+  .badge.saved { color: var(--muted); border: 1px solid var(--line); }
+  .badge.updated { color: #241400; background: var(--accent); }
+  .or { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 13px; margin: 18px 0 4px; }
+  .or::before, .or::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+  #found { margin-top: 12px; }
   .net.off { color: var(--accent); }
   section { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
   h2 { font-size: 15px; margin: 0 0 10px; color: var(--muted); font-weight: 600; }
@@ -92,6 +99,7 @@
   <header>
     <img src="icon-192.png" alt="">
     <h1>Tileman</h1>
+    <span class="ver" id="ver"></span>
     <span class="net" id="net"></span>
   </header>
 
@@ -107,6 +115,15 @@
 
   <section id="add" class="hidden">
     <h2>Add a tape</h2>
+    <label for="handle">Find tapes by handle</label>
+    <div class="row" style="margin-top:0; flex-wrap:nowrap">
+      <input type="text" id="handle" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="you.bsky.social">
+      <button id="findBtn">Find</button>
+    </div>
+    <ul class="list" id="found"></ul>
+    <div class="progress" id="findMsg"></div>
+
+    <div class="or">or paste a tile address</div>
     <label for="addr">Tile address</label>
     <input type="text" id="addr" autocomplete="off" spellcheck="false" placeholder="at://did:plc:…/ing.dasl.masl/…">
     <label for="artistIn">Artist line (optional)</label>

@@ -7,11 +7,14 @@
 (function () {
   "use strict";
 
+  var APP_VERSION = "4";
   var TAPE_CACHE = "tileman-tapes";
   var INDEX_URL = abs("tapes/index.json");
   var LOG_KEY = "tileman-log";
   var POS_KEY = "tileman-pos";
   var LAST_KEY = "tileman-last";
+  var HANDLE_KEY = "tileman-handle";
+  var VER_KEY = "tileman-version";
 
   var $ = function (id) { return document.getElementById(id); };
   var audio = $("audio");
@@ -46,6 +49,13 @@
     $("log").scrollTop = $("log").scrollHeight;
   }
   $("log").textContent = readLog().join("\n");
+  $("ver").textContent = "v" + APP_VERSION;
+  try {
+    if (localStorage.getItem(VER_KEY) !== APP_VERSION) {
+      log("now running Tileman version " + APP_VERSION);
+      localStorage.setItem(VER_KEY, APP_VERSION);
+    }
+  } catch (e) {}
   $("clearLog").addEventListener("click", function () {
     try { localStorage.removeItem(LOG_KEY); } catch (e) {}
     $("log").textContent = "";
@@ -260,7 +270,17 @@
 
   $("showAdd").addEventListener("click", function () {
     $("addMsg").textContent = ""; $("addMsg").classList.remove("error");
-    show("add"); $("addr").focus();
+    $("findMsg").textContent = ""; $("findMsg").classList.remove("error");
+    clearFound();
+    var remembered = null;
+    try { remembered = localStorage.getItem(HANDLE_KEY); } catch (e) {}
+    show("add");
+    if (remembered) {
+      $("handle").value = remembered;
+      if (navigator.onLine) findTapes();
+    } else {
+      $("handle").focus();
+    }
   });
   $("cancelAdd").addEventListener("click", function () { show("shelf"); });
   $("backBtn").addEventListener("click", function () { renderShelf(); show("shelf"); });
@@ -294,7 +314,8 @@
       return svc.serviceEndpoint.replace(/\/$/, "");
     });
   }
-  function download(url, label) {
+  function download(url, label, say) {
+    say = say || function () {};
     return fetch(url).then(function (res) {
       if (!res.ok) throw new Error("Download failed (" + res.status + ")");
       var total = Number(res.headers.get("content-length")) || 0;
@@ -304,8 +325,8 @@
         return reader.read().then(function (r) {
           if (r.done) return new Blob(chunks);
           chunks.push(r.value); got += r.value.length;
-          $("addMsg").textContent = "Downloading " + label + "… " +
-            (total ? Math.floor(got / total * 100) + "%" : (got / 1048576).toFixed(1) + " MB");
+          say("Downloading " + label + "… " +
+            (total ? Math.floor(got / total * 100) + "%" : (got / 1048576).toFixed(1) + " MB"));
           return pump();
         });
       }
@@ -334,20 +355,18 @@
       });
   }
 
-  function addTape() {
-    var btn = $("addBtn");
-    btn.disabled = true;
-    $("addMsg").classList.remove("error");
-    $("addMsg").textContent = "Looking up the tile…";
-    var target, did, pds, tile, res, plan, art, artistLine = $("artistIn").value.trim();
+  // Save the tape at address `addr`. `say(text, isError)` shows progress.
+  function addTape(addr, artistLine, say) {
+    say("Looking up the tile…");
+    var target, did, pds, tile, res, plan, art, recordCid;
 
     function blobUrl(r) {
       return pds + "/xrpc/com.atproto.sync.getBlob?did=" + encodeURIComponent(did) +
         "&cid=" + encodeURIComponent(r.src.ref.$link);
     }
 
-    Promise.resolve().then(function () {
-      target = parseAtUri($("addr").value);
+    return Promise.resolve().then(function () {
+      target = parseAtUri(addr);
       return resolveDid(target.repo);
     }).then(function (d) {
       did = d; return findPds(did);
@@ -356,21 +375,27 @@
       return getJson(pds + "/xrpc/com.atproto.repo.getRecord?repo=" + encodeURIComponent(did) +
         "&collection=" + encodeURIComponent(target.collection) + "&rkey=" + encodeURIComponent(target.rkey));
     }).then(function (rec) {
+      recordCid = rec.cid || null;
       tile = rec.value && rec.value.tile;
       if (!tile || !tile.resources) throw new Error("That record isn't a Web Tile.");
       res = tile.resources;
 
       // A tape.json, if the tile has one, gives the order and the titles.
       if (res["/tape.json"]) {
-        return download(blobUrl(res["/tape.json"]), "the track list")
+        return download(blobUrl(res["/tape.json"]), "the track list", say)
           .then(function (b) { return checkCid(b, res["/tape.json"].src.ref.$link, "The track list"); })
           .then(function (b) { return b.text(); })
           .then(function (txt) {
             var tj = JSON.parse(txt);
+            // Version 2 may group tracks into sides; for now they play straight through.
+            var list = Array.isArray(tj.sides)
+              ? tj.sides.reduce(function (all, sd) { return all.concat(sd.tracks || []); }, [])
+              : (tj.tracks || []);
+            var tapeArtist = tj.artist || (tj.madeBy && tj.madeBy.name) || "";
             return {
-              title: tj.title || tile.name, artist: tj.artist || "",
-              tracks: (tj.tracks || []).filter(function (t) { return res[t.path]; }).map(function (t) {
-                return { path: t.path, title: t.title || t.path, artist: t.artist || "" };
+              title: String(tj.title || tile.name || "Untitled"), artist: String(tapeArtist),
+              tracks: list.filter(function (t) { return t && res[t.path]; }).map(function (t) {
+                return { path: t.path, title: String(t.title || t.path.split("/").pop()), artist: String(t.artist || "") };
               })
             };
           });
@@ -396,22 +421,22 @@
       return plan.tracks.reduce(function (p, t, i) {
         return p.then(function () {
           var label = plan.tracks.length > 1 ? "track " + (i + 1) + " of " + plan.tracks.length : "the song";
-          return download(blobUrl(res[t.path]), label)
+          return download(blobUrl(res[t.path]), label, say)
             .then(function (b) { return checkCid(b, res[t.path].src.ref.$link, "Track " + (i + 1)); })
             .then(function (b) { blobs.push(b); });
         });
       }, Promise.resolve()).then(function () {
         if (!art) return null;
-        return download(blobUrl(art), "the artwork").then(function (b) { return checkCid(b, art.src.ref.$link, "The artwork"); });
+        return download(blobUrl(art), "the artwork", say).then(function (b) { return checkCid(b, art.src.ref.$link, "The artwork"); });
       }).then(function (artBlob) { return { tracks: blobs, art: artBlob }; });
     }).then(function (got) {
-      $("addMsg").textContent = got.tracks.length > 1 ? "Joining the tracks into one side…" : "Saving to this phone…";
+      say(got.tracks.length > 1 ? "Joining the tracks into one side…" : "Saving to this phone…");
       return tryJoin(got.tracks).then(function (joined) {
         got.joined = joined;
         return got;
       });
     }).then(function (got) {
-      $("addMsg").textContent = "Saving to this phone…";
+      say("Saving to this phone…");
       var uri = "at://" + did + "/" + target.collection + "/" + target.rkey;
       var t = {
         id: idFor(uri), uri: uri,
@@ -419,6 +444,7 @@
         artist: artistLine || plan.artist,
         art: !!got.art, artType: art ? art["content-type"] : null,
         savedAt: new Date().toISOString(),
+        recordCid: recordCid,
         tracks: plan.tracks.map(function (tr, i) {
           return {
             title: tr.title,
@@ -466,16 +492,160 @@
           if (!ok) log("persistent storage not granted; the phone may clear tapes if space runs low");
         });
       }
-      $("addMsg").textContent = "";
+      say("");
+      return t;
+    });
+  }
+
+  function sayIn(el) {
+    return function (text, isError) {
+      el.classList.toggle("error", !!isError);
+      el.textContent = text;
+    };
+  }
+
+  $("addBtn").addEventListener("click", function () {
+    var btn = $("addBtn"), say = sayIn($("addMsg"));
+    btn.disabled = true;
+    addTape($("addr").value, $("artistIn").value.trim(), say).then(function (t) {
       $("addr").value = ""; $("artistIn").value = "";
       return openTape(t.id);
     }).catch(function (e) {
-      $("addMsg").classList.add("error");
-      $("addMsg").textContent = e.message;
+      say(e.message, true);
       log("add failed: " + e.message);
     }).then(function () { btn.disabled = false; });
+  });
+
+  // ---------- find tapes by handle ----------
+
+  var foundUrls = [];   // thumbnail blob: URLs from the last search
+
+  function clearFound() {
+    foundUrls.forEach(function (u) { URL.revokeObjectURL(u); });
+    foundUrls = [];
+    $("found").innerHTML = "";
   }
-  $("addBtn").addEventListener("click", addTape);
+
+  function mb(bytes) {
+    var m = bytes / 1048576;
+    return m < 0.1 ? "under 0.1 MB" : m.toFixed(1) + " MB";
+  }
+
+  // List every Web Tile in the account's repo that has songs in it.
+  function listTapes(handle) {
+    var did, pds;
+    return resolveDid(handle).then(function (d) {
+      did = d; return findPds(did);
+    }).then(function (p) {
+      pds = p;
+      var all = [], pages = 0;
+      function page(cursor) {
+        var url = pds + "/xrpc/com.atproto.repo.listRecords?repo=" + encodeURIComponent(did) +
+          "&collection=ing.dasl.masl&limit=100" + (cursor ? "&cursor=" + encodeURIComponent(cursor) : "");
+        return getJson(url).then(function (j) {
+          all = all.concat(j.records || []);
+          pages++;
+          if (j.cursor && pages < 10 && (j.records || []).length) return page(j.cursor);
+          return all;
+        });
+      }
+      return page(null);
+    }).then(function (records) {
+      return records.map(function (r) {
+        var tile = r.value && r.value.tile;
+        if (!tile || !tile.resources) return null;
+        var res = tile.resources;
+        var audio = Object.keys(res).filter(function (k) {
+          return String(res[k]["content-type"] || "").indexOf("audio/") === 0;
+        });
+        if (!audio.length) return null;
+        var artPath = (tile.icons && tile.icons[0] && tile.icons[0].src) ||
+                      (tile.screenshots && tile.screenshots[0] && tile.screenshots[0].src);
+        var art = artPath && res[artPath] ? res[artPath] : null;
+        return {
+          uri: r.uri, cid: r.cid,
+          name: String(tile.name || "Untitled"),
+          tracks: audio.length,
+          size: audio.reduce(function (sum, k) { return sum + ((res[k].src && res[k].src.size) || 0); }, 0),
+          artUrl: art ? pds + "/xrpc/com.atproto.sync.getBlob?did=" + encodeURIComponent(did) +
+                        "&cid=" + encodeURIComponent(art.src.ref.$link) : null,
+          artType: art ? String(art["content-type"] || "image/png") : null
+        };
+      }).filter(Boolean);
+    });
+  }
+
+  function renderFound(items, handle) {
+    clearFound();
+    var say = sayIn($("findMsg"));
+    if (!items.length) { say("No tapes found for @" + handle + "."); return; }
+    say(items.length + (items.length === 1 ? " tape" : " tapes") + " from @" + handle + ". Tap one to save it to this phone.");
+    items.forEach(function (it) {
+      var saved = tapes.filter(function (x) { return x.id === idFor(it.uri); })[0];
+      var updated = saved && saved.recordCid && saved.recordCid !== it.cid;
+
+      var li = document.createElement("li");
+      li.tabIndex = 0;
+      var img = document.createElement("img");
+      img.className = "thumb"; img.alt = ""; img.src = "icon-192.png";
+      if (it.artUrl) {
+        fetch(it.artUrl).then(function (r) { return r.ok ? r.blob() : null; }).then(function (b) {
+          if (!b) return;
+          var u = URL.createObjectURL(new Blob([b], { type: it.artType }));
+          foundUrls.push(u);
+          img.src = u;
+        }).catch(function () {});
+      }
+      var text = document.createElement("div"); text.className = "li-text";
+      var title = document.createElement("div"); title.className = "li-title"; title.textContent = it.name;
+      var sub = document.createElement("div"); sub.className = "li-sub";
+      sub.textContent = it.tracks + (it.tracks === 1 ? " track · " : " tracks · ") + mb(it.size);
+      text.appendChild(title); text.appendChild(sub);
+      li.appendChild(img); li.appendChild(text);
+      if (saved) {
+        var badge = document.createElement("span");
+        badge.className = "badge " + (updated ? "updated" : "saved");
+        badge.textContent = updated ? "Update" : "Saved";
+        li.appendChild(badge);
+      }
+
+      function choose() {
+        if (saved && !updated) { openTape(saved.id); return; }
+        var say = sayIn($("findMsg"));
+        li.style.opacity = ".6";
+        addTape(it.uri, "", say).then(function (t) {
+          return openTape(t.id);
+        }).catch(function (e) {
+          say(e.message, true);
+          log("add failed: " + e.message);
+        }).then(function () { li.style.opacity = ""; });
+      }
+      li.addEventListener("click", choose);
+      li.addEventListener("keydown", function (e) { if (e.key === "Enter") choose(); });
+      $("found").appendChild(li);
+    });
+  }
+
+  function findTapes() {
+    var handle = $("handle").value.trim().replace(/^@/, "").toLowerCase();
+    var say = sayIn($("findMsg"));
+    if (!handle) { say("Type a handle first, like you.bsky.social.", true); return; }
+    if (!navigator.onLine) { say("You're offline. Finding tapes needs a connection.", true); return; }
+    clearFound();
+    $("findBtn").disabled = true;
+    say("Looking up @" + handle + "…");
+    listTapes(handle).then(function (items) {
+      try { localStorage.setItem(HANDLE_KEY, handle); } catch (e) {}
+      renderFound(items, handle);
+    }).catch(function (e) {
+      var why = /\(400\)/.test(e.message)
+        ? "Couldn't find @" + handle + ". Check the spelling, including the part after the dot."
+        : "Couldn't look up @" + handle + " right now (" + e.message + "). Try again in a moment.";
+      say(why, true);
+    }).then(function () { $("findBtn").disabled = false; });
+  }
+  $("findBtn").addEventListener("click", findTapes);
+  $("handle").addEventListener("keydown", function (e) { if (e.key === "Enter") findTapes(); });
 
   function removeFiles(c, t) {
     var dels = t.tracks.map(function (_, i) { return c.delete(trackKey(t, i)); });
