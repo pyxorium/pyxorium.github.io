@@ -2,12 +2,13 @@
 // offline. Saved tapes live in their own cache ("tileman-tapes"), which the
 // page fills; this worker never deletes it.
 
-const APP_CACHE = "tileman-app-v2";
+const APP_CACHE = "tileman-app-v3";
 const TAPE_CACHE = "tileman-tapes";
 const APP_FILES = [
   "./",
   "./index.html",
   "./app.js",
+  "./mp3join.js",
   "./manifest.webmanifest",
   "./icon-192.png",
   "./icon-512.png",
