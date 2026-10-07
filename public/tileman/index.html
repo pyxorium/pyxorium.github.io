@@ -29,7 +29,7 @@
   header img { width: 32px; height: 32px; border-radius: 8px; }
   header h1 { font-size: 20px; margin: 0; letter-spacing: .02em; }
   .net { margin-left: auto; font-size: 12px; color: var(--muted); }
-  .ver { font-size: 12px; color: var(--muted); border: 1px solid var(--line); border-radius: 6px; padding: 1px 6px; }
+  .ver { cursor: pointer; -webkit-user-select: none; user-select: none; font-size: 12px; color: var(--muted); border: 1px solid var(--line); border-radius: 6px; padding: 1px 6px; }
   .badge { font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 6px; flex: none; }
   .badge.saved { color: var(--muted); border: 1px solid var(--line); }
   .badge.updated { color: #241400; background: var(--accent); }
@@ -170,9 +170,10 @@
     </div>
   </section>
 
-  <section>
-    <details id="logBox">
-      <summary>Test log</summary>
+  <!-- The log: hidden; tap the version label in the header to show it. -->
+  <section id="logSection" class="hidden">
+    <details id="logBox" open>
+      <summary>Log</summary>
       <div id="log"></div>
       <div class="row"><button class="secondary" id="clearLog">Clear log</button></div>
     </details>

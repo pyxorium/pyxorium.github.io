@@ -9,7 +9,7 @@
 (function () {
   "use strict";
 
-  var APP_VERSION = "5.1";
+  var APP_VERSION = "5.2";
   var TAPE_CACHE = "tileman-tapes";
   var INDEX_URL = abs("tapes/index.json");
   var LOG_KEY = "tileman-log";
@@ -79,6 +79,21 @@
   }
   $("log").textContent = readLog().join("\n");
   $("ver").textContent = "v" + APP_VERSION;
+  // The log keeps recording, but is out of sight; tapping the version label
+  // shows or hides it (it works in the installed app, where the address can't
+  // be changed). The choice is remembered on this phone.
+  var LOG_SHOWN_KEY = "tileman-log-shown";
+  function showLog(on) {
+    $("logSection").classList.toggle("hidden", !on);
+    try { if (on) localStorage.setItem(LOG_SHOWN_KEY, "1"); else localStorage.removeItem(LOG_SHOWN_KEY); } catch (e) {}
+  }
+  try { showLog(localStorage.getItem(LOG_SHOWN_KEY) === "1"); } catch (e) {}
+  $("ver").setAttribute("title", "Show or hide the log");
+  $("ver").addEventListener("click", function () {
+    var on = $("logSection").classList.contains("hidden");
+    showLog(on);
+    if (on) $("logSection").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
   try {
     if (localStorage.getItem(VER_KEY) !== APP_VERSION) {
       log("now running Tileman version " + APP_VERSION);
@@ -1112,7 +1127,7 @@
   document.addEventListener("visibilitychange", function () {
     if (document.hidden) {
       hiddenAt = Date.now(); hiddenTrack = idx; hiddenPos = trackTime();
-      if (tape) log("screen off / app hidden: track " + (idx + 1) + " at " + fmt(trackTime()) +
+      if (tape) log("screen off: track " + (idx + 1) + " at " + fmt(trackTime()) +
                     (audio.paused ? " (paused)" : " (playing)"));
       savePosition();
     } else if (hiddenAt) {
