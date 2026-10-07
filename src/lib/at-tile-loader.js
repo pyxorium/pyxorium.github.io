@@ -100,10 +100,66 @@ async function getRecord(repo, collection, rkey) {
 	return res.json();
 }
 
-async function getBlob(did, cid) {
+// ---- files, shared and kept ----
+//
+// The official loader downloads a file from the PDS every time a tile asks for
+// it, keeping nothing. A tile asking for the same file twice (a song, or the
+// tile's own page, which the loader loads twice) meant two full downloads, and
+// a Mixtape could wait on the second. Files are addressed by their content
+// (CID), so a kept copy can never be out of date. Here:
+//   - a file already on its way is shared, not downloaded again;
+//   - files are kept (up to KEEP_BYTES in all, the least recently used let go
+//     first) for as long as the page is open;
+//   - a failed download isn't kept, so the next request tries again.
+// Each request gets its own copy of the bytes (the loader may hand the buffer
+// on to the tile's frame, which can leave the original unusable).
+
+const KEEP_BYTES = 150 * 1024 * 1024;
+const kept = new Map(); // `${did} ${cid}` -> Blob, in least-recently-used order
+const pending = new Map(); // `${did} ${cid}` -> Promise<Blob | false>
+let keptBytes = 0;
+
+function keep(key, blob) {
+	if (kept.has(key)) return;
+	kept.set(key, blob);
+	keptBytes += blob.size;
+	for (const [k, b] of kept) {
+		if (keptBytes <= KEEP_BYTES || k === key) break;
+		kept.delete(k);
+		keptBytes -= b.size;
+	}
+}
+
+async function downloadBlob(did, cid) {
 	const res = await fetchFromPDS(did, 'com.atproto.sync.getBlob', { did, cid });
 	if (!res || !res.ok) return false;
-	return res.arrayBuffer();
+	return new Blob([await res.arrayBuffer()]);
+}
+
+export async function getBlob(did, cid) {
+	const key = `${did} ${cid}`;
+	let blob = kept.get(key);
+	if (blob) {
+		kept.delete(key); // most recently used goes to the end
+		kept.set(key, blob);
+	} else {
+		let p = pending.get(key);
+		if (!p) {
+			p = downloadBlob(did, cid).finally(() => pending.delete(key));
+			pending.set(key, p);
+		}
+		blob = await p;
+		if (!blob) return false;
+		keep(key, blob);
+	}
+	return blob.arrayBuffer(); // a fresh copy each time
+}
+
+/** For tests: forget everything kept. */
+export function forgetKeptFiles() {
+	kept.clear();
+	pending.clear();
+	keptBytes = 0;
 }
 
 // ---- loaders ----
