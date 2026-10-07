@@ -33,6 +33,15 @@
   .badge { font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 6px; flex: none; }
   .badge.saved { color: var(--muted); border: 1px solid var(--line); }
   .badge.updated { color: #241400; background: var(--accent); }
+  .typeahead { position: relative; flex: 1; min-width: 0; }
+  .ta-list { position: absolute; left: 0; right: 0; top: calc(100% + 4px); z-index: 10; list-style: none; margin: 0; padding: 4px;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,.45); }
+  .ta-item { display: flex; align-items: center; gap: 10px; padding: 7px 8px; border-radius: 8px; cursor: pointer; }
+  .ta-item.on, .ta-item:hover { background: rgba(255,255,255,.06); }
+  .ta-avatar { width: 32px; height: 32px; border-radius: 50%; flex: none; object-fit: cover; background: var(--line); }
+  .ta-text { display: flex; flex-direction: column; min-width: 0; }
+  .ta-handle { font-weight: 600; font-size: 14px; overflow-wrap: anywhere; }
+  .ta-name { font-size: 12px; color: var(--muted); overflow-wrap: anywhere; }
   .or { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 13px; margin: 18px 0 4px; }
   .or::before, .or::after { content: ""; flex: 1; height: 1px; background: var(--line); }
   #found { margin-top: 12px; }
@@ -111,22 +120,26 @@
     <ul class="list" id="tapes"></ul>
     <p class="empty hidden" id="noTapes">No tapes on this phone yet.</p>
     <div class="row">
-      <button id="showAdd">Add a tape</button>
+      <button id="showAdd">Add a mixtape</button>
     </div>
   </section>
 
   <section id="add" class="hidden">
-    <h2>Add a tape</h2>
-    <label for="handle">Find tapes by handle</label>
+    <h2>Add a mixtape</h2>
+    <label for="handle">Find mixtapes by handle</label>
     <div class="row" style="margin-top:0; flex-wrap:nowrap">
-      <input type="text" id="handle" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="you.bsky.social">
+      <div class="typeahead">
+        <input type="text" id="handle" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="you.bsky.social"
+               role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="handleList">
+        <ul id="handleList" class="ta-list hidden" role="listbox"></ul>
+      </div>
       <button id="findBtn">Find</button>
     </div>
     <ul class="list" id="found"></ul>
     <div class="progress" id="findMsg"></div>
 
-    <div class="or">or paste a tile address</div>
-    <label for="addr">Tile address</label>
+    <div class="or">or paste a Web Tile address</div>
+    <label for="addr">Web Tile address</label>
     <input type="text" id="addr" autocomplete="off" spellcheck="false" placeholder="at://did:plc:…/ing.dasl.masl/…">
     <label for="artistIn">Artist line (optional)</label>
     <input type="text" id="artistIn" autocomplete="off" placeholder="Leave blank to use the tape's own">

@@ -9,7 +9,7 @@
 (function () {
   "use strict";
 
-  var APP_VERSION = "5.2";
+  var APP_VERSION = "5.3";
   var TAPE_CACHE = "tileman-tapes";
   var INDEX_URL = abs("tapes/index.json");
   var LOG_KEY = "tileman-log";
@@ -349,7 +349,7 @@
 
   function parseAtUri(s) {
     var m = /^at:\/\/([^/]+)\/([^/]+)\/([^/?#]+)$/.exec(s.trim());
-    if (!m) throw new Error("That doesn't look like an at:// tile address.");
+    if (!m) throw new Error("That doesn't look like an at:// Web Tile address.");
     return { repo: m[1], collection: m[2], rkey: m[3] };
   }
   function getJson(url) {
@@ -741,7 +741,85 @@
     }).then(function () { $("findBtn").disabled = false; });
   }
   $("findBtn").addEventListener("click", findTapes);
-  $("handle").addEventListener("keydown", function (e) { if (e.key === "Enter") findTapes(); });
+
+  // ---------- handle suggestions as you type ----------
+  // From typeahead.waow.tech, the community search service the Web Tile
+  // Foundry also uses. Only for suggestions; finding tapes still looks the
+  // handle up the normal way. Needs a connection; offline, the box works as before.
+  var TA_URL = "https://typeahead.waow.tech/xrpc/tech.waow.typeahead.searchActors";
+  var taItems = [], taActive = -1, taTimer = null, taTicket = 0, taSkip = false;
+
+  function taClose() {
+    taItems = []; taActive = -1;
+    $("handleList").innerHTML = "";
+    $("handleList").classList.add("hidden");
+    $("handle").setAttribute("aria-expanded", "false");
+    $("handle").removeAttribute("aria-activedescendant");
+  }
+  function taRender() {
+    var ul = $("handleList");
+    ul.innerHTML = "";
+    taItems.forEach(function (a, i) {
+      var li = document.createElement("li");
+      li.className = "ta-item" + (i === taActive ? " on" : "");
+      li.id = "handleList-" + i;
+      li.setAttribute("role", "option");
+      li.setAttribute("aria-selected", i === taActive ? "true" : "false");
+      var img = document.createElement(a.avatar ? "img" : "span");
+      img.className = "ta-avatar";
+      if (a.avatar) { img.src = a.avatar; img.alt = ""; img.width = 32; img.height = 32; }
+      var text = document.createElement("span"); text.className = "ta-text";
+      var h = document.createElement("span"); h.className = "ta-handle"; h.textContent = "@" + a.handle;
+      text.appendChild(h);
+      if (a.displayName) { var n = document.createElement("span"); n.className = "ta-name"; n.textContent = a.displayName; text.appendChild(n); }
+      li.appendChild(img); li.appendChild(text);
+      // mousedown, so it happens before the box loses focus
+      li.addEventListener("mousedown", function (e) { e.preventDefault(); taPick(i); });
+      ul.appendChild(li);
+    });
+    var open = taItems.length > 0;
+    ul.classList.toggle("hidden", !open);
+    $("handle").setAttribute("aria-expanded", open ? "true" : "false");
+    if (taActive >= 0) $("handle").setAttribute("aria-activedescendant", "handleList-" + taActive);
+    else $("handle").removeAttribute("aria-activedescendant");
+  }
+  function taPick(i) {
+    var a = taItems[i];
+    if (!a) return;
+    taSkip = true;
+    $("handle").value = a.handle;
+    taClose();
+    findTapes();
+  }
+  function taSearch() {
+    var q = $("handle").value.trim().replace(/^@/, "");
+    var mine = ++taTicket;
+    if (q.length < 2 || !navigator.onLine) { taClose(); return; }
+    fetch(TA_URL + "?q=" + encodeURIComponent(q) + "&limit=6", { headers: { "X-Client": "thunderbird.cafe/tileman" } })
+      .then(function (r) { return r.ok ? r.json() : { actors: [] }; })
+      .then(function (j) {
+        if (mine !== taTicket) return; // a newer search is on its way
+        taItems = (Array.isArray(j.actors) ? j.actors : []).filter(function (a) { return a && a.handle; }).slice(0, 6);
+        taActive = -1;
+        if (document.activeElement === $("handle")) taRender(); else taClose();
+      })
+      .catch(function () { if (mine === taTicket) taClose(); });
+  }
+  $("handle").addEventListener("input", function () {
+    if (taSkip) { taSkip = false; return; }
+    clearTimeout(taTimer);
+    taTimer = setTimeout(taSearch, 150);
+  });
+  $("handle").addEventListener("blur", function () { setTimeout(taClose, 150); });
+  $("handle").addEventListener("keydown", function (e) {
+    if (taItems.length) {
+      if (e.key === "ArrowDown") { e.preventDefault(); taActive = (taActive + 1) % taItems.length; taRender(); return; }
+      if (e.key === "ArrowUp") { e.preventDefault(); taActive = taActive <= 0 ? taItems.length - 1 : taActive - 1; taRender(); return; }
+      if (e.key === "Escape") { taClose(); return; }
+      if (e.key === "Enter" && taActive >= 0) { e.preventDefault(); taPick(taActive); return; }
+    }
+    if (e.key === "Enter") { taTicket++; clearTimeout(taTimer); taClose(); findTapes(); }
+  });
 
   function removeFiles(c, t) {
     var dels = t.tracks.map(function (_, i) { return c.delete(trackKey(t, i)); });
