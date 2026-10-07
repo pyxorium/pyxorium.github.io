@@ -59,6 +59,16 @@
         "uri": "at://did:plc:6vxjigxrqizmbo56gojxico3/app.bsky.feed.post/3mwwkpumuvb2n",
         "cid": "bafyreicsi6d2cpp6ggsv2kyhyjszcxovlfietdhvwavrw5ol4k2khesyua"
       }
+    },
+    "src\\content\\blog\\mixtape-c60.mdx": {
+      "contentHash": "4638a170576759f3b5677b2387789b1c39cfaa83a37e01c1baac9ca7c7e75e3c",
+      "atUri": "at://did:plc:6vxjigxrqizmbo56gojxico3/site.standard.document/3mxau3yctbh2w",
+      "lastPublished": "2026-10-07T02:03:04.284Z",
+      "slug": "mixtape-c60",
+      "bskyPostRef": {
+        "uri": "at://did:plc:6vxjigxrqizmbo56gojxico3/app.bsky.feed.post/3mxau3yxma72y",
+        "cid": "bafyreiaq6wpji4lfozhihrz2ifwgh2ogu6ibrkgfm7dygy2s3y63bjp7qa"
+      }
     }
   },
   "publication": {
