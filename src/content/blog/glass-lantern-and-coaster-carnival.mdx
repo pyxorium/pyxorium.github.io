@@ -1,0 +1,50 @@
+---
+title: 'A Stained-Glass Die and a Roller Coaster: Two New Web Tiles You Can Make Yourself'
+description: 'The Web Tile Foundry now makes a stained-glass lantern die and a rideable roller coaster, each one yours to shape and publish. Here is how they work, and what a tile can and cannot do.'
+pubDate: 'Oct 7 2026'
+heroImage: '../../assets/foundry-lantern-coaster-cover.png'
+---
+
+import WebTile from '../../components/WebTile.astro';
+
+The [Web Tile Foundry](https://foundry.thunderbird.cafe) lets you easily make a finished Web Tile and publish it to your own atproto account. No code, no files to juggle. This week it added two new features: a stained-glass die lit from the inside, and a roller coaster you can ride.
+
+## Glass Lantern
+
+Glass Lantern is a die made of stained glass, with a light glowing inside. Tap it and it rolls.
+
+<WebTile uri="at://did:plc:joer5rzmwgec3dkr4srfmq45/ing.dasl.masl/3mwz4el5wug24" height={420} />
+
+You choose the shape from eight options, including the chestahedron and a seeded gem, where a number you pick grows its own unique cut. You also choose a kit for the glass: Tiffany, Victorian, or steampunk. For the colors, Easy picks a matching set for you, and Hands-on lets you choose every facet yourself.
+
+## Coaster Carnival
+
+Coaster Carnival makes a roller coaster, and every one is one of a kind. A handful of sliders (drops, loops, corkscrews, intensity) plus a shape number gives about a hundred different layouts from the very same settings. Change the number and you get a new coaster.
+
+<WebTile uri="at://did:plc:rqbqpaaluty5v47jwciowpik/ing.dasl.masl/3mx6h2wjtgq2h" height={480} />
+
+Tap to board, then ride. A few things to look for:
+
+- **Real physics.** The cart slows on the climbs and picks up speed on the drops. If a piece does not fit the park or the cart would run out of speed, the Foundry leaves it out and tells you why.
+- **Your sprite in the front row.** If you have an rpg.actor sprite, it rides up front. If not, a default rider takes the seat.
+- **Frolic or Detour.** With the turnout switch turned on, the track forks. Frolic is the long way, Detour is the short one.
+- **Ring the bell.** When the turnout switch is not turned on, a sign at the station asks you to ring the bell to go.
+- **Tunnels.** The light drops and the sound gets an echoey rumble. In the spooky theme, the tunnel opens like a mouth.
+- **Wood or steel.** Pick a wooden track or a steel one, and the colors for each.
+- **Three themes and three views.** Day, night and spooky, which viewers can switch while they ride. Watch from behind, outside, or above.
+
+The creator owns the coaster, and the viewer owns the ride. The creator decides the shape, the look, and the sprite. The person watching decides the theme, the view, which way to go at the fork, and when to ring the bell.
+
+Because the finished track is saved inside the tile, everyone rides the identical coaster, on any device.
+
+## What a tile can and cannot do
+
+Both the Glass Lantern and the Coaster Carnival are 3D scenes, and both live inside a tile that cannot reach the network once it has loaded. That shaped how they are built.
+
+- Everything the tile needs travels inside it. The shared program is about 640 KB, and each finished tile comes to about 1 MB, well under the 5 MB limit.
+- The sounds are not recordings. The coaster's rumble, echo and bell are made in code as the ride plays.
+- The shape of the coaster is made once, in the Foundry, and then saved. The tile only plays it back.
+
+## Try it
+
+Open the [Foundry](https://foundry.thunderbird.cafe), sign in with your atproto account, and pick Glass Lantern or Coaster Carnival. The preview updates as you change things, and Publish puts the tile in your own repo.
