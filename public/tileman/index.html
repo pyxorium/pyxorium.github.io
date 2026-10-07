@@ -102,6 +102,16 @@
 
   details summary { cursor: pointer; color: var(--muted); font-size: 14px; }
   #log { font: 12px/1.5 ui-monospace, monospace; white-space: pre-wrap; color: var(--muted); margin-top: 8px; max-height: 300px; overflow: auto; }
+  .card-row { justify-content: flex-end; margin-top: 12px; }
+  button.small { padding: 5px 12px; font-size: 13px; border-radius: 999px; }
+  .jcard { margin-top: 10px; padding: 14px; border-radius: 10px; background: var(--bg); border: 1px solid var(--line); overflow-wrap: anywhere; }
+  .jc-label { font: 22px/1.35 "Segoe Print", "Bradley Hand", "Comic Sans MS", "Chalkboard SE", cursive; margin-bottom: 4px; }
+  .jc-ded { font-style: italic; color: var(--muted); font-size: 14px; margin-bottom: 8px; }
+  .jc-head { margin: 10px 0 4px; font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 600; }
+  .jc-notes { white-space: pre-wrap; font-size: 15px; margin-bottom: 10px; }
+  .jc-side { font-size: 14px; margin-top: 6px; }
+  .jc-side-name { color: var(--accent); font-weight: 600; }
+  .jc-old { margin-top: 12px; font-size: 12px; color: var(--muted); }
   .hidden { display: none !important; }
 </style>
 </head>
@@ -176,6 +186,8 @@
       </button>
     </div>
     <button id="turnBtn" class="hidden" style="margin-top:14px;width:100%">Turn the tape</button>
+    <div class="row card-row"><button class="secondary small" id="cardBtn" aria-pressed="false">J-card</button></div>
+    <div class="jcard hidden" id="jcard"></div>
     <ul class="list" id="tracks" style="margin-top:14px"></ul>
     <div class="row">
       <button class="secondary" id="backBtn">Back to tapes</button>

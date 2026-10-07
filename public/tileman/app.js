@@ -9,7 +9,7 @@
 (function () {
   "use strict";
 
-  var APP_VERSION = "5.3";
+  var APP_VERSION = "5.4";
   var TAPE_CACHE = "tileman-tapes";
   var INDEX_URL = abs("tapes/index.json");
   var LOG_KEY = "tileman-log";
@@ -462,7 +462,13 @@
                 tracks.push({ path: t.path, title: String(t.title || t.path.split("/").pop()), artist: String(t.artist || t.album || "") });
               });
             });
-            return { title: String(tj.title || tile.name || "Untitled"), artist: String(tapeArtist), tracks: tracks, groups: groups };
+            // The J-card: the label, dedication and liner notes, as the tile shows them.
+            var card = {};
+            var lab = tj.label && typeof tj.label === "object" ? tj.label.text : tj.label;
+            if (lab) card.label = String(lab).slice(0, 80);
+            if (tj.dedication) card.dedication = String(tj.dedication).slice(0, 200);
+            if (tj.notes) card.notes = String(tj.notes).slice(0, 4000);
+            return { title: String(tj.title || tile.name || "Untitled"), artist: String(tapeArtist), tracks: tracks, groups: groups, card: card };
           });
       }
       var paths = Object.keys(res).filter(function (k) {
@@ -532,6 +538,7 @@
         art: !!got.art, artType: art ? art["content-type"] : null,
         savedAt: new Date().toISOString(),
         recordCid: recordCid,
+        card: plan.card || {},
         tracks: plan.tracks.map(function (tr, i) {
           return {
             title: tr.title,
@@ -901,6 +908,7 @@
       $("tapeTitle").textContent = t.title;
       artFor(t).then(function (u) { $("art").src = u; });
       renderTracks();
+      renderCard();
       show("player");
       return loadTrack(startIdx, startTime, false).then(function () {
         if (startIdx || startTime > 1) log("opened \"" + t.title + "\" at track " + (startIdx + 1) + ", " + fmt(startTime));
@@ -944,6 +952,42 @@
       ul.appendChild(li);
     });
     $("tracks").classList.toggle("hidden", tape.tracks.length < 2);
+  }
+
+  // The J-card: the tape's label, dedication, liner notes, and the songs on
+  // each side, like the card in a cassette case. It takes the track list's place.
+  function renderCard() {
+    var box = $("jcard");
+    box.innerHTML = "";
+    var c = tape.card;
+    var add = function (cls, text, tag) {
+      var el = document.createElement(tag || "div");
+      el.className = cls; el.textContent = text;
+      box.appendChild(el);
+      return el;
+    };
+    if (c && c.label) add("jc-label", c.label);
+    if (c && c.dedication) add("jc-ded", c.dedication);
+    if (c && c.notes) { add("jc-head", "Liner notes", "h3"); add("jc-notes", c.notes); }
+    var groups = isSide() ? tape.sides : [{ name: "A", first: 0, count: tape.tracks.length }];
+    groups.forEach(function (sd, k) {
+      var line = document.createElement("div"); line.className = "jc-side";
+      var name = document.createElement("span"); name.className = "jc-side-name";
+      var nm = sd.name || String.fromCharCode(65 + k);
+      name.textContent = (nm.length <= 2 ? "Side " + nm : nm) + ": ";
+      line.appendChild(name);
+      line.appendChild(document.createTextNode(tape.tracks.slice(sd.first, sd.first + sd.count).map(function (tr) { return tr.title; }).join(", ")));
+      box.appendChild(line);
+    });
+    if (!c) add("jc-old", "Saved before Tileman 5.4: remove it and add it again to see its notes.");
+    setCard(false);
+  }
+
+  function setCard(open) {
+    $("jcard").classList.toggle("hidden", !open);
+    $("tracks").classList.toggle("hidden", open || tape.tracks.length < 2);
+    $("cardBtn").textContent = open ? "Tape" : "J-card";
+    $("cardBtn").setAttribute("aria-pressed", open ? "true" : "false");
   }
 
   function markTrack() {
@@ -1013,6 +1057,9 @@
     if (s >= 0 && was !== s) log("showing \"" + btn.textContent + "\"");
     if (s < 0 && was >= 0) log("Turn the tape put away");
   }
+  $("cardBtn").addEventListener("click", function () {
+    if (tape) setCard($("jcard").classList.contains("hidden"));
+  });
   if ($("turnBtn")) $("turnBtn").addEventListener("click", function () {
     if (!tape || turnTo < 0) return;
     var sd = tape.sides[turnTo];
