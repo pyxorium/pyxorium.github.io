@@ -6,11 +6,15 @@ interface Props {
 const { uri, height = 500 } = Astro.props;
 ---
 <div class="web-tile-mount" data-uri={uri} data-height={height} style={`min-height: ${height}px;`}>
-  <p class="web-tile-loading">Loading tile…</p>
+  <div class="web-tile-status" role="status">
+    <span class="web-tile-loading">Loading tile…</span>
+    <button class="web-tile-retry" type="button" hidden>Try again</button>
+  </div>
 </div>
 
 <style>
   .web-tile-mount {
+    position: relative;
     margin-bottom: 1.5em;
     display: flex;
     align-items: center;
@@ -19,41 +23,61 @@ const { uri, height = 500 } = Astro.props;
     border-radius: 8px;
     overflow: hidden;
   }
+  /* Shown over the tile's frame until the tile is under way (see web-tile-mount.js). */
+  .web-tile-status {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: #111;
+  }
+  .web-tile-status[hidden] {
+    display: none;
+  }
   .web-tile-loading {
     color: #888;
     font-family: sans-serif;
     font-size: 0.9rem;
+  }
+  .web-tile-retry {
+    font-family: sans-serif;
+    font-size: 0.85rem;
+    padding: 5px 14px;
+    border: 1px solid #555;
+    border-radius: 999px;
+    background: #222;
+    color: #ddd;
+    cursor: pointer;
+  }
+  .web-tile-retry[hidden] {
+    display: none;
+  }
+  .web-tile-retry:hover {
+    background: #2c2c2c;
+  }
+  .web-tile-retry:focus-visible {
+    outline: 2px solid #8ab4f8;
+    outline-offset: 2px;
   }
 </style>
 
 <script>
   import { TileMothership } from '@dasl/tile-loader';
   // Our own AT loader: same as the official ATTileLoader, plus did:web
-  // accounts. See src/lib/at-tile-loader.js.
+  // accounts, and it keeps downloaded files. See src/lib/at-tile-loader.js.
   import { ATTileLoaderWithDidWeb } from '../lib/at-tile-loader.js';
+  // One shared loader for the page, and a watchdog with Try again on each
+  // tile. See src/lib/web-tile-mount.js.
+  import { createTileMounter } from '../lib/web-tile-mount.js';
 
-  async function mountTile(el: HTMLElement) {
-    const uri = el.dataset.uri;
-    const height = Number(el.dataset.height) || 500;
-    if (!uri) return;
-
-    try {
-      const tl = new TileMothership({ loadDomain: 'load.tiles.thunderbird.cafe' });
-      tl.init();
-      tl.addLoader(new ATTileLoaderWithDidWeb());
-
-      const tile = await tl.loadTile(uri);
-      if (!tile) {
-        el.textContent = 'Could not load this tile.';
-        return;
-      }
-      el.innerHTML = '';
-      el.appendChild(await tile.renderContent(height));
-    } catch (err) {
-      console.error('Tile load failed:', err);
-      el.textContent = 'Could not load this tile.';
-    }
-  }
-
-  document.querySelectorAll<HTMLElement>('.web-tile-mount').forEach(mountTile);
+  const mount = createTileMounter({
+    loadDomain: 'load.tiles.thunderbird.cafe',
+    Mothership: TileMothership,
+    loaders: [new ATTileLoaderWithDidWeb()],
+  });
+  document.querySelectorAll<HTMLElement>('.web-tile-mount').forEach(mount);
 </script>
