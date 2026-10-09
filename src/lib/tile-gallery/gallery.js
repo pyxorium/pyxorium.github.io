@@ -7,6 +7,7 @@ import { TileStore } from './store.js';
 import { createResolver } from './identity.js';
 import { connectLive } from './live.js';
 import { renderCard } from './render.js';
+import { loadTypedImages } from './typed-images.js';
 import { backfill as networkBackfill } from './sources/network.js';
 import { backfill as indexerBackfill } from './sources/indexer.js';
 
@@ -95,6 +96,9 @@ export function initGallery(root, config = CONFIG) {
 		if (!same) el.grid.replaceChildren(...nodes);
 		if (!nodes.length) el.grid.innerHTML = `<p class="tg-empty">${store.tiles.size ? 'No tiles match.' : ''}</p>`;
 
+		// SVG pictures served without their type (see typed-images.js).
+		loadTypedImages(el.grid, placeholder);
+
 		el.nTiles.textContent = store.tiles.size;
 		const dids = new Set([...store.tiles.values()].map((t) => t.did));
 		el.nAuthors.textContent = dids.size;
@@ -166,19 +170,14 @@ export function initGallery(root, config = CONFIG) {
 	});
 
 	// Broken images fall back to the placeholder.
-	el.grid.addEventListener(
-		'error',
-		(e) => {
-			const img = e.target;
-			if (img instanceof HTMLImageElement && img.hasAttribute('data-fallback')) {
-				const ph = document.createElement('span');
-				ph.className = 'tg-ph';
-				ph.textContent = '▦';
-				img.replaceWith(ph);
-			}
-		},
-		true,
-	);
+	function placeholder(img) {
+		if (!(img instanceof HTMLImageElement) || !img.hasAttribute('data-fallback') || !img.isConnected) return;
+		const ph = document.createElement('span');
+		ph.className = 'tg-ph';
+		ph.textContent = '▦';
+		img.replaceWith(ph);
+	}
+	el.grid.addEventListener('error', (e) => placeholder(e.target), true);
 
 	store.onChange(render);
 

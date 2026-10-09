@@ -22,10 +22,19 @@ function pickImage(t, resources) {
 	icons.sort((x, y) => (parseInt(y.sizes) || 0) - (parseInt(x.sizes) || 0));
 	for (const i of icons) tries.push({ path: i.src, kind: 'icon' });
 	for (const c of tries) {
-		const cid = blobCid(resources[c.path]);
-		if (cid) return { cid, kind: c.kind };
+		const res = resources[c.path];
+		const cid = blobCid(res);
+		if (cid) return { cid, kind: c.kind, type: declaredType(res) };
 	}
 	return null;
+}
+
+// The type the tile itself declares for a file. Some servers store and serve
+// blobs as application/octet-stream; browsers still guess PNG and JPEG, but
+// they show an SVG only when it is labelled as one (see render.js).
+function declaredType(res) {
+	const t = res?.['content-type'] || res?.src?.mimeType || '';
+	return typeof t === 'string' ? t.toLowerCase().split(';')[0].trim() : '';
 }
 
 export function normalize(collection, did, rkey, cid, value, firstSeen) {

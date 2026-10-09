@@ -12,8 +12,15 @@ const PLACEHOLDER = `<span class="tg-ph" aria-hidden="true">▦</span>`;
 function renderThumb(tile, author, showImages) {
 	if (!showImages || !tile.image || !author?.pds) return `<div class="tg-thumb tg-noimg">${PLACEHOLDER}</div>`;
 	const src = `${author.pds}/xrpc/com.atproto.sync.getBlob?did=${encodeURIComponent(tile.did)}&cid=${tile.image.cid}`;
+	const cls = tile.image.kind === 'icon' ? 'tg-icon' : '';
+	// An SVG is fetched and labelled with the type the tile declares (typed-images.js),
+	// because its server may serve it as application/octet-stream, which <img> won't show.
+	if (tile.image.type === 'image/svg+xml') {
+		return `<div class="tg-thumb"><img referrerpolicy="no-referrer" alt=""
+			class="${cls}" data-typed-src="${esc(src)}" data-typed-key="${esc(tile.image.cid)}" data-fallback></div>`;
+	}
 	return `<div class="tg-thumb"><img loading="lazy" referrerpolicy="no-referrer" alt=""
-		class="${tile.image.kind === 'icon' ? 'tg-icon' : ''}" src="${esc(src)}" data-fallback></div>`;
+		class="${cls}" src="${esc(src)}" data-fallback></div>`;
 }
 
 function renderAuthor(author, did) {
