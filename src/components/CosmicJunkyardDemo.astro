@@ -37,11 +37,12 @@ const { uri, height = 530, imageFormat = 'blob' } = Astro.props;
   import { TileMothership } from '@dasl/tile-loader';
   import { ATTileLoader } from '@dasl/tile-loader/at';
   import { createSpriteHost } from '../lib/cosmic-junkyard/sprite-host.js';
+  import { TILE_LOAD_DOMAIN } from '../lib/tile-load-domain.js';
 
   const UP = 'tiles-protocol-up-data-payload';
   const DOWN = 'tiles-protocol-down-data-payload';
 
-  const mothership = new TileMothership({ loadDomain: 'load.tiles.thunderbird.cafe' });
+  const mothership = new TileMothership({ loadDomain: TILE_LOAD_DOMAIN });
   mothership.init();
   mothership.addLoader(new ATTileLoader());
 

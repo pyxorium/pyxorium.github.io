@@ -149,6 +149,7 @@ const {
 <script>
   import { TileMothership } from '@dasl/tile-loader';
   import { ATTileLoader } from '@dasl/tile-loader/at';
+  import { TILE_LOAD_DOMAIN } from '../lib/tile-load-domain.js';
 
   // =====================================================================
   // Load both tiles for real -- same mechanism as WebTile.astro. ONE
@@ -162,7 +163,7 @@ const {
   // (the owning instance still handles it correctly) but genuinely
   // wrong and noisy -- one shared instance avoids it entirely.
   // =====================================================================
-  const mothership = new TileMothership({ loadDomain: 'load.tiles.thunderbird.cafe' });
+  const mothership = new TileMothership({ loadDomain: TILE_LOAD_DOMAIN });
   mothership.init();
   mothership.addLoader(new ATTileLoader());
 

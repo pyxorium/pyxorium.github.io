@@ -1,10 +1,12 @@
 // Embedded Web Tiles on the blog (WebTile.astro): one shared tile loader for
 // the whole page, and a watchdog on each tile.
 //
-// Why: each tile's files come through a small service worker on one of the
-// loading server's names (load.tiles.thunderbird.cafe hands out tile1 to tile5).
-// Sometimes a tile never gets going (two tiles landing on the same name, or the
-// worker being stopped by the browser); see claude/tile-loading-findings.md in
+// Why: each tile's files come through a small service worker on the name the
+// loading server hands out (src/lib/tile-load-domain.js; since Oct 2026 a fresh
+// random name per tile). Sometimes a tile never gets going (formerly two tiles
+// landing on the same one of five fixed names, or the worker being stopped by
+// the browser, which the loading server now mostly recovers from); see
+// claude/tile-loading-findings.md in
 // the Foundry project. Starting the tile afresh gets it a new frame, a new name
 // and a new worker, and the files it already downloaded are kept by
 // at-tile-loader.js, so a fresh start is quick.

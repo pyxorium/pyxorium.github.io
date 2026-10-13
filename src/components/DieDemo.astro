@@ -9,6 +9,8 @@
 // Use ONE DieDemo per page (the demo uses a single shared loader instance, and its relay session is per page load).
 // The relay only accepts connections from https://thunderbird.cafe (set in relay/fly.toml, ALLOWED_ORIGINS).
 
+import { TILE_LOAD_DOMAIN } from "../lib/tile-load-domain.js";
+
 interface Props {
   bobUri?: string;
   aliceUri?: string;
@@ -21,7 +23,7 @@ const {
   aliceUri = "at://did:plc:6vxjigxrqizmbo56gojxico3/ing.dasl.masl/3mwr6fpldri2m",
   height = 420,
   relayUrl = "wss://die-relay.thunderbird.cafe/",
-  loadDomain = "load.tiles.thunderbird.cafe",
+  loadDomain = TILE_LOAD_DOMAIN,
 } = Astro.props;
 ---
 

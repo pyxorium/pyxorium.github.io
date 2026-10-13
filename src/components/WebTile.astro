@@ -73,9 +73,10 @@ const { uri, height = 500 } = Astro.props;
   // One shared loader for the page, and a watchdog with Try again on each
   // tile. See src/lib/web-tile-mount.js.
   import { createTileMounter } from '../lib/web-tile-mount.js';
+  import { TILE_LOAD_DOMAIN } from '../lib/tile-load-domain.js';
 
   const mount = createTileMounter({
-    loadDomain: 'load.tiles.thunderbird.cafe',
+    loadDomain: TILE_LOAD_DOMAIN,
     Mothership: TileMothership,
     loaders: [new ATTileLoaderWithDidWeb()],
   });
