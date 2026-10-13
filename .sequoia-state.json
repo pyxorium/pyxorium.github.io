@@ -1,9 +1,9 @@
 {
   "posts": {
     "src\\content\\blog\\embedding-a-web-tile.mdx": {
-      "contentHash": "1e4205dceaed2d7d6949f1baecbb2ba24d9b201c35ebcd23162f3a9e53600ef0",
+      "contentHash": "9b668c969d45134b47e69ad06b3913497dad470a9f326bea85acaaf05e73e4eb",
       "atUri": "at://did:plc:6vxjigxrqizmbo56gojxico3/site.standard.document/3mwjap2qjij2v",
-      "lastPublished": "2026-09-27T17:12:32.148Z",
+      "lastPublished": "2026-10-13T02:33:43.521Z",
       "slug": "embedding-a-web-tile",
       "bskyPostRef": {
         "uri": "at://did:plc:6vxjigxrqizmbo56gojxico3/app.bsky.feed.post/3mwjd5thjhf27",
@@ -78,6 +78,16 @@
       "bskyPostRef": {
         "uri": "at://did:plc:6vxjigxrqizmbo56gojxico3/app.bsky.feed.post/3mxc5j7oorx2y",
         "cid": "bafyreifbbyyamq7ffbg7fpmbv3tgslh3ofeza6dckk6xwofznpbsfjf36m"
+      }
+    },
+    "src\\content\\blog\\zine-scene.mdx": {
+      "contentHash": "b38042e1ac7db2a8ede58825f756697ae32e858021a25d2804a6eef44817acf9",
+      "atUri": "at://did:plc:6vxjigxrqizmbo56gojxico3/site.standard.document/3mxi4feam252v",
+      "lastPublished": "2026-10-09T23:20:05.852Z",
+      "slug": "zine-scene",
+      "bskyPostRef": {
+        "uri": "at://did:plc:6vxjigxrqizmbo56gojxico3/app.bsky.feed.post/3mxi4fesyhw2y",
+        "cid": "bafyreibqpdnk4bx4wxfpzgnvmn2vollwwea4kzqrtfybkkpymaej3c2xpy"
       }
     }
   },
