@@ -36,6 +36,8 @@ Getting an embedded Web Tile to work properly in this blog post touched a few di
 
 The result is a small reusable component I can drop into any future post, `<WebTile uri="..." height={...} />`, to embed any tile I publish going forward.
 
+**Update, October 2026:** the tile loader now gives every tile its own random name after all. I moved the loading server to a spare domain, lexicographer.space, whose DNS supports wildcard records, so each embedded tile gets a fresh origin like `qmzkxwplrtbvnhjdcfgy.tiles.lexicographer.space`, as the stock tile server intends. Along the way the loader also learned to recover when the browser stops its service worker, which used to leave tiles stuck on "Loading…".
+
 **Sources:**
 - [DASL: Web Tiles specification](https://dasl.ing/tiles.html)
 - [Web Tiles, by Robin Berjon](https://berjon.com/web-tiles/)
