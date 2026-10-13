@@ -44,17 +44,25 @@ function stripFrontmatter(src) {
   return src.replace(/^---\n[\s\S]*?\n---\n/, '');
 }
 
-// Inline code spans MUST be resolved before anything else touches the
-// text -- doing JSX-tag removal first (as an earlier version of this
-// script did) can partially chew into a backtick-wrapped CODE EXAMPLE
-// of JSX syntax (e.g. an illustrative `<WebTile uri="..." />` inside a
-// sentence, not live usage), leaving one stray backtick that then
-// swallows a large, unrelated later chunk of real text into what the
-// next regex pass mistakes for "inline code." Confirmed this failure
-// mode directly by testing against the first real post, not assumed --
-// see the project notes for what it actually produced before this fix.
-function deBacktick(src) {
-  return src.replace(/`([^`]+)`/g, '$1');
+// Inline code spans are set aside before anything else touches the text
+// and put back (without their backticks) at the very end. Doing JSX-tag
+// removal first (as an earlier version of this script did) can partially
+// chew into a backtick-wrapped CODE EXAMPLE of JSX syntax (e.g. an
+// illustrative `<WebTile uri="..." />` inside a sentence, not live usage),
+// leaving one stray backtick that swallows a large, unrelated later chunk
+// of real text. Simply removing the backticks first (the next version) let
+// the JSX pass delete the example itself ("any future post, , to embed"),
+// and let the emphasis pass eat asterisks inside code (`blob:*/*` became
+// `blob:/:`). Setting the spans aside (Oct 2026) avoids all three.
+const CODE_MARK = '\u0000';
+function setAsideCode(src, spans) {
+  return src.replace(/`([^`\n]+)`/g, (_, code) => {
+    spans.push(code);
+    return `${CODE_MARK}${spans.length - 1}${CODE_MARK}`;
+  });
+}
+function putBackCode(src, spans) {
+  return src.replace(new RegExp(`${CODE_MARK}(\\d+)${CODE_MARK}`, 'g'), (_, i) => spans[Number(i)]);
 }
 
 function stripImportsAndJSX(src) {
@@ -86,12 +94,15 @@ function markdownToPlainText(src) {
 }
 
 function cleanMdxFile(path) {
-  const raw = readFileSync(path, 'utf8');
+  // Windows line endings (CRLF) are made plain first: the patterns below
+  // expect "\n", and with CRLF the front matter was left in (Oct 2026).
+  const raw = readFileSync(path, 'utf8').replace(/\r\n?/g, '\n');
+  const spans = [];
   let body = stripFrontmatter(raw);
-  body = deBacktick(body);
+  body = setAsideCode(body, spans);
   body = stripImportsAndJSX(body);
   body = markdownToPlainText(body);
-  return body;
+  return putBackCode(body, spans);
 }
 
 async function patchRecord(rkey, textContent) {
