@@ -4,7 +4,10 @@
 // the tile entirely, so at most one tile runs on the page. All previews share
 // one tile loader (two loaders on one page would both hear every tile's
 // messages). Tiles load through the same loading server as WebTile.astro,
-// using our AT loader, which also handles did:web accounts.
+// using our AT loader, which also handles did:web accounts. A link under the
+// title opens the tile on its own page on the viewer (lexicographer.space).
+
+import { pageUrl } from './util.js';
 
 let mothership = null;
 let dialog = null;
@@ -30,6 +33,7 @@ function getDialog() {
 			<div class="tg-modal-titles">
 				<h2 class="tg-modal-title" id="tg-modal-title"></h2>
 				<p class="tg-modal-by"></p>
+				<a class="tg-modal-open" target="_blank" rel="noopener noreferrer">Open on its own page ↗</a>
 			</div>
 			<button type="button" class="tg-modal-close" aria-label="Close preview">×</button>
 		</div>
@@ -86,6 +90,7 @@ export async function openPreview(config, tile, author) {
 
 	dlg.querySelector('.tg-modal-title').textContent = tile.name;
 	dlg.querySelector('.tg-modal-by').textContent = author?.handle ? `by @${author.handle}` : tile.did;
+	dlg.querySelector('.tg-modal-open').href = pageUrl(config, tile, author);
 	const stage = dlg.querySelector('.tg-modal-stage');
 	stage.style.width = `${width}px`;
 	stage.style.height = `${height}px`;

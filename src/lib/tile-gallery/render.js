@@ -5,7 +5,7 @@
 // (runs the tile in a pop-up, see preview.js) or, for tiles that need their
 // demo page, a "Try the demo" link.
 
-import { esc, fmtDate, fmtBytes } from './util.js';
+import { esc, fmtDate, fmtBytes, pageUrl } from './util.js';
 
 const PLACEHOLDER = `<span class="tg-ph" aria-hidden="true">▦</span>`;
 
@@ -53,7 +53,7 @@ export function renderCard(config, tile, author, showImages) {
 		</div>
 		<div class="tg-links">
 			${renderPrimaryAction(config, tile)}
-			<a href="${esc(config.viewer + tile.uri)}" target="_blank" rel="noopener noreferrer">Open</a>
+			<a href="${esc(pageUrl(config, tile, author))}" target="_blank" rel="noopener noreferrer">Open</a>
 			${recordUrl ? `<a href="${esc(recordUrl)}" target="_blank" rel="noopener noreferrer">Record</a>` : ''}
 			<button type="button" data-copy="${esc(tile.uri)}">Copy at://</button>
 		</div>`;

@@ -25,8 +25,10 @@ export const CONFIG = {
 	plc: 'https://plc.directory',
 	handleResolver: 'https://public.api.bsky.app',
 
-	// "Open" link on each card; the tile's at:// URI is appended.
-	viewer: 'https://webtil.es/browser/#url=',
+	// The open tile viewer: each card's "Open" link and the Preview pop-up's
+	// "Open on its own page" go to the tile's page there, at /@handle/rkey when the
+	// handle is checked both ways, else /@did/rkey (see pageUrl in util.js).
+	viewer: 'https://lexicographer.space',
 
 	// Live previews: a pop-up that runs one tile at a time, through the same
 	// loading server WebTile.astro uses.

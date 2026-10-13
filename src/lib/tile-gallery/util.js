@@ -7,6 +7,14 @@ export function esc(s) {
 	);
 }
 
+// The tile's own page on the viewer (CONFIG.viewer). The handle form only once the
+// handle is known to point back to the account; until then, and for anyone whose
+// handle doesn't check out, the DID form (which always works).
+export function pageUrl(config, tile, author) {
+	const who = author?.verified === true && author.handle ? author.handle.toLowerCase() : tile.did;
+	return `${config.viewer}/@${who}/${tile.rkey}`;
+}
+
 export async function getJSON(url) {
 	const r = await fetch(url);
 	const j = await r.json().catch(() => ({}));
