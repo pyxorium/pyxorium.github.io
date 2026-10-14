@@ -1,0 +1,86 @@
+---
+title: 'Cross-Tile Intrazine: tiles that talk inside a zine'
+description: 'Two pairs of Web Tiles, a wish and a shared die, carried inside one zine. The zine passes their messages itself, so the conversation goes wherever the zine goes.'
+pubDate: 'Oct 14 2026'
+heroImage: '../../assets/cross-tile-intrazine-cover.png'
+---
+
+import WebTile from '../../components/WebTile.astro';
+
+In the two wishes posts, [a color scheme](https://thunderbird.cafe/blog/wishes-color-scheme-demo/) and [a shared die](https://thunderbird.cafe/blog/wishes-shared-die-demo/), two Web Tiles talked to each other. They could only do it because this blog's pages did the carrying. A tile can only speak through whatever holds it, so each demo needed a host page written for that pair, passing messages from one tile to the other. Put the same two tiles anywhere else and they sat side by side in silence.
+
+[Zine Scene](https://thunderbird.cafe/blog/zine-scene/), the Foundry's zine maker, can now carry those conversations itself. A zine is a Web Tile that holds other tiles on its pages, which means it can be their host as well. Pair two tiles in a zine, and the zine passes their messages back and forth, wherever the zine is opened.
+
+## Cross-Tile Intrazine
+
+Here's the first one.
+
+<WebTile uri="at://did:plc:rqbqpaaluty5v47jwciowpik/ing.dasl.masl/3mxsmot7wxa22" height={560} />
+
+It holds the same four tiles as the earlier demos, copied in exactly as they were published: Bob's cube and Alice's palette from the first post, and the two halves of the shared die from the second. Bob's tiles live in the colorado.atprotocol.space repo and Alice's in thunderbird.cafe. The zine itself is published from a third account, pyxorium.com.
+
+Pages 1 and 2 explain what's coming. On pages 3 and 4, Bob's cube wishes for a color scheme, Alice's palette grants three, and Bob sends back a confirmation of the one he picked. Pages 5 and 6 hold the shared die, here named Holden and Nagata after two characters from *The Expanse*: one die between two tiles, handed back and forth with a wish and a grant. Holden gets the back page too.
+
+## Part 1: Reading and making
+
+**Read it wide, or on a phone.** On a wide screen the zine opens in spreads, so pages 3 and 4 sit side by side, and so do 5 and 6. Make a wish on Bob's cube and watch it reach Alice's palette, then grant it and watch the schemes come back. On a phone you see one page at a time. When a tile sends a message and its partner is on another page, a line appears under the tile: "Message sent", with a button, "Go to Alice's tile (p. 4) →". Follow it, and the other tile shows where the message came from: "From Bob's tile (p. 3)".
+
+**Turn away, and they keep going.** Paired tiles keep running while the zine is open, even when their pages aren't showing. Bob remembers his wish while you go looking for Alice, and Holden and Nagata never lose track of who holds the die. A message sent to a tile that hasn't started yet waits for it.
+
+To pair tiles in a zine of your own, start in the [Web Tile Foundry](https://foundry.thunderbird.cafe/) with Zine Scene, and use two "A web tile" pages.
+
+**Choose two tiles that talk.** Give two pages the "A web tile" layout and choose a tile for each. In the list, tiles that send messages carry a gold **talks** badge. A tile that only plays on its own says so, with **Pair it anyway…** in case you know better.
+
+**Pair them.** On either page, set **Talks to** to the other one. Both pages change together. Each tile can have one partner.
+
+**Name them.** An optional **Short name**, up to 20 characters, is what the captions call the tile: "Go to Alice's tile" rather than "Go to the tile on p. 4".
+
+**Put them face to face.** Pages 1 and 2, 3 and 4, or 5 and 6 sit side by side on a wide screen, which is the nicest way to watch a pair talk.
+
+**Try it, then publish.** The preview runs the pair the way readers will see it. Then **Review and publish** as usual.
+
+One honest catch: talking tiles are rare so far. The tiles have to be your own, from accounts you've signed in to, and they have to be built to talk to each other. None of the Foundry's own tile types talk yet. And a wish only works when both tiles speak the same language: the Foundry can tell that a tile talks, but not what it says.
+
+## Part 2: Notes for builders
+
+**The host moved inside.** A Web Tile's only way out is whatever holds it. In the earlier demos that was the blog page: a little script on the page watched for a message from one tile, checked which tile it came from, and handed it to the other. The shared die went further, out to a relay server on the internet and back. In a zine, the holder is the zine's own reader, the small page that turns the pages. It already starts every tile the zine shows, so it already knows which frame each message comes from, and that's all a relay needs to know. Because the reader is one of the zine's own files, sealed into the record when the zine is published, the relay travels with it. On [lexicographer.space](https://lexicographer.space/), in the [gallery](https://thunderbird.cafe/webtiles/gallery), or embedded in a post like this one, the pair talks the same way, with no host code written for it.
+
+**The tiles didn't change.** The four tiles were copied byte for byte from their own records. Each one first tries the real Tiles Protocol pipeline, which isn't there inside a zine, then falls back to a plain message to the window that holds it, and that window is now the zine. The zine passes each message along as it is, without needing to understand it, which is how a wish, a grant and a steady stream of die positions all travel the same way. It does cap the size of a message and how many can go in a second, so one tile can't flood the other. Because the reader knows tiles by the frame they speak from, pairs also work for tiles the zine runs walled off in a sealed frame.
+
+**Nothing leaves the browser.** The shared die's relay used to be a server, and that post spent a while on what the server could see. Here there is no server. The zine's own content security policy keeps it from opening a connection to any other site, so the die's position goes from one frame to another inside your browser. When a die says hello and asks how far away its partner is, the zine reports a round trip of zero, which is true.
+
+**Pages are the hard part.** On a blog page both tiles are on screen together. In a zine, the partner is often a page away, and a tile whose page isn't showing is normally stopped. Most of the work went into that:
+
+- Paired tiles start together when either one's page is shown, and keep running hidden until the zine closes. Unpaired tiles still stop when their page is turned.
+- A message for a partner that hasn't started, or isn't listening yet, waits in a small inbox and goes in when the partner first speaks, or shortly after its page loads.
+- The dice expect to be told whether their partner is there. The zine answers each die's hello with whether the other one is running, and tells it when the other stops.
+- Captions appear only when you can see the sender but not its partner, and clear once you've visited. Tiles talking to each other in the background add nothing to the page.
+
+**Knowing a tile talks.** The Foundry reads a tile's code for signs of talking: sending messages to whatever holds it, or using the Tiles Protocol. A tile that only listens doesn't count, since it can't start a conversation. It's a reasonable guess from the code, not a promise, which is why "Pair it anyway…" exists.
+
+**The recipe remembers.** Every zine carries a public recipe, and it records each pair and its short names alongside the tiles' at:// addresses and content addresses. Anyone can see which tiles were introduced to each other, and where they came from.
+
+## What this isn't
+
+**It isn't discovery.** Wishes, as Robin Berjon describes them, let a tile ask for something without knowing who will answer. Here, the zine's author introduces two tiles by hand. The discoverability question from the end of the last wishes post is still open.
+
+**It's one partner each, in one zine.** A tile can talk to one other tile, in the same zine. A tile with several partners, or pairs across zines, are for another day.
+
+**It's still one reader.** Both tiles run in the same browser, for the same person, as in the earlier demos.
+
+**There's still no permission model.** The zine passes along whatever a paired tile says. That's reasonable here: the author chose both tiles, both are tiles they published themselves, and nothing leaves the browser. It isn't an answer for tiles from strangers.
+
+## What's next
+
+**More talking tiles.** If you build tiles that talk, please consider sharing them!
+
+## Further reading
+
+- [Wishes: Creating Two Web Tiles that Talk to Each Other](https://thunderbird.cafe/blog/wishes-color-scheme-demo/), the color scheme demo
+- [Wishes, Continued: Shared View Between Two Web Tiles Via External Relay](https://thunderbird.cafe/blog/wishes-shared-die-demo/), the shared die demo
+- [Zine Scene: eight-page zines, made as web tiles](https://thunderbird.cafe/blog/zine-scene/)
+- [Web Tile Foundry](https://foundry.thunderbird.cafe/), and its code at [pyxorium/web-tile-foundry](https://github.com/pyxorium/web-tile-foundry)
+- [Web Tiles, by Robin Berjon](https://berjon.com/web-tiles/)
+- [Web Tiles as the base for Lexicon Embeds](https://discourse.atmosphere.community/t/web-tiles-as-the-base-for-lexicon-embeds/613), where wishes get an atproto design
+- [DASL: Web Tiles specification](https://dasl.ing/tiles.html)
+- [DASL: Tiles Protocols](https://dasl.ing/tiles-protocols.html)
