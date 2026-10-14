@@ -89,6 +89,16 @@
         "uri": "at://did:plc:6vxjigxrqizmbo56gojxico3/app.bsky.feed.post/3mxi4fesyhw2y",
         "cid": "bafyreibqpdnk4bx4wxfpzgnvmn2vollwwea4kzqrtfybkkpymaej3c2xpy"
       }
+    },
+    "src\\content\\blog\\cross-tile-intrazine.mdx": {
+      "contentHash": "61f4498152b89488a189378902d28c3e8d6f057feeb53162ce970f22d38948eb",
+      "atUri": "at://did:plc:6vxjigxrqizmbo56gojxico3/site.standard.document/3mxtw5l6in62n",
+      "lastPublished": "2026-10-14T16:00:20.680Z",
+      "slug": "cross-tile-intrazine",
+      "bskyPostRef": {
+        "uri": "at://did:plc:6vxjigxrqizmbo56gojxico3/app.bsky.feed.post/3mxtw5maw762n",
+        "cid": "bafyreibtvo2qo22yntjowmbp6pnk2kqphqtc5ifmooliwc25u25wi6qiha"
+      }
     }
   },
   "publication": {
