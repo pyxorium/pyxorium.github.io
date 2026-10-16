@@ -1,0 +1,12 @@
+{
+  "client_id": "https://thunderbird.cafe/webtiles/sevenup/oauth.json",
+  "client_name": "Seven-Up at thunderbird.cafe",
+  "client_uri": "https://thunderbird.cafe/webtiles/sevenup/",
+  "redirect_uris": ["https://thunderbird.cafe/webtiles/sevenup/"],
+  "scope": "atproto repo:cafe.thunderbird.sevenup.match",
+  "grant_types": ["authorization_code", "refresh_token"],
+  "response_types": ["code"],
+  "token_endpoint_auth_method": "none",
+  "application_type": "web",
+  "dpop_bound_access_tokens": true
+}

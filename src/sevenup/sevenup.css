@@ -1,0 +1,78 @@
+/* The Seven-Up table page. Its own styles (not the blog's), in the tiles' pale jade. */
+:root {
+  --su-ink: #1f3329; --su-soft: #5d7468; --su-line: #c9d7cc; --su-paper: #f3f6f2; --su-card: #ffffff;
+  --su-hot: #a8452f; --su-hot-dark: #8a3725; --su-warn-bg: #fbefe9; --su-warn-line: #e6c4b6;
+  color-scheme: light;
+}
+html { background: var(--su-paper); }
+body { margin: 0; color: var(--su-ink); font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+#sevenup { max-width: 1120px; margin: 0 auto; padding: 0 16px 32px; }
+
+.su-bar { display: flex; flex-wrap: wrap; gap: 10px 20px; align-items: center; justify-content: space-between; padding: 18px 0 6px; }
+.su-title { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.su-title h1 { margin: 0; font-size: 26px; font-weight: 800; letter-spacing: 0.02em; }
+.su-tag { color: var(--su-soft); font-size: 14px; }
+.su-intro { margin: 0 0 10px; color: var(--su-soft); max-width: 48em; }
+.su-intro.su-small { font-size: 13px; margin-bottom: 14px; }
+.su-intro code { font-size: 12px; }
+.su-window-done { margin-top: 40px; font-size: 17px; text-align: center; color: var(--su-ink); max-width: none; }
+
+.su-resume, .su-table-note { display: flex; flex-wrap: wrap; gap: 8px 10px; align-items: center; background: var(--su-warn-bg); border: 1px solid var(--su-warn-line); border-radius: 10px; padding: 8px 12px; }
+.su-resume[hidden], .su-table-note[hidden] { display: none; }
+.su-table-note { margin-bottom: 12px; }
+.su-table-note p { margin: 0; font-weight: 600; }
+
+#sevenup button { font: inherit; cursor: pointer; border-radius: 9px; border: 0; background: var(--su-hot); color: #fff; padding: 6px 14px; font-weight: 650; }
+#sevenup button:hover { background: var(--su-hot-dark); }
+#sevenup button:disabled { opacity: 0.45; cursor: default; background: var(--su-hot); }
+#sevenup button.su-quiet { background: transparent; color: var(--su-ink); border: 1px solid var(--su-line); font-weight: 500; }
+#sevenup button:focus-visible, .su-sit input:focus-visible { outline: 3px solid #6fa88a; outline-offset: 2px; }
+
+.su-seats { display: flex; gap: 16px; }
+.su-seat { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.su-sit { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.su-sit label { font-weight: 700; }
+.su-sit input { font: inherit; padding: 6px 9px; border: 1px solid var(--su-line); border-radius: 9px; background: var(--su-card); color: var(--su-ink); flex: 1 1 12em; min-width: 0; max-width: 18em; }
+.su-sit.su-taken input, .su-sit.su-taken button { display: none; }
+.su-seat-line { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; min-height: 1.9em; }
+.su-seat-line button { font-size: 13px !important; padding: 3px 10px !important; }
+.su-seat-line button[hidden] { display: none; }
+.su-seat-state { margin: 0; min-height: 1.4em; color: var(--su-soft); font-size: 14px; }
+.su-seat-state.su-bad { color: var(--su-hot); }
+
+.su-frame { position: relative; border: 1px solid var(--su-line); border-radius: 16px; overflow: hidden; background: #eef3ee; min-height: 620px; }
+.su-mount iframe { display: block; width: 100%; border: 0; }
+.su-status { position: absolute; inset: 0; display: flex; flex-direction: column; gap: 10px; align-items: center; justify-content: center; text-align: center; padding: 20px; background: rgba(243, 246, 242, 0.94); }
+.su-status[hidden] { display: none; }
+.su-status p { margin: 0; color: var(--su-soft); }
+
+/* The house runs hidden (display: none: its timers keep time; see sevenup-tiles/experiments).
+   Tapping a player's corner picture shows it full size here. */
+.su-house { position: fixed; inset: 0; z-index: 10; display: flex; align-items: center; justify-content: center; background: rgba(20, 32, 26, 0.6); padding: 56px 16px 16px; }
+.su-house[hidden] { display: none; }
+.su-house-box { position: relative; width: min(100%, 860px); aspect-ratio: 8 / 5; }
+.su-house-mount, .su-house-mount iframe { width: 100%; height: 100% !important; border: 0; border-radius: 16px; display: block; }
+.su-house-close { position: absolute; top: -44px; right: 0; }
+#sevenup .su-house-close { background: #fff; color: var(--su-ink); }
+
+/* The save prompt: the page's own, outside the tiles, so a tile can't fake it. */
+.su-dialog { position: fixed; inset: 0; z-index: 20; display: flex; align-items: center; justify-content: center; background: rgba(20, 32, 26, 0.55); padding: 16px; }
+.su-dialog[hidden] { display: none; }
+.su-dialog-box { background: var(--su-card); border-radius: 16px; padding: 20px 22px; width: min(100%, 520px); max-height: calc(100vh - 32px); overflow: auto; box-shadow: 0 10px 40px rgba(20, 32, 26, 0.3); }
+.su-dialog-box h2 { margin: 0 0 8px; font-size: 19px; }
+.su-dialog-text { margin: 0 0 10px; }
+.su-dialog-details summary { cursor: pointer; color: var(--su-soft); font-size: 14px; }
+.su-dialog-record { font: 12px/1.45 ui-monospace, Consolas, monospace; background: var(--su-paper); border: 1px solid var(--su-line); border-radius: 8px; padding: 8px 10px; max-height: 220px; overflow: auto; white-space: pre; }
+.su-dialog-status { min-height: 1.4em; margin: 10px 0; font-weight: 600; }
+.su-dialog-status a { color: var(--su-hot); }
+.su-dialog-actions { display: flex; gap: 8px; }
+.su-dialog-actions button[hidden] { display: none; }
+
+.su-log { margin-top: 18px; }
+.su-log summary { cursor: pointer; color: var(--su-soft); font-size: 14px; }
+.su-log ol { font: 12px/1.5 ui-monospace, Consolas, monospace; max-height: 280px; overflow: auto; background: var(--su-card); border: 1px solid var(--su-line); border-radius: 10px; padding: 8px 8px 8px 46px; margin: 8px 0 0; }
+.su-log .su-drop { color: var(--su-hot); }
+
+@media (max-width: 760px) {
+  .su-seats { flex-direction: column; }
+}

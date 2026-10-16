@@ -1,0 +1,30 @@
+---
+// /webtiles/sevenup: a two-player Seven-Up table made of web tiles (two player tiles and a hidden
+// "house" tile that referees). A hidden lab page: not linked from anywhere, noindex, and left out of
+// the sitemap (astro.config.mjs). Hidden isn't secret: once pushed, anyone with the address can open it.
+// Everything it uses lives in src/sevenup/ and doesn't use the blog's layout or styles, so the page
+// can move later. Plan: claude/sevenup-plan.md in the Foundry project.
+import '../../../sevenup/sevenup.css';
+import { pageCsp } from '../../../sevenup/config.js';
+// The policy goes on the built page only: Astro's dev server adds inline scripts of its own.
+const csp = import.meta.env.PROD ? pageCsp() : null;
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		{csp && <meta http-equiv="Content-Security-Policy" content={csp} />}
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="robots" content="noindex, nofollow" />
+		<meta name="referrer" content="no-referrer" />
+		<title>Seven-Up · thunderbird.cafe</title>
+		<link rel="icon" href="data:," />
+	</head>
+	<body>
+		<div id="sevenup"><noscript><p class="su-intro">This table runs in your browser and needs JavaScript.</p></noscript></div>
+		<script>
+			import '../../../sevenup/main.js';
+		</script>
+	</body>
+</html>
