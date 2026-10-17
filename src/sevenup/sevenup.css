@@ -25,6 +25,9 @@ body { margin: 0; color: var(--su-ink); font: 15px/1.45 system-ui, -apple-system
 #sevenup button { font: inherit; cursor: pointer; border-radius: 9px; border: 0; background: var(--su-hot); color: #fff; padding: 6px 14px; font-weight: 650; }
 #sevenup button:hover { background: var(--su-hot-dark); }
 #sevenup button:disabled { opacity: 0.45; cursor: default; background: var(--su-hot); }
+#sevenup .su-bot { display: inline-flex; align-items: center; gap: 6px; }
+#sevenup .su-robot { flex: none; }
+#sevenup .su-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 #sevenup button.su-quiet { background: transparent; color: var(--su-ink); border: 1px solid var(--su-line); font-weight: 500; }
 #sevenup button:focus-visible, .su-sit input:focus-visible { outline: 3px solid #6fa88a; outline-offset: 2px; }
 
@@ -34,6 +37,18 @@ body { margin: 0; color: var(--su-ink); font: 15px/1.45 system-ui, -apple-system
 .su-sit label { font-weight: 700; }
 .su-sit input { font: inherit; padding: 6px 9px; border: 1px solid var(--su-line); border-radius: 9px; background: var(--su-card); color: var(--su-ink); flex: 1 1 12em; min-width: 0; max-width: 18em; }
 .su-sit.su-taken input, .su-sit.su-taken button { display: none; }
+.su-ta { position: relative; display: flex; flex: 1 1 12em; min-width: 0; max-width: 18em; }
+.su-ta input { flex: 1 1 auto; max-width: none; }
+.su-sit.su-taken .su-ta { display: none; }
+.su-ta-list { position: absolute; z-index: 20; left: 0; right: 0; top: calc(100% + 4px); margin: 0; padding: 4px; list-style: none;
+  background: var(--su-card); border: 1px solid var(--su-line); border-radius: 10px; box-shadow: 0 6px 18px rgba(20, 40, 30, 0.16); }
+.su-ta-item { display: flex; align-items: center; gap: 9px; padding: 6px 8px; border-radius: 7px; cursor: pointer; }
+.su-ta-item[aria-selected="true"], .su-ta-item:hover { background: #e6efe8; }
+.su-ta-pic { flex: none; width: 28px; height: 28px; border-radius: 50%; background: var(--su-line); overflow: hidden; }
+.su-ta-pic img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.su-ta-words { min-width: 0; display: flex; flex-direction: column; line-height: 1.25; }
+.su-ta-handle { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.su-ta-name { font-size: 0.85em; color: var(--su-soft, #5d7468); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .su-seat-line { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; min-height: 1.9em; }
 .su-seat-line button { font-size: 13px !important; padding: 3px 10px !important; }
 .su-seat-line button[hidden] { display: none; }

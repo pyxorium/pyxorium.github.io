@@ -18,12 +18,8 @@ export function tileSource(loc = globalThis.location) {
   return PUBLISHED ? 'published' : 'memory';
 }
 
-// Seats are limited to these accounts (DID → handle; the DID is what counts).
-export const ACCOUNTS = {
-  'did:plc:rqbqpaaluty5v47jwciowpik': 'pyxorium.com',
-  'did:plc:joer5rzmwgec3dkr4srfmq45': 'thunderbirdwine.bsky.social',
-};
-export const LIMITED_TEXT = "Seats at this table are limited to this demo's accounts.";
+// Seats are open to any atproto account (since Oct 17 2026; before that, only the owner's two demo
+// accounts). One account per seat, and nobody but the bot takes the bot's account.
 
 // Public lookups (no sign-in): handle → account, account → its server, its rpg.actor sprite.
 export const HANDLE_RESOLVER = 'https://public.api.bsky.app';
@@ -51,7 +47,7 @@ export function pageCsp(loadDomain = TILE_LOAD_DOMAIN) {
     "default-src 'self'",
     "script-src 'self'",
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' blob: data:",
+    "img-src 'self' blob: data: https://cdn.bsky.app",          // avatars in the handle suggestions
     "connect-src 'self' https:",
     `frame-src https://${loadDomain} https://*.${base}`,
     "object-src 'none'",

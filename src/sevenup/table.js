@@ -1,6 +1,6 @@
 // table.js: the Seven-Up table page. Loads three tiles (two players and the hidden house) through the
 // tile loader, passes their messages along (relay.js stamps each with its sender), seats players
-// (each signs in at the seat; only the demo's accounts) or the bot, hands out sprites, watches the
+// (each signs in at the seat; any atproto account) or the bot, hands out sprites, watches the
 // tiles' health, keeps the house's latest snapshot for resuming after a reload, saves finished
 // matches when a player asks (the page's own prompt, outside the tiles), and logs every message.
 //
@@ -12,10 +12,11 @@ import { recordFor, otherPlayer, checkRecord } from './record.js';
 import { createFrames } from './frames.js';
 import { SignInNeeded, rememberedAccounts } from './auth.js';
 import { createPinnedLoader } from './pinned-loader.js';
-import { cleanHandle, looksLikeHandle, fetchSprite, pdsOf } from './identity.js';
+import { cleanHandle, looksLikeHandle, fetchSprite, pdsOf, resolveHandle } from './identity.js';
+import { attachTypeahead } from './typeahead.js';
 import { TILES } from './tiles.generated.js';
 import {
-  TILE_LOAD_DOMAIN, PUBLISHED, tileSource, MEMORY_IDS, ACCOUNTS, BOT, LIMITED_TEXT, TIMES, RESUME_KEY, HOUSE_ADDRESS,
+  TILE_LOAD_DOMAIN, PUBLISHED, tileSource, MEMORY_IDS, BOT, TIMES, RESUME_KEY, HOUSE_ADDRESS,
   COLLECTION, recordLink, loadSourceOverride,
 } from './config.js';
 
@@ -199,6 +200,7 @@ export function mountTable(root, { TileMothership, MemoryTileLoader, Tile, auth,
   for (const n of [1, 2]) {
     const el = seatEl(n);
     $('.su-sit', el).addEventListener('submit', (e) => { e.preventDefault(); takeSeat(n, e.target.handle.value); });
+    attachTypeahead($('.su-sit input', el), { fetchImpl, skip: () => !!seats[n] });   // handle suggestions, as in the Foundry
     $('.su-cancel', el).addEventListener('click', () => pending[n] && pending[n].abort());
     $('.su-again', el).addEventListener('click', () => seats[n] && signInAt(n, seats[n].handle, { again: true }));
   }
@@ -210,12 +212,11 @@ export function mountTable(root, { TileMothership, MemoryTileLoader, Tile, auth,
     const handle = cleanHandle(typed);
     if (!looksLikeHandle(handle)) return seatState(n, 'Enter a full handle, like yourname.bsky.social.', true);
     if (handle === BOT.handle) return seatState(n, `For the bot, use “Play against @${BOT.handle}”.`, true);
-    if (!Object.values(ACCOUNTS).includes(handle)) return seatState(n, LIMITED_TEXT, true);   // checked again by account after sign-in
     const other = seats[n === 1 ? 2 : 1];
     if (other && other.handle === handle) return seatState(n, 'That account already has the other seat.', true);
     if (!hello.house || !hello[`seat${n}`]) return seatState(n, 'The table is still opening…', true);
     if (authProblem || !auth.ready()) return seatState(n, "Signing in isn't working on this page right now. Try reloading.", true);
-    const known = rememberedAccounts().find((a) => a.handle === handle && ACCOUNTS[a.did]);
+    const known = rememberedAccounts().find((a) => a.handle === handle && a.did !== BOT.did);
     if (known) return carryOn(n, known);
     signInAt(n, handle);
   }
@@ -245,19 +246,27 @@ export function mountTable(root, { TileMothership, MemoryTileLoader, Tile, auth,
     seatState(n, `Signing in as @${handle}: finish in the small window (or Cancel).`);
     updateSeats();
     auth.signIn(handle, ac.signal)
-      .then(({ did }) => {
-        if (!ACCOUNTS[did]) {                                  // the account itself is what counts
+      .then(async ({ did }) => {
+        // The account itself is what counts: it must be the one the typed handle names (someone can
+        // switch accounts in the sign-in window), and never the table's bot.
+        let named = null;
+        try { named = await resolveHandle(handle, fetchImpl); } catch { named = null; }
+        if (did === BOT.did) {
           auth.signOut(did);
-          return seatState(n, LIMITED_TEXT, true);
+          return seatState(n, `That's the table's bot. Use “Play against @${BOT.handle}”.`, true);
+        }
+        if (named !== did) {
+          auth.signOut(did);
+          return seatState(n, named ? `That sign-in was for a different account than @${handle}. Try again.` : `Couldn't check @${handle}. Try again.`, true);
         }
         if (again && seats[n] && seats[n].did !== did) {
           return seatState(n, `That was a different account. Sign in as @${seats[n].handle} to save.`, true);
         }
         const other = seats[n === 1 ? 2 : 1];
         if (!again && other && other.did === did) return seatState(n, 'That account already has the other seat.', true);
-        auth.remember(did, ACCOUNTS[did]);
+        auth.remember(did, handle);
         if (again && seats[n]) { seats[n].signedIn = true; describeSeat(n); if (then) then(); return; }
-        sit(n, { handle: ACCOUNTS[did], did, signedIn: true });
+        sit(n, { handle, did, signedIn: true });
       })
       .catch((err) => {
         console.warn('[sevenup] sign-in', err);
@@ -421,7 +430,8 @@ export function mountTable(root, { TileMothership, MemoryTileLoader, Tile, auth,
     try { localStorage.setItem(RESUME_KEY, JSON.stringify({ savedAt: Date.now(), snapshot })); } catch { /* no storage: no resume */ }
   }
 
-  const fitsTable = (s) => s && (s.bot ? s.did === BOT.did && s.handle === BOT.handle : ACCOUNTS[s.did] === s.handle);
+  const fitsTable = (s) => s && (s.bot ? s.did === BOT.did && s.handle === BOT.handle
+    : typeof s.did === 'string' && /^did:[a-z]+:[A-Za-z0-9._:%-]+$/.test(s.did) && s.did !== BOT.did && looksLikeHandle(s.handle || ''));
 
   function offerResume() {
     let kept = null;

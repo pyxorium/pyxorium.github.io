@@ -8,6 +8,14 @@ import '../../../sevenup/sevenup.css';
 import { pageCsp } from '../../../sevenup/config.js';
 // The policy goes on the built page only: Astro's dev server adds inline scripts of its own.
 const csp = import.meta.env.PROD ? pageCsp() : null;
+// The link card. The picture is the player tile's own card art (public/webtiles/sevenup/card.png).
+const CARD = {
+	title: 'Seven-Up',
+	description: "Roll two dice until a 7, three rounds each, against a friend or the table's bot. A dice table made of web tiles; sign in with your atproto account and save your matches to your own repo.",
+	url: 'https://thunderbird.cafe/webtiles/sevenup/',
+	image: 'https://thunderbird.cafe/webtiles/sevenup/card.png',
+	imageAlt: 'Seven-Up: roll two dice until a 7, three rounds each. A brick-red five and a jade two.',
+};
 ---
 
 <!doctype html>
@@ -19,6 +27,20 @@ const csp = import.meta.env.PROD ? pageCsp() : null;
 		<meta name="robots" content="noindex, nofollow" />
 		<meta name="referrer" content="no-referrer" />
 		<title>Seven-Up · thunderbird.cafe</title>
+		<meta name="description" content={CARD.description} />
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content="thunderbird.cafe" />
+		<meta property="og:title" content={CARD.title} />
+		<meta property="og:description" content={CARD.description} />
+		<meta property="og:url" content={CARD.url} />
+		<meta property="og:image" content={CARD.image} />
+		<meta property="og:image:width" content="1280" />
+		<meta property="og:image:height" content="720" />
+		<meta property="og:image:alt" content={CARD.imageAlt} />
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:title" content={CARD.title} />
+		<meta name="twitter:description" content={CARD.description} />
+		<meta name="twitter:image" content={CARD.image} />
 		<link rel="icon" href="data:," />
 	</head>
 	<body>

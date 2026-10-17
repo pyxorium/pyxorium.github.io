@@ -1,16 +1,17 @@
 // The table page's markup. Kept in one place (not in the .astro file) so the browser checks use
 // exactly what the page uses. Static text only; anything from the network goes in with textContent.
-import { ACCOUNTS, BOT } from './config.js';
+import { BOT } from './config.js';
 
-const handles = Object.values(ACCOUNTS);
+// A small outline robot after the bot's handle (our own drawing), and words for screen readers.
+const ROBOT = `<svg class="su-robot" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true" focusable="false"><line x1="12" y1="2.5" x2="12" y2="5.5"/><circle cx="12" cy="2.3" r="0.6" fill="currentColor"/><rect x="4.5" y="6" width="15" height="12" rx="3.5"/><circle cx="9.3" cy="12" r="1.3" fill="currentColor" stroke="none"/><circle cx="14.7" cy="12" r="1.3" fill="currentColor" stroke="none"/><line x1="2.5" y1="11" x2="2.5" y2="13.5"/><line x1="21.5" y1="11" x2="21.5" y2="13.5"/></svg><span class="su-sr"> (a bot)</span>`;
 
 const seat = (n) => `
   <section class="su-seat" data-seat="${n}" aria-label="Seat ${n}">
     <form class="su-sit" autocomplete="off">
       <label for="su-handle-${n}">Seat ${n}</label>
-      <input id="su-handle-${n}" name="handle" value="${handles[n - 1] || ''}" spellcheck="false" autocapitalize="off" placeholder="yourhandle.bsky.social">
+      <input id="su-handle-${n}" name="handle" value="" spellcheck="false" autocapitalize="off" placeholder="yourhandle.bsky.social">
       <button type="submit" class="su-sit-go">Sign in and sit</button>
-      ${n === 2 ? `<button type="button" class="su-bot su-quiet">Play against @${BOT.handle}</button>` : ''}
+      ${n === 2 ? `<button type="button" class="su-bot su-quiet">Play against @${BOT.handle} ${ROBOT}</button>` : ''}
     </form>
     <div class="su-seat-line">
       <p class="su-seat-state" aria-live="polite"></p>
