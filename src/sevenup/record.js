@@ -33,8 +33,9 @@ export function otherPlayer(result, seat) {
   return result.players[seat === 1 ? 1 : 0];
 }
 
-// The record key: a match id is 13 letters and digits (see the house's newId).
-export const isRecordKey = (k) => typeof k === 'string' && /^[a-z2-7]{13}$/.test(k);
+// The record key: a match id is a TID (see the house's newId): 13 base32-sortable characters, the
+// first one 2 to j. (Matches saved before Oct 17 2026 have random 13-character keys; they stay as they are.)
+export const isRecordKey = (k) => typeof k === 'string' && /^[234567abcdefghij][234567abcdefghijklmnopqrstuvwxyz]{12}$/.test(k);
 
 // Returns null when the record matches the lexicon, else what's wrong.
 export function checkRecord(r) {
