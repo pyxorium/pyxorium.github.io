@@ -17,6 +17,7 @@ const seat = (n) => `
       <p class="su-seat-state" aria-live="polite"></p>
       <button type="button" class="su-cancel su-quiet" hidden>Cancel</button>
       <button type="button" class="su-again" hidden>Sign in again</button>
+      <button type="button" class="su-signout su-quiet" hidden>Sign out</button>
     </div>
     <div class="su-frame">
       <div class="su-mount"></div>
@@ -26,7 +27,11 @@ const seat = (n) => `
 
 export const MARKUP = `
   <header class="su-bar">
+  <div class="su-hero">
+    <svg class="su-hero-glaze" viewBox="0 0 680 118" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><g stroke="rgba(80,110,90,0.12)" stroke-width="1" fill="none"><path d="M20 30 l40 18 l-12 30 l36 14"/><path d="M240 10 l-20 32 l30 22 l-8 40"/><path d="M430 100 l26 -30 l40 6 l12 -40"/><path d="M600 20 l-34 26 l22 30"/><path d="M130 100 l22 -26 l-14 -30"/></g></svg>
+    <svg class="su-hero-dice" viewBox="340 0 340 118" preserveAspectRatio="xMaxYMid slice" aria-hidden="true" focusable="false"><g transform="rotate(14 420 40)"><rect x="404" y="24" width="32" height="32" rx="6" fill="#f4efe3" stroke="#c9bfa8" stroke-width="1.4"/><g fill="#1b1b1b"><circle cx="412.6" cy="32.6" r="2.7"/><circle cx="420.0" cy="40.0" r="2.7"/><circle cx="427.4" cy="47.4" r="2.7"/></g></g><g transform="rotate(-18 482 78)"><rect x="464" y="60" width="36" height="36" rx="7" fill="#c8262f" stroke="#8e1b22" stroke-width="1.4"/><g fill="#ffffff"><circle cx="473.7" cy="69.7" r="3.1"/><circle cx="490.3" cy="69.7" r="3.1"/><circle cx="473.7" cy="86.3" r="3.1"/><circle cx="490.3" cy="86.3" r="3.1"/></g></g><g transform="rotate(8 548 38)"><rect x="530" y="20" width="36" height="36" rx="7" fill="#1d2b4f" stroke="#0f1830" stroke-width="1.4"/><g fill="#e8c25a"><circle cx="539.7" cy="29.0" r="3.1"/><circle cx="556.3" cy="29.0" r="3.1"/><circle cx="539.7" cy="38.0" r="3.1"/><circle cx="556.3" cy="38.0" r="3.1"/><circle cx="539.7" cy="47.0" r="3.1"/><circle cx="556.3" cy="47.0" r="3.1"/></g></g><g transform="rotate(-6 610 82)"><rect x="592" y="64" width="36" height="36" rx="7" fill="#a8452f" stroke="#74301f" stroke-width="1.4"/><g fill="#f6ead2"><circle cx="601.7" cy="73.7" r="3.1"/><circle cx="618.3" cy="73.7" r="3.1"/><circle cx="610.0" cy="82.0" r="3.1"/><circle cx="601.7" cy="90.3" r="3.1"/><circle cx="618.3" cy="90.3" r="3.1"/></g></g><g transform="rotate(20 652 30)"><rect x="636" y="14" width="32" height="32" rx="6" fill="#b9d8c2" stroke="#86ad93" stroke-width="1.4"/><g fill="#24423a"><circle cx="644.6" cy="22.6" r="2.7"/><circle cx="659.4" cy="37.4" r="2.7"/></g></g><g transform="rotate(-12 360 88)"><rect x="344" y="72" width="32" height="32" rx="6" fill="#bfe6ff" stroke="#6fb8e8" stroke-width="1.4"/><g fill="#ffffff"><circle cx="352.6" cy="80.6" r="2.7"/><circle cx="367.4" cy="80.6" r="2.7"/><circle cx="360.0" cy="88.0" r="2.7"/><circle cx="352.6" cy="95.4" r="2.7"/><circle cx="367.4" cy="95.4" r="2.7"/></g></g></svg>
     <div class="su-title"><h1>Seven-Up</h1><span class="su-tag">a dice table made of web tiles · lab</span></div>
+  </div>
     <div class="su-resume" hidden>
       <span class="su-resume-text"></span>
       <button type="button" class="su-resume-yes">Resume</button>
