@@ -194,6 +194,7 @@ export function mountTable(root, { TileMothership, MemoryTileLoader, Tile, auth,
       if (bot) bot.disabled = taken || busy || !open;
       $('.su-cancel', el).hidden = !busy;
       $('.su-again', el).hidden = !(taken && !seats[n].bot && !seats[n].signedIn) || busy;
+      $('.su-signout', el).hidden = !(taken && !seats[n].bot && seats[n].signedIn) || busy;
     }
   }
 
@@ -203,6 +204,7 @@ export function mountTable(root, { TileMothership, MemoryTileLoader, Tile, auth,
     attachTypeahead($('.su-sit input', el), { fetchImpl, skip: () => !!seats[n] });   // handle suggestions, as in the Foundry
     $('.su-cancel', el).addEventListener('click', () => pending[n] && pending[n].abort());
     $('.su-again', el).addEventListener('click', () => seats[n] && signInAt(n, seats[n].handle, { again: true }));
+    $('.su-signout', el).addEventListener('click', () => signOutAt(n));
   }
   $('.su-bot', seatEl(2)).addEventListener('click', playBot);
 
@@ -274,6 +276,21 @@ export function mountTable(root, { TileMothership, MemoryTileLoader, Tile, auth,
         if (seats[n]) $('.su-again', seatEl(n)).hidden = false;
       })
       .finally(() => { pending[n] = null; updateSeats(); });
+  }
+
+  // Sign out: this browser forgets the account's sign-in (and the sign-in is ended at its server). The seat
+  // stays as it is (the house has no way to free a seat mid-table); saving asks to sign in again, and
+  // reloading the page starts a fresh table.
+  async function signOutAt(n) {
+    const s = seats[n];
+    if (!s || s.bot || !s.signedIn) return;
+    s.signedIn = false;
+    seatState(n, `Signing @${s.handle} out…`);
+    updateSeats();
+    try { await auth.signOut(s.did); } catch (err) { console.warn('[sevenup] sign-out', err); }
+    if (seats[n] !== s) return;
+    seatState(n, `@${s.handle} · signed out on this browser. Sign in again to save, or reload for a fresh table.`);
+    updateSeats();
   }
 
   function sit(n, s) {
