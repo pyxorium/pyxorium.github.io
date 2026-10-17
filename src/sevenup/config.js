@@ -61,7 +61,7 @@ export function pageCsp(loadDomain = TILE_LOAD_DOMAIN) {
 }
 
 // The table's bot: plays a seat for someone on their own. It never signs in and keeps no record.
-export const BOT = { did: 'did:plc:hd2efebmfhpqcusfya4lguce', handle: 'dicesprite.bsky.social' };
+export const BOT = { did: 'did:plc:hd2efebmfhpqcusfya4lguce', handle: 'dicesprite.thunderbird.cafe' };
 
 // Saving. Signing in asks only for this one kind of record: nothing else in the account.
 export const COLLECTION = 'cafe.thunderbird.sevenup.match';
