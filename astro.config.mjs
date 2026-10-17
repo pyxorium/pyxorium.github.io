@@ -5,8 +5,8 @@ import sitemap from '@astrojs/sitemap';
 import { defineConfig, fontProviders } from 'astro/config';
 
 // Hidden lab pages: noindex, unlinked, and left out of the sitemap. (Hidden isn't secret: anyone with
-// the address can open them.)
-const HIDDEN_PAGES = ['/webtiles/sevenup/'];
+// the address can open them.) None at the moment: the Seven-Up table went public with its blog post.
+const HIDDEN_PAGES = [];
 
 // https://astro.build/config
 export default defineConfig({

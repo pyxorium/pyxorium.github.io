@@ -1,0 +1,28 @@
+/* The Seven-Up table embedded in a blog post (SevenUpDemo.astro), on top of sevenup.css.
+   The blog's global styles reach inside, so the few that matter are reset here (an id outranks them). */
+
+/* In the post's text column; on big screens wider than the column, centred on it, so the two seats
+   have room side by side. (Only where there's plenty of room either side: the column isn't exactly
+   centred in the window, so a breakout on a narrower screen could poke past an edge.) */
+.su-embed-wrap { margin: 1.5em 0 2em; }
+@media (min-width: 1140px) {
+  .su-embed-wrap { width: 1040px; margin-left: calc(50% - 520px); }
+}
+#sevenup.su-embed { max-width: none; padding: 14px 14px 10px; background: var(--su-paper); border: 1px solid var(--su-line); border-radius: 16px; box-sizing: border-box; }
+#sevenup.su-embed p { margin: 0; }
+#sevenup.su-embed a { color: var(--su-hot); border-bottom: 1px solid rgba(168, 69, 47, 0.35); }
+#sevenup.su-embed ol { margin: 8px 0 0; }
+#sevenup.su-embed main.su-seats { width: auto; max-width: none; margin: 0; padding: 0; }   /* the blog styles every main */
+
+#sevenup .su-embed-line { gap: 8px; }
+#sevenup .su-embed-seat { font-weight: 700; }
+#sevenup .su-embed-line .su-seat-state { display: inline-flex; align-items: center; gap: 4px; }
+#sevenup .su-embed-save { margin-top: 12px; font-size: 14px; color: var(--su-soft); }
+#sevenup .su-embed-save[hidden] { display: none; }
+#sevenup.su-embed .su-log { margin-top: 12px; }
+#sevenup.su-embed .su-table-note { margin-bottom: 10px; }
+
+/* The seats stack when the embed itself is narrow. */
+@media (max-width: 760px) {
+  #sevenup.su-embed { padding: 10px; }
+}

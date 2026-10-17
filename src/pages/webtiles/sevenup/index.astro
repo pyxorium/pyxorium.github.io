@@ -1,9 +1,9 @@
 ---
 // /webtiles/sevenup: a two-player Seven-Up table made of web tiles (two player tiles and a hidden
-// "house" tile that referees). A hidden lab page: not linked from anywhere, noindex, and left out of
-// the sitemap (astro.config.mjs). Hidden isn't secret: once pushed, anyone with the address can open it.
-// Everything it uses lives in src/sevenup/ and doesn't use the blog's layout or styles, so the page
-// can move later. Plan: claude/sevenup-plan.md in the Foundry project.
+// "house" tile that referees). Public since the blog post (/blog/seven-up/), which embeds a table
+// against the bot and links here to play with sign-in and saving. Everything it uses lives in
+// src/sevenup/ and doesn't use the blog's layout or styles, so the page can move later. Plan: claude/sevenup-plan.md in the Foundry project.
+import '../../../sevenup/sevenup-page.css';
 import '../../../sevenup/sevenup.css';
 import { pageCsp } from '../../../sevenup/config.js';
 // The policy goes on the built page only: Astro's dev server adds inline scripts of its own.
@@ -11,7 +11,7 @@ const csp = import.meta.env.PROD ? pageCsp() : null;
 // The link card. The picture is the player tile's own card art (public/webtiles/sevenup/card.png).
 const CARD = {
 	title: 'Seven-Up',
-	description: "Roll two dice until a 7, three rounds each, against a friend or the table's bot. A dice table made of web tiles; sign in with your atproto account and save your matches to your own repo.",
+	description: "Roll two dice until a 7, three rounds each, with a friend on the same screen or against the table's bot. A dice table made of web tiles; sign in with your atproto account and save your matches to your own repo.",
 	url: 'https://thunderbird.cafe/webtiles/sevenup/',
 	image: 'https://thunderbird.cafe/webtiles/sevenup/card.png',
 	imageAlt: 'Seven-Up: roll two dice until a 7, three rounds each. A brick-red five and a jade two.',
@@ -24,7 +24,6 @@ const CARD = {
 		<meta charset="utf-8" />
 		{csp && <meta http-equiv="Content-Security-Policy" content={csp} />}
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<meta name="robots" content="noindex, nofollow" />
 		<meta name="referrer" content="no-referrer" />
 		<title>Seven-Up · thunderbird.cafe</title>
 		<meta name="description" content={CARD.description} />

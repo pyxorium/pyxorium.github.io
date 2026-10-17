@@ -1,0 +1,110 @@
+---
+title: 'Seven-Up: a referee tile between two player tiles'
+description: 'A two-player dice table made of Web Tiles: two player tiles, and a hidden third tile, the house, that holds the rules. Play against the bot right here, or sign in at the full table and keep your matches in your own repo.'
+pubDate: 'Oct 17 2026'
+heroImage: '../../assets/seven-up-cover.png'
+---
+
+import SevenUpDemo from '../../components/SevenUpDemo.astro';
+
+In every wishes demo so far, two Web Tiles talked to each other and trusted each other. Bob's cube wished for a color scheme, Alice's palette granted three, and nobody checked whether either of them was playing fair. In the [first post](https://thunderbird.cafe/blog/wishes-color-scheme-demo/) a blog page carried their messages. In [Cross-Tile Intrazine](https://thunderbird.cafe/blog/cross-tile-intrazine/), the zine did. Either way, the tile in the middle only passed things along.
+
+A game needs more than that. Someone has to roll the dice, keep the score, and say whose turn it is, and it shouldn't be either player. Seven-Up is a two-player dice table made of three Web Tiles: one for each seat, and a hidden third one, the house, that holds the rules.
+
+## Pull up a chair
+
+You're seat 1, shown as @you. Seat 2 is the table's bot, @dicesprite.thunderbird.cafe.
+
+<SevenUpDemo />
+
+## Part 1: Playing
+
+**Choose your dice.** The house offers you three of its six styles (Bone, Casino, Jade, Midnight, Glow and Brick), and you pick one. The bot picks too. Both players may end up with the same style.
+
+**The coin.** Once both have chosen, the house flips a coin for who goes first. It spins, lands, and rests for a moment so you can see it before the first roll. On the table picture, a 🪙 marks the first player's first round.
+
+**Roll until a 7.** Each round, you tap Roll for every roll, two dice at a time, until they add up to 7. There's no cap: a round can end on the first roll or go on for a dozen. Each player gets three rounds, taking turns.
+
+**Special rolls.** Some pairs on the way to a 7 earn a name and an emoji: 🐍 snake eyes, 🩰 ballerina, 🌳 brooklyn forest, 🔲 square pair, 🐾 puppy paws, 🚃 boxcars, and 🪀 yo-leven. The 7 that ends a round never counts.
+
+**Passing the dice.** When a round ends, the next player's tile wishes for the dice on its own. You'll see "You wished for the dice…", and the player holding them gets a **Pass the dice** button. Against the bot, it passes them back by itself after a second or so.
+
+**The end.** There's no winner. After six rounds, the two players sit side by side: longest round, quickest round, and special rolls. Then you can ask for a rematch.
+
+The embed above doesn't sign in or save. At [the full table](https://thunderbird.cafe/webtiles/sevenup/), each player signs in at their seat with any atproto account, and can save the finished match to their own repo. More on that in Part 3. The full table also seats two people sharing one screen, if you have a friend nearby.
+
+## Part 2: A referee in the middle
+
+**Three tiles, two kinds.** The two seats are the same published tile, loaded twice, byte for byte. The page tells each copy which seat it is. The bot is that same tile once more, told it's the bot. The third tile is the house: it flips the coin, rolls every die with the browser's strong random numbers, checks every move, keeps the score, and draws a small picture of the table after each change.
+
+**Players never talk to each other.** Every message goes from a player to the house, or from the house to the players, and always through the page. The page plays the same part as the zine's reader in Cross-Tile Intrazine: it knows which frame each message came from, stamps it with the sender (seat1, seat2, house or page), and passes it on. It's a little stricter than the zine, though. Each sender may only send certain kinds of message, to certain recipients, and there are limits on size and speed. The page never decides anything about the game.
+
+**The house is the new part.** In the zine, two tiles talk directly and the reader trusts them to share a language. In Seven-Up, the conversation has rules, so a third tile holds them, instead of either player. It checks every step against the table: whose turn it is, which wish is open. A player's tile can't roll out of turn or hand itself the dice, because the house would refuse.
+
+![Two rows of boxes. Cross-Tile Intrazine: Bob's tile wishes, the zine reader carries, Alice's tile grants, and no one checks, since the two trust each other. Seven-Up: the next player wishes, the page carries, the house judges, the page carries, and the holder grants. The house is new: a third tile that holds the rules.](../../assets/seven-up-referee.png)
+
+**The first wish echoes Bob and Alice.** Choosing dice is the color-scheme wish from the first post, with the house in Alice's place. Your tile wishes for a dice style with a count of three, the house grants three of its six, and your tile sends back a confirmation of the one you picked. The house only accepts a style it actually offered for that wish. When both players have confirmed, it flips the coin.
+
+![A sequence between the player tile and the house tile, with the page in the middle carrying each message and stamping the sender. The player wishes for a dice style, count 3. The house grants three of its six styles: Brick, Jade and Bone. The player sends a confirmation: Jade, the one picked. When both players have chosen, the house flips a coin. The same shape as Bob and Alice: wish for three, get three, pick one.](../../assets/seven-up-dice-style.png)
+
+**The second wish has three parties.** Passing the dice is a wish from one player, a grant from the other, and the house in between. When a round ends, the next player's tile wishes for the dice. The house passes the wish on to the holder, whose tap on "Pass the dice" is the grant. The house checks it and announces the next turn to both.
+
+![A sequence between the next player, the house and the holder. The next player's tile wishes for the dice as the round ends. The house passes the wish on to the holder. The holder grants it with a tap on Pass the dice. The house sends the turn to both players. If there's no grant within 10 seconds, the house sends the turn itself, marked auto. Every arrow goes through the page, which stamps who sent it. Players never talk to each other.](../../assets/seven-up-passing.png)
+
+**A grant is a courtesy, not a veto.** If the holder doesn't pass the dice within 10 seconds, the house passes them anyway. Every saved match keeps a list of its handoffs, each one marked granted or auto, so the trace is visible later.
+
+**The tile wishes for you.** There's no "Ask for the dice" button. The wish is part of the game's rhythm, so the tile sends it as soon as the round ends, and only the grant needs a person.
+
+**The house works unseen.** Like the zine's paired tiles, the house runs hidden and keeps working while nobody is looking at it. To see it anyway, tap the small picture in the corner of either seat: the house opens full size, and it's the same table the players are watching. To see the conversation itself, open "What the page passes between the tiles" under the table after a round. Every wish, grant, turn and roll is there, stamped with who sent it and who it went to.
+
+## Part 3: Results in your own repo
+
+Until now, whatever happened inside a tile on this site was gone when the page closed: a wish granted in a zine, a die rolled on a blog page. Seven-Up is the first table whose tiles' results land in your own repo.
+
+**The tile never holds your sign-in.** At the full table, you sign in at your seat, and the sign-in belongs to the page, not the tile. It asks for permission to write one kind of record, `cafe.thunderbird.sevenup.match`, and nothing else in your account. When a match ends and you press Save, the tile asks the page to save it. The page builds the record from the house's result, not from anything the player tile says, and shows its own prompt, outside the tiles, so a tile can't fake it. The prompt shows exactly what will be saved, and says that the record names the other player. Saving is always your choice, match by match.
+
+**One match, two repos.** Each player saves their own copy, in their own account. Here's one match between [pyxorium.com](https://pdsls.dev/at://did:plc:rqbqpaaluty5v47jwciowpik/cafe.thunderbird.sevenup.match/3my2cj4qyj24b) and [thunderbird.cafe](https://pdsls.dev/at://did:plc:6vxjigxrqizmbo56gojxico3/cafe.thunderbird.sevenup.match/3my2cj4qyj24b), saved twice. The two records have the same record key, because the key is the match's own id, made by the house at the moment it flipped the coin. It's a timestamp key of the kind atproto uses everywhere, so tools show the match's real date and sort matches in order. The rolls are all there, round by round. In that match, pyxorium.com's quickest round was a single roll: a 1 and a 6.
+
+**The bot keeps none.** The bot never signs in, and nothing is saved in its account. A match against it is saved only by the person who played, and their record marks which seat was the bot. Here's [a match against the bot](https://pdsls.dev/at://did:plc:ro563p5faldqu44apudq44k4/cafe.thunderbird.sevenup.match/3my3bzh3dkcca), saved by colorado.atprotocol.space, the same account as Bob's cube in the first wishes post. The bot rolled a 7 on its very first roll twice.
+
+**Pinned by content address.** The table loads only the exact versions of the two tiles it was set up with, checked by the content address of their records. A changed tile is refused. Each saved record also names the house it was played with, by address and content address, so a match points at the exact referee code that judged it. Anyone can open that tile and read the rules.
+
+## Each demo moved one job
+
+Looking back over the demos, they all have the same small conversation in them: something wishes, something grants. What changes from one to the next is where the other jobs live. There's a carrier that moves the messages, an arbiter that decides what's allowed, and a ledger that remembers what happened after the page closes.
+
+- **The color-scheme wish:** the blog page carried the messages. No arbiter, no ledger.
+- **The shared die:** the carrier left the page for a relay server on the internet.
+- **Cross-Tile Intrazine:** the carrier became a tile, the zine itself, travelling with its pair.
+- **Seven-Up:** the carrier is back on the page, and two jobs moved at once. The arbiter became a tile, the house. The ledger moved into each player's own repo.
+
+On this page there's one more small move: the embedded table above is carried by this blog post's own code.
+
+The same pattern turns up in plenty of older software. A carrier that only passes things along, with tiles that cooperate on their own, is what microservice people call choreography. A coordinator in the middle, like the house, is orchestration. Online games argue the same question as authoritative servers versus trusting the players' own machines. Wishes have relatives too, in Android's intents and the old Web Intents proposal. What seems new with tiles is that the jobs can move at all: each one can be a content-addressed tile, pinned and checkable, or a record in someone's own repo.
+
+## What this isn't
+
+**It's one screen.** Both players share one browser: two people side by side, or one person against the bot. Nothing goes between two computers yet. Many pairs can play at once, each at their own browser.
+
+**Fairness is a demonstration.** The house is fair, and anyone can read its code, but it runs in a player's own browser. Whoever controls the page controls everything, the house included. That only matters once two people on two computers are trusting the same referee.
+
+**Saving is an addressed request, not a wish.** The tile asks the page to save, and the page knows exactly where the record goes. Nothing yet is a wish answered by the network itself.
+
+## What's next
+
+**Two computers.** The next step is Seven-Up between two people at two computers: a relay server to carry the messages, a question about where the house should run (in a player's browser, which is still a demonstration, or on the server, which would be real fairness), and a lounge for finding someone to play, like the one in House Dice.
+
+**A wish answered by the network.** Every wish so far has been granted by another tile. One answered by an index or a repo, without knowing in advance who will answer, would be closer to what Robin Berjon described, and it's the piece still missing.
+
+## Further reading
+
+- [Wishes: Creating Two Web Tiles that Talk to Each Other](https://thunderbird.cafe/blog/wishes-color-scheme-demo/), the color-scheme demo
+- [Wishes, Continued: Shared View Between Two Web Tiles Via External Relay](https://thunderbird.cafe/blog/wishes-shared-die-demo/), the shared die demo
+- [Cross-Tile Intrazine: tiles that talk inside a zine](https://thunderbird.cafe/blog/cross-tile-intrazine/)
+- [The full Seven-Up table](https://thunderbird.cafe/webtiles/sevenup/), to sign in and save your matches
+- [The Seven-Up match lexicon](https://pdsls.dev/at://did:plc:6vxjigxrqizmbo56gojxico3/com.atproto.lexicon.schema/cafe.thunderbird.sevenup.match), published by thunderbird.cafe
+- One match in two repos: [pyxorium.com's copy](https://pdsls.dev/at://did:plc:rqbqpaaluty5v47jwciowpik/cafe.thunderbird.sevenup.match/3my2cj4qyj24b) and [thunderbird.cafe's copy](https://pdsls.dev/at://did:plc:6vxjigxrqizmbo56gojxico3/cafe.thunderbird.sevenup.match/3my2cj4qyj24b)
+- [A match against the bot](https://pdsls.dev/at://did:plc:ro563p5faldqu44apudq44k4/cafe.thunderbird.sevenup.match/3my3bzh3dkcca), saved only in the person's repo
+- [Web Tiles, by Robin Berjon](https://berjon.com/web-tiles/)
+- [DASL: Web Tiles specification](https://dasl.ing/tiles.html)
+- [DASL: Tiles Protocols](https://dasl.ing/tiles-protocols.html)

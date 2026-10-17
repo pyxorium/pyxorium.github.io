@@ -1,0 +1,19 @@
+---
+// A playable Seven-Up table for a blog post: you at seat 1, the table's bot at seat 2. It plays the
+// same pinned, published tiles as the full table (thunderbird.cafe/webtiles/sevenup/), with no
+// sign-in and no saving. Everything it uses lives in src/sevenup/ (embed.js).
+//
+// It brings its own tile loader, so a post using it shouldn't also embed WebTile.astro tiles.
+import '../sevenup/sevenup.css';
+import '../sevenup/sevenup-embed.css';
+---
+
+<div class="su-embed-wrap">
+	<div id="sevenup" class="su-embed">
+		<noscript><p class="su-intro">This table runs in your browser and needs JavaScript.</p></noscript>
+	</div>
+</div>
+
+<script>
+	import '../sevenup/embed-main.js';
+</script>

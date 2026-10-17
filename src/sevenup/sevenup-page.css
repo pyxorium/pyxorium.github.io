@@ -1,0 +1,4 @@
+/* The Seven-Up table's own page only (src/pages/webtiles/sevenup/index.astro). The table's styles,
+   scoped to #sevenup, are in sevenup.css and are shared with the blog embed. */
+html { background: #f3f6f2; }
+body { margin: 0; color: #1f3329; font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }

@@ -25,6 +25,35 @@ const seat = (n) => `
     </div>
   </section>`;
 
+// The table embedded in a blog post (embed.js): you at seat 1, the bot at seat 2, no sign-in and no
+// saving. The same frames, house view and message log as the full table.
+const embedSeat = (n) => `
+  <section class="su-seat" data-seat="${n}" aria-label="Seat ${n}">
+    <div class="su-seat-line su-embed-line">
+      <span class="su-embed-seat">Seat ${n}</span>
+      <p class="su-seat-state">${n === 1 ? 'You' : `@${BOT.handle} ${ROBOT} · the bot`}</p>
+    </div>
+    <div class="su-frame">
+      <div class="su-mount"></div>
+      <div class="su-status"><p>Loading the tile…</p><button type="button" class="su-retry" hidden>Try again</button></div>
+    </div>
+  </section>`;
+
+export const EMBED_MARKUP = (fullTable) => `
+  <div class="su-table-note" hidden><p></p><button type="button" class="su-table-retry" hidden>Try again</button></div>
+  <main class="su-seats">${embedSeat(1)}${embedSeat(2)}</main>
+  <p class="su-embed-save" hidden>Matches here aren't saved. <a href="${fullTable}">Play the full table to save your match →</a></p>
+  <div class="su-house" hidden>
+    <div class="su-house-box" role="dialog" aria-label="The whole table">
+      <button type="button" class="su-house-close">Close</button>
+      <div class="su-house-mount"></div>
+    </div>
+  </div>
+  <details class="su-log">
+    <summary>What the page passes between the tiles <span class="su-log-count"></span></summary>
+    <ol></ol>
+  </details>`;
+
 export const MARKUP = `
   <header class="su-bar">
   <div class="su-hero">
@@ -38,7 +67,7 @@ export const MARKUP = `
       <button type="button" class="su-resume-no su-quiet">Start fresh</button>
     </div>
   </header>
-  <p class="su-intro">Two players take turns rolling two dice until a 7, three rounds each. A hidden third tile, the house, rolls the dice and keeps the score. On your own? Play against @${BOT.handle}, the table's bot.</p>
+  <p class="su-intro">Two players take turns rolling two dice until a 7, three rounds each. A hidden third tile, the house, rolls the dice and keeps the score. On your own? Play against @${BOT.handle}, the table's bot. <a class="su-how" href="/blog/seven-up/">How this table works →</a></p>
   <p class="su-intro su-small">Signing in at a seat lets this page save your finished matches to your account, as Seven-Up match records (<code>cafe.thunderbird.sevenup.match</code>), and nothing else. Saving is always your choice, match by match.</p>
   <div class="su-table-note" hidden><p></p><button type="button" class="su-table-retry" hidden>Try again</button></div>
   <main class="su-seats">${seat(1)}${seat(2)}</main>
