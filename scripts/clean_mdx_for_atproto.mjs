@@ -79,6 +79,10 @@ function markdownToPlainText(src) {
   return src
     // headers: "## Title" -> "Title"
     .replace(/^#{1,6}\s+(.+)$/gm, '$1')
+    // pictures: "![alt](path)" -> "Diagram: alt" (before the link rule, which would leave a stray "!";
+    // Oct 2026, the first post with pictures in its body)
+    .replace(/^!\[([^\]]*)\]\([^)]+\)\s*$/gm, (_, alt) => (alt.trim() ? `Diagram: ${alt.trim()}` : ''))
+    .replace(/!\[([^\]]*)\]\([^)]+\)/g, '$1')
     // links: "[text](url)" -> "text" (matches the style already used on the first post's live record)
     .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
     // bold/italic markers

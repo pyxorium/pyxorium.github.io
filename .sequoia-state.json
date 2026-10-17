@@ -99,6 +99,16 @@
         "uri": "at://did:plc:6vxjigxrqizmbo56gojxico3/app.bsky.feed.post/3mxtw5maw762n",
         "cid": "bafyreibtvo2qo22yntjowmbp6pnk2kqphqtc5ifmooliwc25u25wi6qiha"
       }
+    },
+    "src\\content\\blog\\seven-up.mdx": {
+      "contentHash": "6eb1557689720b7378c60689953379489d67c521ce0c88d3e34432c59a624a57",
+      "atUri": "at://did:plc:6vxjigxrqizmbo56gojxico3/site.standard.document/3my3evqeicw2v",
+      "lastPublished": "2026-10-17T15:13:02.125Z",
+      "slug": "seven-up",
+      "bskyPostRef": {
+        "uri": "at://did:plc:6vxjigxrqizmbo56gojxico3/app.bsky.feed.post/3my3evr65gl2q",
+        "cid": "bafyreidoupcnv22fkss3ncqu3o67zay7zxiphw3jiu7lupgvmrlip4i2xm"
+      }
     }
   },
   "publication": {
