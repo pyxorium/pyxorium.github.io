@@ -13,9 +13,9 @@ import { SignInNeeded } from './auth.js';
 import { cleanHandle, looksLikeHandle, resolveHandle, profilesOf, hasLoungeRecord } from './identity.js';
 import { LOUNGE_SCOPE, LOUNGE_COLLECTION, LOUNGE_TIMES as TIMES, timerSet } from './config.js';
 
-const OFF_TEXT = 'Off. Turn it on to see other mingling Daisy players who are here now, and let them see you. The first time, it asks for one more approval: “Daisy lounge”.';
+const OFF_TEXT = 'Off. Turn it on to see other mingling Daisy players who are here now, and let them see you. Joining the lounge requires one additional authorization.';
 const OFF_TEXT_READY = 'Off. Turn it on to see other mingling Daisy players who are here now, and let them see you.';
-const WAIT_TEXT = 'Sign in above to mingle.';
+const WAIT_TEXT = 'Sign in above to mingle. Joining the lounge requires one additional authorization.';
 const ON_TEXT = 'Mingling: other mingling players can see you while you\'re on this page.';
 
 export function mountLounge(root, { auth, authProblem = null, onTable, url, WebSocketImpl = globalThis.WebSocket, fetchImpl = (...a) => fetch(...a), log = () => {}, loc = globalThis.location }) {

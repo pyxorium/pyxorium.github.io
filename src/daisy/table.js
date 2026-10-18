@@ -15,7 +15,7 @@ import { MARKUP } from './markup.js';
 import { createRouter } from './router.js';
 import { createFrames } from './frames.js';
 import { connectRelay } from './connection.js';
-import { keep, kept, tabAccount, forgetOld } from './storage.js';
+import { keep, kept, tabAccount, forgetOld, inProgress } from './storage.js';
 import { cleanHandle, looksLikeHandle, resolveHandle } from './identity.js';
 import { SignInNeeded, rememberedAccounts } from './auth.js';
 import { createPinnedLoader } from './pinned-loader.js';
@@ -420,7 +420,23 @@ export function mountTable(root, { TileMothership, MemoryTileLoader, Tile, auth,
     $('.dz-signout').hidden = !who;
     $('.dz-again').hidden = true;
     $('.dz-home').hidden = true;
+    showGoing();
     if (lounge) lounge.setAccount(who);
+  }
+  // Unfinished matches this browser keeps for the signed-in account (owner, Oct 18).
+  function showGoing() {
+    const list = $('.dz-going');
+    list.textContent = '';
+    const going = who && !table ? inProgress(who.did) : [];
+    list.hidden = !going.length;
+    for (const g of going) {
+      const li = document.createElement('li');
+      const u = new URL(startUrl());
+      u.searchParams.set('table', g.table);
+      const a = Object.assign(document.createElement('a'), { href: u.toString(), textContent: 'Back to the table' });
+      li.append(`You have a match in progress with @${g.with}.`, a);
+      list.append(li);
+    }
   }
   $('.dz-signin').addEventListener('click', () => signInToSit((w) => { who = { did: w.did, handle: w.handle }; showStart(); }));
   $('.dz-handle').addEventListener('keydown', (e) => { if (e.key === 'Enter' && !busy) $('.dz-signin').click(); });

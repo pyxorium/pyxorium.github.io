@@ -10,6 +10,8 @@ export const MARKUP = `
   <button class="dz-again dz-linkish" type="button" hidden>Sign in again</button>
   <button class="dz-home dz-linkish" type="button" hidden>Back to the start</button></p>
 
+<ul class="dz-going" hidden></ul>
+
 <section class="dz-lobby" aria-label="Sign in">
   <label class="dz-field">Your handle
     <input class="dz-handle" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="you.bsky.social">
@@ -35,7 +37,7 @@ export const MARKUP = `
     <button class="dz-switch" type="button" role="switch" aria-checked="false" aria-labelledby="dz-mingle-label" disabled></button>
     <span class="dz-switch-label" id="dz-mingle-label">Mingle</span>
   </div>
-  <p class="dz-lounge-note" aria-live="polite">Sign in above to mingle.</p>
+  <p class="dz-lounge-note" aria-live="polite">Sign in above to mingle. Joining the lounge requires one additional authorization.</p>
   <button class="dz-lounge-retry quiet" type="button" hidden>Rejoin the lounge</button>
   <div class="dz-who" hidden>
     <div class="dz-who-head"><button class="dz-who-ask quiet" type="button">Who else is mingling?</button><span class="dz-who-time"></span></div>
@@ -54,7 +56,7 @@ export const MARKUP = `
   <div class="dz-dialog-box" role="dialog" aria-modal="true" aria-labelledby="dz-ldialog-title">
     <h2 id="dz-ldialog-title">Turn on mingling?</h2>
     <p class="dz-dialog-text">While you mingle and this page is open (not at a table), other mingling Daisy players who ask can see you and invite you to a game, and you can see and invite them. Players who have blocked you, or whom you've blocked, never see each other.</p>
-    <p class="dz-dialog-text dz-ldialog-first">Mingling needs <b>one more approval</b> from your account, <b>“Daisy lounge”</b> (only this first time): a lounge record in your account (it only says that you've chosen to mingle, not whether you're here or signed in) and a pass that proves to Daisy's relay who you are. Turning mingling off deletes the record.</p>
+    <p class="dz-dialog-text dz-ldialog-first">Mingling needs <b>one additional authorization</b> from your account, <b>“Daisy lounge”</b> (only this first time): a lounge record in your account (it only says that you've chosen to mingle, not whether you're here or signed in) and a pass that proves to Daisy's relay who you are. Turning mingling off deletes the record.</p>
     <p class="dz-ldialog-status" aria-live="polite"></p>
     <div class="dz-dialog-actions"><button type="button" class="dz-ldialog-yes">Continue</button><button type="button" class="dz-ldialog-no quiet">Not now</button></div>
   </div>

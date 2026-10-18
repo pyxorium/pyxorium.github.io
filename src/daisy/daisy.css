@@ -116,3 +116,8 @@
 #daisy button:disabled { opacity: .45; cursor: default; }
 #daisy .dz-lounge.dz-waiting h2, #daisy .dz-lounge.dz-waiting .dz-switch-row { opacity: .55; }
 #daisy .dz-lobby + .dz-play { margin-top: 12px; }
+
+/* Unfinished matches kept in this browser (Oct 18): "You have a match in progress with @x. Back to the table". */
+#daisy .dz-going { list-style: none; margin: 0 0 12px; padding: 0; max-width: 640px; display: flex; flex-direction: column; gap: 6px; }
+#daisy .dz-going li { padding: 10px 14px; border-radius: 12px; background: #fdf3d9; font-size: 15px; }
+#daisy .dz-going a { color: var(--ink); font-weight: 700; margin-left: 6px; }
