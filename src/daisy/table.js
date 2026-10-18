@@ -267,7 +267,27 @@ export function mountTable(root, { TileMothership, MemoryTileLoader, Tile, auth,
   }
 
   // ---------- what this page shows ----------
-  function onView(v) { phase = v.phase; updateStatus(); }
+  function onView(v) { phase = v.phase; updateStatus(); $('.dz-after').hidden = !(phase === 'over' || phase === 'abandoned'); }
+
+  // ---------- back to the start (owner, Oct 18): from any table to the start screen and the lounge ----------
+  // The table stays kept in this browser for a day, so its link still leads back to it.
+  function startUrl() {
+    const u = new URL(loc.href);
+    u.search = '';
+    for (const k of ['tiles', 'timers', 'relay', 'loader']) if (params.get(k)) u.searchParams.set(k, params.get(k));
+    return u.toString();
+  }
+  const goHome = () => { try { relay && relay.stop(); } catch {} loc.assign(startUrl()); };
+  const underWay = () => ['flipping', 'playing'].includes(phase) && !result;
+  function backToStart() {
+    if (!underWay()) return goHome();
+    $('.dz-leave').hidden = false;          // during a match, ask first (the away rule, said plainly)
+    $('.dz-leave-no').focus();
+  }
+  $('.dz-home').addEventListener('click', backToStart);
+  $('.dz-after-lounge').addEventListener('click', goHome);
+  $('.dz-leave-yes').addEventListener('click', goHome);
+  $('.dz-leave-no').addEventListener('click', () => { $('.dz-leave').hidden = true; });
   function updateStatus() {
     clearInterval(goneTimer);
     if (!me || !me.seat) return;

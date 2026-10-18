@@ -52,7 +52,8 @@ export const MARKUP = `
 
 <p class="dz-account" hidden><span class="dz-account-text"></span>
   <button class="dz-signout dz-linkish" type="button" hidden>Sign out</button>
-  <button class="dz-again dz-linkish" type="button" hidden>Sign in again</button></p>
+  <button class="dz-again dz-linkish" type="button" hidden>Sign in again</button>
+  <button class="dz-home dz-linkish" type="button">Back to the start</button></p>
 
 <section class="dz-invite" hidden>
   <p>Send this link to the other player:</p>
@@ -73,6 +74,16 @@ export const MARKUP = `
   <div class="dz-house-mount"></div>
   <div class="dz-house-note" hidden><p></p><button class="dz-house-retry quiet" type="button" hidden>Try again</button></div>
 </section>
+
+<div class="dz-after" hidden><button class="dz-after-lounge quiet" type="button">Back to the lounge</button></div>
+
+<div class="dz-leave" hidden>
+  <div class="dz-dialog-box" role="dialog" aria-modal="true" aria-labelledby="dz-leave-title">
+    <h2 id="dz-leave-title">Leave this match?</h2>
+    <p class="dz-dialog-text">If you don't come back within 2 minutes, it ends by forfeit.</p>
+    <div class="dz-dialog-actions"><button type="button" class="dz-leave-yes">Leave</button><button type="button" class="dz-leave-no quiet">Stay</button></div>
+  </div>
+</div>
 
 <div class="dz-dialog" hidden>
   <div class="dz-dialog-box" role="dialog" aria-modal="true" aria-labelledby="dz-dialog-title">
