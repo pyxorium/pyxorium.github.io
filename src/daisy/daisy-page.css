@@ -1,0 +1,3 @@
+/* Page-only rules for /webtiles/daisy/ (kept apart from daisy.css, as Seven-Up's are). */
+html { background: #fbf7ec; }
+body { margin: 0; background: #fbf7ec; }

@@ -1,0 +1,33 @@
+---
+// /webtiles/daisy: Daisy, a dice race for two computers, made of web tiles (build step 5: sign in to sit,
+// save a match to your own repo, the published tiles pinned, two computers through the real relay at
+// wss://relay.daisy.thunderbird.cafe/; the stand-in relay on this computer). Its sign-in description file is public/webtiles/daisy/oauth.json. Hidden while it's being built: noindex,
+// unlinked, and left out of the sitemap (HIDDEN_PAGES in astro.config.mjs). Hidden isn't secret: once
+// pushed, anyone with the address can open it. Everything it uses lives in src/daisy/. Plan:
+// claude/daisy-plan.md in the Foundry project.
+import '../../../daisy/daisy-page.css';
+import '../../../daisy/daisy.css';
+import { pageCsp } from '../../../daisy/config.js';
+// The policy goes on the built page only: Astro's dev server adds inline scripts of its own.
+const csp = import.meta.env.PROD ? pageCsp() : null;
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		{csp && <meta http-equiv="Content-Security-Policy" content={csp} />}
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="referrer" content="no-referrer" />
+		<meta name="robots" content="noindex, nofollow" />
+		<title>Daisy · thunderbird.cafe</title>
+		<link rel="icon" href="/favicon.ico" sizes="any" />
+		<link rel="icon" type="image/png" sizes="32x32" href="/icon-32.png" />
+	</head>
+	<body>
+		<div id="daisy"><noscript><p>This table runs in your browser and needs JavaScript.</p></noscript></div>
+		<script>
+			import '../../../daisy/main.js';
+		</script>
+	</body>
+</html>

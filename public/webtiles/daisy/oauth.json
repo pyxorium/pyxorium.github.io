@@ -1,0 +1,12 @@
+{
+  "client_id": "https://thunderbird.cafe/webtiles/daisy/oauth.json",
+  "client_name": "Daisy at thunderbird.cafe",
+  "client_uri": "https://thunderbird.cafe/webtiles/daisy/",
+  "redirect_uris": ["https://thunderbird.cafe/webtiles/daisy/"],
+  "scope": "atproto repo:cafe.thunderbird.daisy.match",
+  "grant_types": ["authorization_code", "refresh_token"],
+  "response_types": ["code"],
+  "token_endpoint_auth_method": "none",
+  "application_type": "web",
+  "dpop_bound_access_tokens": true
+}

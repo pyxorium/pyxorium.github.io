@@ -1,0 +1,68 @@
+/* The Daisy page (scoped to #daisy, as Seven-Up's table is to #sevenup). */
+#daisy {
+  --paper: #fbf7ec; --ink: #2f2a1f; --soft: #6f6450; --line: #e6dcc4; --heart: #f2b233; --leaf: #5e9c86;
+  max-width: 980px; margin: 0 auto; padding: 24px 16px 40px; color: var(--ink);
+  font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+#daisy [hidden] { display: none !important; }
+#daisy h1 { font-size: 30px; margin: 0 0 4px; letter-spacing: -.01em; }
+#daisy .dz-lede { margin: 0 0 18px; color: var(--soft); max-width: 40em; }
+#daisy button { font: inherit; font-weight: 700; padding: 9px 20px; border-radius: 999px; border: 2px solid var(--ink);
+  background: var(--ink); color: var(--paper); cursor: pointer; }
+#daisy button.quiet { background: transparent; color: var(--ink); }
+#daisy button:focus-visible, #daisy input:focus-visible { outline: 3px solid var(--heart); outline-offset: 2px; }
+#daisy .dz-lobby { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; padding: 16px; border: 1px solid var(--line);
+  border-radius: 14px; background: #fff; max-width: 640px; }
+#daisy .dz-field { display: flex; flex-direction: column; gap: 4px; font-size: 14px; font-weight: 600; flex: 1 1 220px; }
+#daisy input { font: inherit; padding: 9px 12px; border: 2px solid var(--line); border-radius: 10px; background: var(--paper); color: var(--ink); min-width: 0; }
+#daisy .dz-lobby-actions, #daisy .dz-back { display: flex; gap: 8px; flex-wrap: wrap; }
+#daisy .dz-back { flex-basis: 100%; }
+#daisy .dz-lobby-note { flex-basis: 100%; margin: 0; color: var(--soft); font-size: 14px; min-height: 1.4em; }
+#daisy .dz-invite { margin: 14px 0 0; padding: 12px 16px; background: #fdf3d9; border-radius: 12px; max-width: 640px; }
+#daisy .dz-invite p { margin: 0 0 6px; font-weight: 600; }
+#daisy .dz-invite-row { display: flex; gap: 8px; }
+#daisy .dz-link { flex: 1; }
+#daisy .dz-status { margin: 14px 0 0; font-weight: 600; }
+#daisy .dz-table { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 14px; }
+#daisy .dz-seat { position: relative; border: 1px solid var(--line); border-radius: 16px; overflow: hidden; background: var(--paper); min-height: 200px; }
+#daisy .dz-mount iframe { display: block; width: 100%; height: 560px; border: 0; }
+#daisy .dz-house-mount { display: none; }                 /* the house runs hidden */
+#daisy .dz-house-note { grid-column: 1 / -1; }
+#daisy .dz-tile-status { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 10px; background: rgba(251, 247, 236, .92); text-align: center; padding: 16px; }
+#daisy .dz-log { margin-top: 22px; font-size: 13px; color: var(--soft); }
+#daisy .dz-log ol { list-style: none; padding: 0; margin: 8px 0 0; max-height: 260px; overflow: auto; font-family: ui-monospace, Menlo, Consolas, monospace; }
+#daisy .dz-foot { margin-top: 18px; font-size: 13px; color: var(--soft); max-width: 46em; }
+@media (max-width: 760px) {
+  #daisy .dz-table { grid-template-columns: 1fr; }
+  #daisy .dz-mine { order: 2; }                          /* yours at the bottom, near the thumb */
+  #daisy .dz-theirs { order: 1; }
+  #daisy .dz-theirs .dz-mount iframe { height: 420px; }
+}
+
+/* Step 4: signing in, the handle suggestions, saving. */
+#daisy .dz-lobby-hint { flex-basis: 100%; margin: 0; color: var(--soft); font-size: 13px; }
+#daisy .dz-account { margin: 12px 0 0; font-size: 14px; color: var(--soft); }
+#daisy .dz-account-text { font-weight: 600; color: var(--ink); }
+#daisy button.dz-linkish { background: none; border: 0; padding: 0 0 0 8px; color: var(--soft); font-weight: 600; text-decoration: underline; border-radius: 0; }
+#daisy .dz-ta { position: relative; display: flex; min-width: 0; }
+#daisy .dz-ta input { flex: 1 1 auto; }
+#daisy .dz-ta-list { position: absolute; z-index: 20; left: 0; right: 0; top: calc(100% + 4px); margin: 0; padding: 4px; list-style: none;
+  background: #fff; border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 8px 24px rgba(47, 42, 31, .15); font-weight: 400; }
+#daisy .dz-ta-item { display: flex; align-items: center; gap: 9px; padding: 6px 8px; border-radius: 7px; cursor: pointer; }
+#daisy .dz-ta-item[aria-selected="true"], #daisy .dz-ta-item:hover { background: #f6eedb; }
+#daisy .dz-ta-pic { flex: none; width: 28px; height: 28px; border-radius: 50%; background: var(--line); overflow: hidden; }
+#daisy .dz-ta-pic img { width: 100%; height: 100%; object-fit: cover; display: block; }
+#daisy .dz-ta-words { min-width: 0; display: flex; flex-direction: column; line-height: 1.25; }
+#daisy .dz-ta-handle { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#daisy .dz-ta-name { font-size: .85em; color: var(--soft); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#daisy .dz-dialog { position: fixed; inset: 0; z-index: 30; display: flex; align-items: center; justify-content: center; background: rgba(47, 42, 31, .5); padding: 16px; }
+#daisy .dz-dialog-box { background: #fff; border-radius: 16px; padding: 20px 22px; width: min(100%, 520px); max-height: calc(100vh - 32px); overflow: auto; box-shadow: 0 10px 40px rgba(47, 42, 31, .3); }
+#daisy .dz-dialog-box h2 { margin: 0 0 8px; font-size: 19px; }
+#daisy .dz-dialog-text { margin: 0 0 10px; }
+#daisy .dz-dialog-details summary { cursor: pointer; color: var(--soft); font-size: 14px; }
+#daisy .dz-dialog-record { font: 12px/1.45 ui-monospace, Menlo, Consolas, monospace; background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; max-height: 220px; overflow: auto; white-space: pre; }
+#daisy .dz-dialog-status { min-height: 1.4em; margin: 10px 0; font-weight: 600; }
+#daisy .dz-dialog-status a { color: var(--ink); }
+#daisy .dz-dialog-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.dz-window-done { font: 16px/1.5 system-ui, sans-serif; padding: 24px; }
