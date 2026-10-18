@@ -7,17 +7,18 @@
 //
 // mountLounge(root, deps) works inside the Daisy page's markup (markup.js). deps:
 //   auth                 the page's sign-in (auth.js): restore, canMingle, signIn, openWindow, call, getPass, remember
-//   getHandle()          the handle typed in the lobby (or the last account), for signing in
 //   onTable({ table, seat, did, handle, withDid })   go to the table both players said yes to
 //   url                  the lounge address (config.js loungeUrl), null when there's no relay
-import { rememberedAccounts, SignInNeeded } from './auth.js';
+import { SignInNeeded } from './auth.js';
 import { cleanHandle, looksLikeHandle, resolveHandle, profilesOf, hasLoungeRecord } from './identity.js';
 import { LOUNGE_SCOPE, LOUNGE_COLLECTION, LOUNGE_TIMES as TIMES, timerSet } from './config.js';
 
-const OFF_TEXT = 'Off. Turn it on to see other mingling Daisy players who are here now, and let them see you.';
+const OFF_TEXT = 'Off. Turn it on to see other mingling Daisy players who are here now, and let them see you. The first time, it asks for one more approval: “Daisy lounge”.';
+const OFF_TEXT_READY = 'Off. Turn it on to see other mingling Daisy players who are here now, and let them see you.';
+const WAIT_TEXT = 'Sign in above to mingle.';
 const ON_TEXT = 'Mingling: other mingling players can see you while you\'re on this page.';
 
-export function mountLounge(root, { auth, authProblem = null, getHandle, onTable, url, WebSocketImpl = globalThis.WebSocket, fetchImpl = (...a) => fetch(...a), log = () => {}, loc = globalThis.location }) {
+export function mountLounge(root, { auth, authProblem = null, onTable, url, WebSocketImpl = globalThis.WebSocket, fetchImpl = (...a) => fetch(...a), log = () => {}, loc = globalThis.location }) {
   // With ?timers=short on this computer, "No answer" comes after 4 s (for the checks), as the game's short timers.
   const LOUNGE_TIMES = timerSet(loc) === 'short' ? { ...TIMES, noAnswer: 4000 } : TIMES;
   const $ = (s) => root.querySelector(s);
@@ -31,6 +32,8 @@ export function mountLounge(root, { auth, authProblem = null, getHandle, onTable
   let knock = null;            // { id, from, expires, timer }
   const invited = new Map();   // did → timer (Invite sent → No answer)
   let pendingDialog = null;
+  let approved = false;        // this browser's sign-in already has "Daisy lounge"
+  let setting = 0;             // which setAccount call is current
   let leaving = false;
 
   const note = (text) => { $('.dz-lounge-note').textContent = text; };
@@ -39,7 +42,7 @@ export function mountLounge(root, { auth, authProblem = null, getHandle, onTable
     $('.dz-who').hidden = state !== 'here';
     $('.dz-lounge-retry').hidden = !['needs-signin', 'idle', 'away', 'left'].includes(state);
     $('.dz-lounge-retry').textContent = state === 'needs-signin' ? 'Sign in to the lounge' : 'Rejoin the lounge';
-    if (state === 'off') note(OFF_TEXT);
+    if (state === 'off') note(!account ? WAIT_TEXT : approved ? OFF_TEXT_READY : OFF_TEXT);
     else if (state === 'joining') note(`Joining the lounge as @${account.handle}…`);
     else if (state === 'here') note(`${ON_TEXT} (as @${account.handle})`);
   }
@@ -47,32 +50,36 @@ export function mountLounge(root, { auth, authProblem = null, getHandle, onTable
   const setState = (s, text) => { state = s; root.dataset.lounge = s; show(); if (text) note(text); };
   show();
 
-  // ---------- at load: already mingling from this browser? ----------
-  async function start() {
-    if (authProblem || !auth || !auth.ready()) { sw.disabled = true; note("The lounge needs signing in, which isn't working on this page right now."); return; }
-    const last = rememberedAccounts()[0];
-    if (!last) return;
+  // ---------- the account: the page's one sign-in (table.js), or none ----------
+  // Signed in: is the account already mingling (its lounge record)? Then back into the lounge, with no
+  // window if this browser's sign-in already has "Daisy lounge". Signed out: out of the lounge (the record
+  // stays in the account until mingling is turned off).
+  async function setAccount(a) {
+    const n = ++setting;
+    if (account && (!a || a.did !== account.did)) { leave(); mingling = false; }
+    account = a || null;
+    panel.classList.toggle('dz-waiting', !account);
+    sw.disabled = !account || !!authProblem || !auth || !auth.ready();
+    if (!account) { approved = false; setState('off'); return; }
+    approved = await auth.canMingle(account.did).catch(() => false);
+    if (n !== setting) return;
+    if (!mingling) setState('off');
     let has = false;
-    try { has = await hasLoungeRecord(last.did, fetchImpl); } catch { return; }
-    if (!has) return;
-    account = last; mingling = true;
-    if (await auth.canMingle(last.did)) join();
-    else setState('needs-signin', `You mingle as @${last.handle}, but this browser's lounge sign-in has run out.`);
+    try { has = await hasLoungeRecord(account.did, fetchImpl); } catch { return; }
+    if (n !== setting || !has || mingling) return;
+    mingling = true;
+    if (approved) join();
+    else setState('needs-signin', `You mingle as @${account.handle}, but this browser hasn't approved “Daisy lounge” yet.`);
   }
 
   // ---------- the switch ----------
   sw.addEventListener('click', () => {
-    if (sw.disabled) return;
+    if (sw.disabled || !account) return;
     if (mingling) return turnOff();
-    const handle = account ? account.handle : cleanHandle(getHandle());
-    if (!looksLikeHandle(handle)) { note('Type your handle above first, like you.bsky.social.'); return; }
-    const known = rememberedAccounts().find((a) => a.handle === handle);
-    pendingDialog = { handle, known, can: false };
-    // Whether this browser can already mingle as that account is found out now, so Continue (a click) can
-    // open the sign-in window at once when it can't: browsers only allow a window straight from a click.
-    const asked = pendingDialog;
-    if (known) auth.canMingle(known.did).then((v) => { asked.can = v; }, () => {});
-    // The explanation comes first (owner, Oct 18), each time someone turns mingling on.
+    pendingDialog = { handle: account.handle };
+    // The explanation comes first (owner, Oct 18), each time someone turns mingling on; the line about the
+    // extra approval only while this browser hasn't given it.
+    $('.dz-ldialog-first').hidden = approved;
     $('.dz-ldialog-status').textContent = '';
     dialog.hidden = false;
     $('.dz-ldialog-yes').focus();
@@ -81,8 +88,8 @@ export function mountLounge(root, { auth, authProblem = null, getHandle, onTable
   // Continue: straight from the click, as a sign-in window may have to open.
   $('.dz-ldialog-yes').addEventListener('click', () => {
     if (!pendingDialog) return;
-    const { handle, known, can } = pendingDialog;
-    withLoungeSignIn(handle, can ? known : null, async (who) => {
+    const { handle } = pendingDialog;
+    withLoungeSignIn(handle, approved ? account : null, async (who) => {
       dialog.hidden = true; pendingDialog = null;
       account = who;
       try {
@@ -115,7 +122,9 @@ export function mountLounge(root, { auth, authProblem = null, getHandle, onTable
       let named = null;
       try { named = await resolveHandle(handle, fetchImpl); } catch { named = null; }
       if (named !== did) { say(named ? `That sign-in was for a different account than @${handle}. Try again.` : `Couldn't check @${handle}. Try again.`); return; }
+      if (account && did !== account.did) { auth.signOut(did); say(`That was a different account. Approve “Daisy lounge” as @${account.handle}.`); return; }
       if (!(await auth.canMingle(did))) { say('The lounge permissions weren\'t given, so mingling stays off.'); return; }
+      approved = true;
       auth.remember(did, handle);
       say('');
       then({ did, handle });
@@ -307,8 +316,9 @@ export function mountLounge(root, { auth, authProblem = null, getHandle, onTable
     onTable({ table: m.table, seat: m.seat, did: account.did, handle: account.handle, withDid: other });
   }
 
-  start();
+  setState('off');
   return {
+    setAccount,
     // The page opened or joined a table: out of the lounge (mingling itself stays on).
     leaveForTable() { leave(); panel.hidden = true; },
     get state() { return state; }, get account() { return account; }, get mingling() { return mingling; },

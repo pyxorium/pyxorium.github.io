@@ -106,3 +106,13 @@
 /* Back to the start (Oct 18): from any table to the start screen and the lounge. */
 #daisy .dz-after { margin-top: 12px; }
 #daisy .dz-leave { position: fixed; inset: 0; z-index: 30; display: flex; align-items: center; justify-content: center; background: rgba(47, 42, 31, .5); padding: 16px; }
+
+/* One sign-in at the top of the start screen (Oct 18, option B). */
+#daisy .dz-account { margin: 0 0 12px; }
+#daisy .dz-play { margin-top: 12px; padding: 16px; border: 1px solid var(--line); border-radius: 14px; background: #fff; max-width: 640px;
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+#daisy .dz-play-text { margin: 0; color: var(--soft); font-size: 14px; flex: 1 1 220px; }
+#daisy .dz-play .dz-back { flex-basis: 100%; }
+#daisy button:disabled { opacity: .45; cursor: default; }
+#daisy .dz-lounge.dz-waiting h2, #daisy .dz-lounge.dz-waiting .dz-switch-row { opacity: .55; }
+#daisy .dz-lobby + .dz-play { margin-top: 12px; }

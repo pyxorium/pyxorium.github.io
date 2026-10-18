@@ -307,6 +307,7 @@ export function mountTable(root, { TileMothership, MemoryTileLoader, Tile, auth,
   function setStatus(text) { const s = $('.dz-status'); s.hidden = !text; s.textContent = text || ''; }
   function showTable() {
     $('.dz-lobby').hidden = true;
+    $('.dz-play').hidden = true;
     if (mismatch) return;
     $('.dz-table').hidden = false;
     if (me.seat === 1 && !other && !me.fromLounge) {
@@ -335,7 +336,10 @@ export function mountTable(root, { TileMothership, MemoryTileLoader, Tile, auth,
     connect();
   }
 
-  // ---------- the lobby: sign in to sit ----------
+  // ---------- the start screen: one sign-in first (owner, Oct 18, option B) ----------
+  // The page signs in once, at the top ("Play Daisy"); Open a table, Take a seat and the Lounge all use
+  // that sign-in. Mingling asks once more, for "Daisy lounge", the first time only (lounge.js).
+  let who = null;              // the account signed in on the start screen
   const note = (text) => { $('.dz-lobby-note').textContent = text || ''; };
   attachTypeahead($('.dz-handle'), { fetchImpl, skip: () => !!busy });     // handle suggestions, as in the Foundry and Seven-Up
   const last = rememberedAccounts()[0];
@@ -343,7 +347,7 @@ export function mountTable(root, { TileMothership, MemoryTileLoader, Tile, auth,
 
   function lobbyBusy(on, abort = null) {
     busy = on ? { abort } : null;
-    for (const b of ['.dz-open', '.dz-sit']) $(b).disabled = on;
+    $('.dz-signin').disabled = on;
     $('.dz-handle').disabled = on;
     $('.dz-cancel').hidden = !(on && abort);
   }
@@ -404,20 +408,39 @@ export function mountTable(root, { TileMothership, MemoryTileLoader, Tile, auth,
     return true;
   }
 
-  $('.dz-open').addEventListener('click', () => signInToSit((who) => {
+  // Signed in (or not) on the start screen: the line at the top, and what can be pressed.
+  function showStart() {
+    if (me) return;                          // at a table: showAccount() keeps the line
+    $('.dz-lobby').hidden = !!who;
+    for (const b of ['.dz-open', '.dz-sit']) $(b).disabled = !who;
+    $('.dz-play').classList.toggle('dz-waiting', !who);
+    const line = $('.dz-account');
+    line.hidden = !who;
+    if (who) $('.dz-account-text').textContent = `Signed in as @${who.handle}`;
+    $('.dz-signout').hidden = !who;
+    $('.dz-again').hidden = true;
+    $('.dz-home').hidden = true;
+    if (lounge) lounge.setAccount(who);
+  }
+  $('.dz-signin').addEventListener('click', () => signInToSit((w) => { who = { did: w.did, handle: w.handle }; showStart(); }));
+  $('.dz-handle').addEventListener('keydown', (e) => { if (e.key === 'Enter' && !busy) $('.dz-signin').click(); });
+
+  $('.dz-open').addEventListener('click', () => {
+    if (!who) return;
     table = newTableId();
     const u = new URL(loc.href);
     u.searchParams.set('table', table);
     try { history.replaceState(null, '', u); } catch {}
-    me = { ...who, seat: null };
+    me = { ...who, signedIn: true, seat: null };
     start(1);
-  }));
-  $('.dz-sit').addEventListener('click', () => signInToSit((who) => {
+  });
+  $('.dz-sit').addEventListener('click', () => {
+    if (!who) return;
     const mine = kept(table).find((k) => k.me.did === who.did);
-    me = mine ? { ...mine.me, signedIn: true } : { ...who, seat: null };
+    me = mine ? { ...mine.me, signedIn: true } : { ...who, signedIn: true, seat: null };
     if (mine) { snapshot = mine.snapshot; other = mine.other; }
     start('any');
-  }));
+  });
 
   // The lounge (step 6): only on the start screen. An invitation both said yes to: straight to its table,
   // the inviter at seat 1 and the one who said yes at seat 2 (owner, Oct 18).
@@ -425,7 +448,6 @@ export function mountTable(root, { TileMothership, MemoryTileLoader, Tile, auth,
   if (!table) {
     lounge = mountLounge(root, {
       auth, authProblem, url: loungeUrl(loc), WebSocketImpl, fetchImpl, log, loc,
-      getHandle: () => $('.dz-handle').value,
       onTable({ table: id, seat, did, handle }) {
         table = id;
         const u = new URL(loc.href);
@@ -452,13 +474,22 @@ export function mountTable(root, { TileMothership, MemoryTileLoader, Tile, auth,
     if (!me) return;
     const line = $('.dz-account');
     line.hidden = false;
+    $('.dz-home').hidden = false;
     $('.dz-account-text').textContent = me.signedIn ? `Signed in as @${me.handle}` : `@${me.handle} · signed out on this browser: sign in again to save`;
     $('.dz-signout').hidden = !me.signedIn;
     $('.dz-again').hidden = me.signedIn;
   }
-  // Sign out: this browser forgets the account's sign-in (and it's ended at its server). The seat and
-  // the game stay; saving asks to sign in again.
+  // Sign out: this browser forgets the account's sign-in (and it's ended at its server). At a table the
+  // seat and the game stay, and saving asks to sign in again; on the start screen, back to signing in (a
+  // lounge record stays in the account: mingling resumes at the next sign-in).
   $('.dz-signout').addEventListener('click', async () => {
+    if (!me && who) {
+      const was = who;
+      who = null;
+      showStart();
+      try { await auth.signOut(was.did); } catch (err) { console.warn('[daisy] sign-out', err); }
+      return;
+    }
     if (!me || !me.signedIn) return;
     me.signedIn = false;
     try { await auth.signOut(me.did); } catch (err) { console.warn('[daisy] sign-out', err); }
@@ -582,6 +613,14 @@ export function mountTable(root, { TileMothership, MemoryTileLoader, Tile, auth,
         box.append(b);
       }
     }
+  }
+  $('.dz-play-text').textContent = table ? "You've been invited to a table." : 'You get a link to send to a friend.';
+  // Signed in on this browser before: carry on as that account, no window (it's forgotten if it ran out).
+  if (!me) {
+    const last = rememberedAccounts()[0];
+    if (last && auth && auth.ready() && !authProblem) {
+      auth.restore(last.did).then((ok) => { if (ok && !me && !who) who = { did: last.did, handle: last.handle }; showStart(); });
+    } else showStart();
   }
 
   // ---------- the log ----------

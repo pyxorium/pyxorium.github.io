@@ -5,27 +5,37 @@ export const MARKUP = `
   <p class="dz-lede">A dice race for two players. One die: roll as often as you like, but a 1 loses the turn. Bank to keep your points. First to 25 wins.</p>
 </header>
 
-<section class="dz-lobby" aria-label="Join">
+<p class="dz-account" hidden><span class="dz-account-text"></span>
+  <button class="dz-signout dz-linkish" type="button" hidden>Sign out</button>
+  <button class="dz-again dz-linkish" type="button" hidden>Sign in again</button>
+  <button class="dz-home dz-linkish" type="button" hidden>Back to the start</button></p>
+
+<section class="dz-lobby" aria-label="Sign in">
   <label class="dz-field">Your handle
     <input class="dz-handle" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="you.bsky.social">
   </label>
   <div class="dz-lobby-actions">
-    <button class="dz-open" type="button">Open a table</button>
-    <button class="dz-sit" type="button" hidden>Take a seat</button>
+    <button class="dz-signin" type="button">Sign in</button>
     <button class="dz-cancel quiet" type="button" hidden>Cancel</button>
   </div>
-  <div class="dz-back" hidden></div>
   <p class="dz-lobby-note" aria-live="polite"></p>
-  <p class="dz-lobby-hint">You sign in with your atproto account first (a small window opens), so the other player sees your real handle and you can save the match to your account. Signing in asks only to save Daisy matches.</p>
+  <p class="dz-lobby-hint">Signing in asks your account for <b>“Play Daisy”</b>: saving the matches you finish, and nothing else. A small window opens the first time.</p>
 </section>
 
-<section class="dz-lounge" aria-label="Lounge">
+<section class="dz-play dz-waiting" aria-label="Play">
+  <button class="dz-open" type="button" disabled>Open a table</button>
+  <button class="dz-sit" type="button" hidden disabled>Take a seat</button>
+  <p class="dz-play-text">You get a link to send to a friend.</p>
+  <div class="dz-back" hidden></div>
+</section>
+
+<section class="dz-lounge dz-waiting" aria-label="Lounge">
   <h2>Lounge</h2>
   <div class="dz-switch-row">
-    <button class="dz-switch" type="button" role="switch" aria-checked="false" aria-labelledby="dz-mingle-label"></button>
+    <button class="dz-switch" type="button" role="switch" aria-checked="false" aria-labelledby="dz-mingle-label" disabled></button>
     <span class="dz-switch-label" id="dz-mingle-label">Mingle</span>
   </div>
-  <p class="dz-lounge-note" aria-live="polite">Off. Turn it on to see other mingling Daisy players who are here now, and let them see you.</p>
+  <p class="dz-lounge-note" aria-live="polite">Sign in above to mingle.</p>
   <button class="dz-lounge-retry quiet" type="button" hidden>Rejoin the lounge</button>
   <div class="dz-who" hidden>
     <div class="dz-who-head"><button class="dz-who-ask quiet" type="button">Who else is mingling?</button><span class="dz-who-time"></span></div>
@@ -44,16 +54,11 @@ export const MARKUP = `
   <div class="dz-dialog-box" role="dialog" aria-modal="true" aria-labelledby="dz-ldialog-title">
     <h2 id="dz-ldialog-title">Turn on mingling?</h2>
     <p class="dz-dialog-text">While you mingle and this page is open (not at a table), other mingling Daisy players who ask can see you and invite you to a game, and you can see and invite them. Players who have blocked you, or whom you've blocked, never see each other.</p>
-    <p class="dz-dialog-text">The first time, your account's server asks you to approve <b>“Daisy lounge”</b>: a lounge record in your account (it only says that you've chosen to mingle, not whether you're here or signed in) and a pass that proves to Daisy's relay who you are. Turning mingling off deletes the record.</p>
+    <p class="dz-dialog-text dz-ldialog-first">Mingling needs <b>one more approval</b> from your account, <b>“Daisy lounge”</b> (only this first time): a lounge record in your account (it only says that you've chosen to mingle, not whether you're here or signed in) and a pass that proves to Daisy's relay who you are. Turning mingling off deletes the record.</p>
     <p class="dz-ldialog-status" aria-live="polite"></p>
     <div class="dz-dialog-actions"><button type="button" class="dz-ldialog-yes">Continue</button><button type="button" class="dz-ldialog-no quiet">Not now</button></div>
   </div>
 </div>
-
-<p class="dz-account" hidden><span class="dz-account-text"></span>
-  <button class="dz-signout dz-linkish" type="button" hidden>Sign out</button>
-  <button class="dz-again dz-linkish" type="button" hidden>Sign in again</button>
-  <button class="dz-home dz-linkish" type="button">Back to the start</button></p>
 
 <section class="dz-invite" hidden>
   <p>Send this link to the other player:</p>
