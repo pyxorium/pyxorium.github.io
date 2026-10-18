@@ -3,7 +3,7 @@
   "client_name": "Daisy at thunderbird.cafe",
   "client_uri": "https://thunderbird.cafe/webtiles/daisy/",
   "redirect_uris": ["https://thunderbird.cafe/webtiles/daisy/"],
-  "scope": "atproto repo:cafe.thunderbird.daisy.match",
+  "scope": "atproto include:cafe.thunderbird.daisy.authPlay include:cafe.thunderbird.daisy.authLounge?aud=did:web:relay.daisy.thunderbird.cafe%23daisy_relay",
   "grant_types": ["authorization_code", "refresh_token"],
   "response_types": ["code"],
   "token_endpoint_auth_method": "none",

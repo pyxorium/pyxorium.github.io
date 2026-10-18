@@ -66,3 +66,39 @@
 #daisy .dz-dialog-status a { color: var(--ink); }
 #daisy .dz-dialog-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 .dz-window-done { font: 16px/1.5 system-ui, sans-serif; padding: 24px; }
+
+/* Step 6: the lounge. */
+#daisy .dz-lounge { margin-top: 14px; padding: 16px; border: 1px solid var(--line); border-radius: 14px; background: #fff; max-width: 640px; }
+#daisy .dz-lounge h2 { font-size: 17px; margin: 0 0 6px; }
+#daisy .dz-switch-row { display: flex; align-items: center; gap: 12px; }
+#daisy button.dz-switch { flex: none; width: 46px; height: 26px; border-radius: 999px; background: var(--line); position: relative; border: 0; padding: 0; }
+#daisy button.dz-switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .25); transition: left .15s ease; }
+#daisy button.dz-switch[aria-checked="true"] { background: var(--leaf); }
+#daisy button.dz-switch[aria-checked="true"]::after { left: 23px; }
+#daisy button.dz-switch:disabled { opacity: .6; cursor: default; }
+#daisy .dz-switch-label { font-weight: 600; }
+#daisy .dz-lounge-note { margin: 6px 0 0; font-size: 13px; color: var(--soft); }
+#daisy .dz-lounge-retry { margin-top: 8px; padding: 5px 14px; font-size: 14px; }
+#daisy .dz-who { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
+#daisy .dz-who-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+#daisy .dz-who-time, #daisy .dz-who-note { font-size: 13px; color: var(--soft); }
+#daisy .dz-who-note { margin: 8px 0 0; }
+#daisy .dz-who-note:empty { display: none; }
+#daisy .dz-people { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+#daisy .dz-people:empty { display: none; }
+#daisy .dz-person { display: flex; align-items: center; gap: 10px; padding: 6px 8px; border-radius: 10px; background: var(--paper); }
+#daisy .dz-pic { width: 32px; height: 32px; border-radius: 50%; flex: none; background: var(--line); object-fit: cover; }
+#daisy .dz-person-words { flex: 1; min-width: 0; line-height: 1.25; }
+#daisy .dz-person-handle { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#daisy .dz-person-name { font-size: 13px; color: var(--soft); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#daisy .dz-person button { padding: 5px 14px; font-size: 14px; }
+#daisy .dz-person-state { font-size: 13px; color: var(--soft); font-weight: 600; white-space: nowrap; }
+#daisy .dz-knock { position: fixed; right: 16px; bottom: 16px; z-index: 25; width: min(300px, calc(100vw - 32px)); background: #fff; border: 1px solid var(--line);
+  border-radius: 14px; box-shadow: 0 10px 30px rgba(47, 42, 31, .18); padding: 14px 16px 12px; }
+#daisy .dz-knock p { margin: 0 0 10px; }
+#daisy .dz-knock-actions { display: flex; gap: 8px; }
+#daisy .dz-knock-bar { margin-top: 10px; height: 4px; border-radius: 999px; background: var(--line); overflow: hidden; }
+#daisy .dz-knock-bar span { display: block; height: 100%; width: 100%; background: var(--heart); transform-origin: left; }
+#daisy .dz-ldialog-status { min-height: 1.4em; margin: 6px 0 10px; font-weight: 600; }
+#daisy .dz-ldialog { position: fixed; inset: 0; z-index: 30; display: flex; align-items: center; justify-content: center; background: rgba(47, 42, 31, .5); padding: 16px; }

@@ -7,6 +7,7 @@
 // house before the table starts.
 // Step 5: the live page plays through the real relay on Fly.io (RELAY_URL in config.js); on this
 // computer the stand-in stays the default.
+// Step 6: the lounge (lounge.js) on the start screen; an invitation both said yes to opens a table here.
 //
 // mountTable(root, deps): deps carries the loader classes and the sign-in (and stand-ins for the checks),
 // so this file has no package imports.
@@ -20,9 +21,10 @@ import { SignInNeeded, rememberedAccounts } from './auth.js';
 import { createPinnedLoader } from './pinned-loader.js';
 import { attachTypeahead } from './typeahead.js';
 import { recordFor, otherPlayer, checkRecord } from './record.js';
+import { mountLounge } from './lounge.js';
 import { TILES } from './tiles.generated.js';
 import {
-  TILE_LOAD_DOMAIN, MEMORY_IDS, TIMES, AWAY_MS, relayUrl, timerSet, loadSourceOverride, newTableId,
+  TILE_LOAD_DOMAIN, MEMORY_IDS, TIMES, AWAY_MS, relayUrl, loungeUrl, timerSet, loadSourceOverride, newTableId,
   PUBLISHED, tileSource, houseVersion, houseAddress, COLLECTION, recordLink,
 } from './config.js';
 
@@ -277,7 +279,7 @@ export function mountTable(root, { TileMothership, MemoryTileLoader, Tile, auth,
       goneTimer = setInterval(show, 1000);
       return;
     }
-    if (!other) { setStatus('Waiting for the other player. Send them the link.'); return; }
+    if (!other) { setStatus(me.fromLounge ? 'Waiting for the other player to arrive…' : 'Waiting for the other player. Send them the link.'); return; }
     if (mismatch) return;
     $('.dz-invite').hidden = true;
     setStatus(phase === 'over' ? `Match over · playing with ${at(other.handle)}` : `Playing with ${at(other.handle)}${timers === 'short' ? ' · short timers' : ''}`);
@@ -287,7 +289,7 @@ export function mountTable(root, { TileMothership, MemoryTileLoader, Tile, auth,
     $('.dz-lobby').hidden = true;
     if (mismatch) return;
     $('.dz-table').hidden = false;
-    if (me.seat === 1 && !other) {
+    if (me.seat === 1 && !other && !me.fromLounge) {
       $('.dz-invite').hidden = false;
       $('.dz-link').value = shareLink();
     }
@@ -307,6 +309,7 @@ export function mountTable(root, { TileMothership, MemoryTileLoader, Tile, auth,
 
   function start(seatWish) {
     me.ask = seatWish;
+    if (lounge) lounge.leaveForTable(); else $('.dz-lounge').hidden = true;
     showAccount();
     frames.start('house'); frames.start('mine'); frames.start('theirs');
     connect();
@@ -395,6 +398,24 @@ export function mountTable(root, { TileMothership, MemoryTileLoader, Tile, auth,
     if (mine) { snapshot = mine.snapshot; other = mine.other; }
     start('any');
   }));
+
+  // The lounge (step 6): only on the start screen. An invitation both said yes to: straight to its table,
+  // the inviter at seat 1 and the one who said yes at seat 2 (owner, Oct 18).
+  let lounge = null;
+  if (!table) {
+    lounge = mountLounge(root, {
+      auth, authProblem, url: loungeUrl(loc), WebSocketImpl, fetchImpl, log, loc,
+      getHandle: () => $('.dz-handle').value,
+      onTable({ table: id, seat, did, handle }) {
+        table = id;
+        const u = new URL(loc.href);
+        u.searchParams.set('table', table);
+        try { history.replaceState(null, '', u); } catch {}
+        me = { did, handle, signedIn: true, seat: null, fromLounge: true };
+        start(seat);
+      },
+    });
+  } else $('.dz-lounge').hidden = true;
 
   // Back at a seat from this browser (a reload): carry on with that account's sign-in if it's still good;
   // if not, the game goes on and saving asks to sign in again.
@@ -558,6 +579,7 @@ export function mountTable(root, { TileMothership, MemoryTileLoader, Tile, auth,
     get me() { return me; }, get other() { return other; }, get snapshot() { return snapshot; }, get phase() { return phase; },
     get result() { return result; }, get hello() { return { ...hello, house: houseSaid }; },
     get mismatch() { return mismatch; }, get source() { return source; }, saved: () => saved, myHouse,
+    get lounge() { return lounge; },
     blip: () => relay && relay.blip(),
     frames,
   };

@@ -29,10 +29,20 @@ export const houseAddress = (source) => (source === 'published' ? PUBLISHED.hous
 export const HANDLE_RESOLVER = 'https://public.api.bsky.app';
 export const PLC_DIRECTORY = 'https://plc.directory';
 
-// Signing in and saving (step 4). Signing in asks only for this one kind of record: nothing else in the
-// account (the lounge's own permissions come later, asked only when someone turns mingling on).
+// Signing in and saving (step 4), and the lounge (step 6). Since step 6 the permissions are asked as Daisy's
+// two permission sets (lexicons published from thunderbird.cafe), whose own wording Bluesky's Authorize
+// screen shows: "Play Daisy" (the match records only) to sit, and "Daisy lounge" (the lounge record and a
+// pass for the relay) only when someone turns mingling on.
 export const COLLECTION = 'cafe.thunderbird.daisy.match';
-export const SCOPE = `atproto repo:${COLLECTION}`;
+export const LOUNGE_COLLECTION = 'cafe.thunderbird.daisy.lounge';
+export const RELAY_AUDIENCE = 'did:web:relay.daisy.thunderbird.cafe#daisy_relay';
+export const LOUNGE_ENTER = 'cafe.thunderbird.daisy.lounge.enter';
+export const SIT_SCOPE = 'atproto include:cafe.thunderbird.daisy.authPlay';
+export const LOUNGE_SCOPE = `${SIT_SCOPE} include:cafe.thunderbird.daisy.authLounge?aud=${RELAY_AUDIENCE.replace('#', '%23')}`;
+export const SCOPE = LOUNGE_SCOPE;          // everything this page may ask for (oauth.json says the same)
+// A sign-in that can enter the lounge: the server expands the set into these plain permissions.
+export const hasLoungeScope = (scope) => /(^|\s)repo:cafe\.thunderbird\.daisy\.lounge(\s|$|\?)/.test(String(scope || ''))
+  && String(scope || '').includes(`rpc:${LOUNGE_ENTER}`);
 export const PAGE_PATH = '/webtiles/daisy/';
 // The sign-in description file (public/webtiles/daisy/oauth.json). On this computer (127.0.0.1) a
 // "loopback" sign-in is used instead, built from the page's own address (auth.js).
@@ -55,6 +65,13 @@ export const TAB_PREFIX = 'daisy-tab:';        // sessionStorage: which account 
 // The away countdown shown while the other player is disconnected (the house's own timers decide).
 export const AWAY_MS = { real: 120000, short: 20000 };
 
+// The lounge, on the page's side (the relay keeps the same times, relay lounge.js).
+export const LOUNGE_TIMES = Object.freeze({
+  noAnswer: 60000,        // "Invite sent" becomes "No answer" after a minute
+  hereEvery: 60000,       // tell the relay someone touched the page at most once a minute
+  reconnect: [1000, 2000, 4000, 8000, 15000],
+});
+
 const isLocal = isHere;
 
 // The relay. The live page uses the real one on Fly.io (step 5: C:\thunderbird-cafe\daisy-relay, app
@@ -63,6 +80,11 @@ const isLocal = isHere;
 // ?relay=wss://relay.daisy.thunderbird.cafe/ to try the real relay from npm run dev.
 export const RELAY_URL = 'wss://relay.daisy.thunderbird.cafe/';
 export const LOCAL_RELAY = 'ws://127.0.0.1:8787/';
+// The lounge (step 6) lives on the same relay, at /lounge.
+export function loungeUrl(loc = globalThis.location) {
+  const r = relayUrl(loc);
+  return r ? r.replace(/\/?$/, '/lounge') : null;
+}
 export function relayUrl(loc = globalThis.location) {
   if (!isLocal(loc)) return RELAY_URL;
   const v = new URLSearchParams(loc.search).get('relay');

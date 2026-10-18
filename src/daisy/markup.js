@@ -19,6 +19,37 @@ export const MARKUP = `
   <p class="dz-lobby-hint">You sign in with your atproto account first (a small window opens), so the other player sees your real handle and you can save the match to your account. Signing in asks only to save Daisy matches.</p>
 </section>
 
+<section class="dz-lounge" aria-label="Lounge">
+  <h2>Lounge</h2>
+  <div class="dz-switch-row">
+    <button class="dz-switch" type="button" role="switch" aria-checked="false" aria-labelledby="dz-mingle-label"></button>
+    <span class="dz-switch-label" id="dz-mingle-label">Mingle</span>
+  </div>
+  <p class="dz-lounge-note" aria-live="polite">Off. Turn it on to see other mingling Daisy players who are here now, and let them see you.</p>
+  <button class="dz-lounge-retry quiet" type="button" hidden>Rejoin the lounge</button>
+  <div class="dz-who" hidden>
+    <div class="dz-who-head"><button class="dz-who-ask quiet" type="button">Who else is mingling?</button><span class="dz-who-time"></span></div>
+    <p class="dz-who-note" aria-live="polite"></p>
+    <ul class="dz-people"></ul>
+  </div>
+</section>
+
+<div class="dz-knock" role="alertdialog" aria-labelledby="dz-knock-text" hidden>
+  <p id="dz-knock-text"></p>
+  <div class="dz-knock-actions"><button class="dz-knock-play" type="button">Play</button><button class="dz-knock-no quiet" type="button">Not now</button></div>
+  <div class="dz-knock-bar"><span></span></div>
+</div>
+
+<div class="dz-ldialog" hidden>
+  <div class="dz-dialog-box" role="dialog" aria-modal="true" aria-labelledby="dz-ldialog-title">
+    <h2 id="dz-ldialog-title">Turn on mingling?</h2>
+    <p class="dz-dialog-text">While you mingle and this page is open (not at a table), other mingling Daisy players who ask can see you and invite you to a game, and you can see and invite them. Players who have blocked you, or whom you've blocked, never see each other.</p>
+    <p class="dz-dialog-text">The first time, your account's server asks you to approve <b>“Daisy lounge”</b>: a lounge record in your account (it only says that you've chosen to mingle, not whether you're here or signed in) and a pass that proves to Daisy's relay who you are. Turning mingling off deletes the record.</p>
+    <p class="dz-ldialog-status" aria-live="polite"></p>
+    <div class="dz-dialog-actions"><button type="button" class="dz-ldialog-yes">Continue</button><button type="button" class="dz-ldialog-no quiet">Not now</button></div>
+  </div>
+</div>
+
 <p class="dz-account" hidden><span class="dz-account-text"></span>
   <button class="dz-signout dz-linkish" type="button" hidden>Sign out</button>
   <button class="dz-again dz-linkish" type="button" hidden>Sign in again</button></p>
@@ -57,5 +88,5 @@ export const MARKUP = `
 </div>
 
 <details class="dz-log"><summary>What passes between the pages</summary><ol></ol></details>
-<p class="dz-foot">A testing page (Daisy build step 5: two computers through the relay). Each player's page runs its own copy of the house, and the dice come from both players together, so neither can choose them. Drag your die to turn it, scroll or pinch to zoom: the other player sees it move. A saved match can be re-checked from its record alone.</p>
+<p class="dz-foot">A testing page (Daisy build step 6: the lounge). Each player's page runs its own copy of the house, and the dice come from both players together, so neither can choose them. Drag your die to turn it, scroll or pinch to zoom: the other player sees it move. A saved match can be re-checked from its record alone.</p>
 `;
