@@ -109,6 +109,16 @@
         "uri": "at://did:plc:6vxjigxrqizmbo56gojxico3/app.bsky.feed.post/3my3evr65gl2q",
         "cid": "bafyreidoupcnv22fkss3ncqu3o67zay7zxiphw3jiu7lupgvmrlip4i2xm"
       }
+    },
+    "src\\content\\blog\\daisy.mdx": {
+      "contentHash": "5958f9b897bbf523ff196ee473e750c1fec62adc33788647b1cff62fc4537554",
+      "atUri": "at://did:plc:6vxjigxrqizmbo56gojxico3/site.standard.document/3my75rsxjyu2n",
+      "lastPublished": "2026-10-19T03:16:12.880Z",
+      "slug": "daisy",
+      "bskyPostRef": {
+        "uri": "at://did:plc:6vxjigxrqizmbo56gojxico3/app.bsky.feed.post/3my75rtv2ml26",
+        "cid": "bafyreieyrrlgjpxpvj3k7bnftvbmolqakk5oaxfvsp3aclwlvsji62d7ji"
+      }
     }
   },
   "publication": {
