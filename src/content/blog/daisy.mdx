@@ -1,0 +1,111 @@
+---
+title: 'Daisy: a web tile game with a lounge where players find each other'
+description: 'A dice race made of web tiles, for two people at their own computers. A lounge for finding someone to play, dice that neither player can choose, and saved matches that anyone can verify.'
+pubDate: 'Oct 18 2026'
+heroImage: '../../assets/daisy-cover.png'
+---
+
+import JobsTable from '../../components/JobsTable.astro';
+
+[A Live Gallery of Every Web Tile](https://thunderbird.cafe/blog/web-tiles-gallery/) was about finding tiles. It reads the network for every web tile anyone has published and shows them all in one place. But finding a tile isn't the same as finding someone to play it with.
+
+Daisy is a dice game made of web tiles, for two people, each at their own computer. It comes with a lounge: a place where people who'd like a game can see who else is here right now, and invite one of them to a table. The gallery finds tiles. The lounge finds people.
+
+The [Seven-Up](https://thunderbird.cafe/blog/seven-up/) post ended with a promise of two people at two computers. Daisy keeps it, as a new game; Seven-Up stays the one-screen table. You can [play Daisy at thunderbird.cafe](https://thunderbird.cafe/webtiles/daisy/), and if nobody else is around, the table's bot will play you.
+
+## Playing
+
+**The game.** Daisy is Pig, an old dice game, renamed. On your turn, you roll one die as often as you like, and every roll adds to the turn's points. Roll a 1, though, and you lose them all and the turn passes. Press Bank to keep what you have. The first player to 25 wins at once.
+
+**Your die.** You choose one of six glazes: Bone, Jade, Midnight, Glow, Brick or Marigold. The die is drawn in 3D, with round pips and a daisy on the 1, and when you roll a 1, the daisy wilts. Between rolls you can drag your die to turn it, and scroll or pinch to zoom. The other player sees it move on their screen. A big bank gets a burst of 🌼.
+
+**Two people, two computers.** Each player signs in with their atproto account and takes their own seat. You can open a table and send the link to a friend, or find someone in the lounge. If a turn sits idle, a nudge comes after a minute, and after three minutes the turn is forfeited. A player who's away for two minutes forfeits the match, so leaving in the middle asks first.
+
+**Or play the bot.** "Play the bot" seats @dicesprite.thunderbird.cafe, Seven-Up's bot, across from you. It plays from your own page, with no relay and no timers. It chooses its glaze after you, banks somewhere between 8 and 12 each turn, and pauses before each move like a person would. You can save a match against it too. The save prompt says plainly that both sides' dice came from your own page, so nobody else can check them.
+
+![Screenshot of a Daisy match in progress, as pyxorium.com sees it. On the left, your own seat: seat 1, Jade, went first, a jade die showing a 4, "Your turn", and Roll and Bank buttons. On the right, the watching copy of the other seat: @thunderbirdwine.bsky.social, seat 2, Marigold, a marigold die showing a 6, "Waiting". Both show the score, 14 to 11, first to 25 wins.](../../assets/daisy-match-screen.png)
+
+## Finding each other
+
+**Mingle.** Daisy's start screen has a Lounge panel with one switch: Mingle. Turn it on, and you can see the other mingling Daisy players who are on the start screen right now, and they can see you. "Who else is mingling?" fetches a fresh list, with names and avatars from Bluesky.
+
+![Screenshot of Daisy's start screen, signed in as @pyxorium.com: Open a table and Play the bot, and below them the Lounge panel with Mingle switched on. After pressing "Who else is mingling?", one other player is listed, @thunderbirdwine.bsky.social, with an Invite button.](../../assets/daisy-lounge-screen.png)
+
+**Saying yes is a record you own.** The first time you turn it on, Daisy explains what mingling means and asks your account for one more permission, "Daisy lounge". Then it writes a small record into your own repo, `cafe.thunderbird.daisy.lounge`. The record only says that you've chosen to mingle, not whether you're here or signed in. Turning mingling off deletes it. If you never mingle, you never grant the lounge anything.
+
+**Here now, not here ever.** To be listed, three things have to be true at once: the record is in your repo, the switch is on, and the Daisy page is open on its start screen. Sitting at a table takes you out of the lounge, and going back to the start puts you in again. Ten minutes without touching the page drops you, quietly.
+
+**A pass from your own server.** The lounge lives on Daisy's outside relay, and the relay has to know who you are without ever holding your sign-in. So your page asks your own account's server for a pass: a short note, signed by your account, good only for this relay and only once. The relay checks the signature, checks that your lounge record is there, and lets you in. This is atproto's service auth, the same way apps prove who you are to the services they use.
+
+**Blocks count, both ways.** Before it lists anyone, and again before it passes on an invitation, the relay asks Bluesky's public API whether either of you has blocked the other, directly or through a block list. If either has, neither of you sees the other. If the check fails, the list shows nobody rather than guessing.
+
+**An invitation, quietly.** Press Invite beside a name, and the other player gets a card for one minute: Play or Not now. If they press Play, the relay opens a new table and seats you both. If they press Not now, or don't answer, your row changes from "Invite sent" to "No answer" after a minute, and nothing tells you which it was.
+
+**What you approve.** Daisy asks for its permissions as permission sets, so Bluesky's Authorize screen shows Daisy's own words: "Play Daisy" to save the matches you finish and nothing else, and, only if you mingle, "Daisy lounge".
+
+![A sequence across five lanes: your page, your server (which holds your repo), the outside relay (the lounge), Bluesky (a public block check) and another player. Your page writes the lounge record, "I've chosen to mingle", in your own repo. It asks your server for a pass, and gets back a one-time pass, signed by your account, for the relay only. It enters the lounge with the pass, and the relay asks your server whether the lounge record is there. Your page asks who else is mingling; the relay asks Bluesky about blocks either way, and answers with the players here now, never anyone blocked. Your page sends an invite; the relay passes a knock to the other player, Play or Not now. The other player answers Play, and the relay sends both pages a new table with both seated. Turning mingling off deletes the record, and the relay stores nothing. Not now is never shown: after a minute, the inviter just sees No answer.](../../assets/daisy-lounge.png)
+
+## Playing fair with no one in the middle
+
+In Seven-Up, a third tile, the house, held the rules. It was fair, but it ran in one browser, and whoever controls the page controls the house. The Seven-Up post said that would matter once two people at two computers had to trust the same referee. Daisy is that case.
+
+**Each page runs its own house.** Each player's page runs three tiles: the player tile for your seat, a second copy of it watching the other seat, and the house, hidden. Both pages run the same house tile, pinned by the content address of its record. The two houses check each other's moves and must always agree, and a page won't start a table with a page that runs a different house.
+
+**The relay only carries.** Between the two pages sits Daisy's outside relay, a small server on Fly.io. It passes messages between the pages and stores nothing. While it runs, it knows which account sits at which seat. If it restarts, both pages reconnect and ask each other for anything they missed, so a restart costs a reconnect, never the match.
+
+**Dice nobody can choose.** Before any roll, each house makes a secret seed, hashes it a thousand times over, and sends the other house only the last link of that chain: its commitment. For each roll, both houses reveal the next link down. Hash a revealed link once and you get the link above it, so the other house can check it straight away, but nobody can work out the next link down from the ones already shown. The die is the SHA-256 of the match id, the roll number and both revealed links, read as a fair 1 to 6. Neither player knows the other's next link until it's revealed, so neither can steer a roll. Even the coin for who goes first is a roll, roll 0. (The SHA-256 is written into the tiles themselves.)
+
+![Two parts. Top: seat 1's page and seat 2's page, each with a player tile for its own seat, a player tile watching the other seat, and a house tile, the referee, with a secret seed. Between them, the outside relay passes messages both ways and stores nothing. The same pinned house tile runs on both pages; neither is in charge, and they must always agree. Bottom: one roll. Each house hashes its secret seed, link after link, up to link 1000, its commitment, sent before any roll. Link 999 is revealed first, link 998 next. Seat 1's revealed link and seat 2's revealed link go into SHA-256 with the match id and the roll number, and come out as a fair 1 to 6. Each roll reveals the next link down; hash a link once and you get the one above it, so anyone can check it. Neither page knows the other's next link in advance, so neither player can choose a roll.](../../assets/daisy-fair.png)
+
+## Results you can verify
+
+**Saved to your own repo.** When a match ends, Save this match writes a `cafe.thunderbird.daisy.match` record to your own account. Each player saves their own copy, under the same key: the match's own id. The record names the house tile that refereed, by its address and content address.
+
+**Public, and now verifiable.** Seven-Up's records were public: anyone could read the rolls and see that the totals added up. But nobody could tell whether the rolls were real, because a page that wanted to cheat could have written any rolls it liked. A Daisy record carries both players' commitments and their last revealed links. Hash the links back up and they must reach the commitments. Recompute every roll from the links and each must match what's written. Anyone can run that check from the record alone, with nothing else from the game.
+
+**One match, two repos.** Here's a match that began with an invitation in the lounge, saved twice: [pyxorium.com's copy](https://pdsls.dev/at://did:plc:rqbqpaaluty5v47jwciowpik/cafe.thunderbird.daisy.match/3my6ysyudjkef) and [thunderbirdwine.bsky.social's copy](https://pdsls.dev/at://did:plc:joer5rzmwgec3dkr4srfmq45/cafe.thunderbird.daisy.match/3my6ysyudjkef). The two records have the same key and the same rolls; each only notes which seat its own player sat in. Run through Daisy's checker, the coin and all 23 rolls recompute from the record alone. pyxorium.com won, 26 to 18, after six turns in a row had ended on a 1.
+
+## Where each job lives now
+
+The Seven-Up post looked back over the demos and found the same small conversation in each: something wishes, something grants. What changed from one to the next was where the other jobs lived. A carrier moves the messages, an arbiter decides what's allowed, and a ledger keeps what happened after the page closes. Daisy adds one more job, discovery: finding who to talk to in the first place.
+
+<JobsTable>
+
+| Demo | Wish (all addressed) | Carrier | Arbiter | Ledger | Discovery |
+|---|---|---|---|---|---|
+| [Color-scheme wish](https://thunderbird.cafe/blog/wishes-color-scheme-demo/) | Bob's cube asks Alice's palette | the page | — | — | — |
+| [Shared die](https://thunderbird.cafe/blog/wishes-shared-die-demo/) | two die tiles, each to the other | an outside relay | — | — | — |
+| [Cross-Tile Intrazine](https://thunderbird.cafe/blog/cross-tile-intrazine/) | each tile to its paired partner | the zine, a tile | — | the zine's recipe | — |
+| [Seven-Up](https://thunderbird.cafe/blog/seven-up/) | player tiles ask the house tile | the page | the house tile, in one browser | each player's repo, public | — |
+| **Daisy** | **player tiles ask the house tiles; players invite players** | **an outside relay, which also introduces players** | **the house tile, on both pages; the relay, for invitations** | **each player's repo, verifiable** | **the lounge** |
+
+</JobsTable>
+
+Every wish in these demos is addressed: each tile, or each player, knows who it's asking. In the Daisy row, three jobs move. The arbiter is no longer in one browser: both pages run it, and the dice need both. The ledger goes from public to verifiable. And discovery appears for the first time, with the outside relay taking on a second job: introducing players as well as carrying their messages.
+
+The wish changes too. For the first time, people wish of each other: an invitation is a wish, and Play is its grant. For invitations, the relay is the arbiter as well as the carrier. It passes a knock only to someone who's here and not blocked either way, and it never tells the inviter about a Not now.
+
+## What this isn't
+
+**It's not anonymous.** You sign in to sit, and while the relay runs, it knows which account is at which seat. A saved match names both players.
+
+**It's not a directory.** The lounge shows only people mingling on the start screen right now. There's no search, no list of past players, and nothing to follow.
+
+**There's one relay.** It stores nothing, but if it's down, nobody can mingle or start a match with another person. Games against the bot still work.
+
+**The bot's dice aren't independent.** Against the bot, both chains come from your own page. The game is still fair to play, but a saved record can't prove that to anyone else, and it says so.
+
+## Further reading
+
+- [Daisy](https://thunderbird.cafe/webtiles/daisy/), to play, mingle and save your matches
+- [Seven-Up: a referee tile between two player tiles](https://thunderbird.cafe/blog/seven-up/)
+- [A Live Gallery of Every Web Tile](https://thunderbird.cafe/blog/web-tiles-gallery/)
+- [Wishes: Creating Two Web Tiles that Talk to Each Other](https://thunderbird.cafe/blog/wishes-color-scheme-demo/), the color-scheme demo
+- [Wishes, Continued: Shared View Between Two Web Tiles Via External Relay](https://thunderbird.cafe/blog/wishes-shared-die-demo/), the shared die demo
+- [Cross-Tile Intrazine: tiles that talk inside a zine](https://thunderbird.cafe/blog/cross-tile-intrazine/)
+- The code: [pyxorium/daisy-tiles](https://github.com/pyxorium/daisy-tiles) (the tiles, the dice and the record checker) and [pyxorium/daisy-relay](https://github.com/pyxorium/daisy-relay) (the outside relay and the lounge)
+- Daisy's lexicons, published by thunderbird.cafe: [the match record](https://pdsls.dev/at://did:plc:6vxjigxrqizmbo56gojxico3/com.atproto.lexicon.schema/cafe.thunderbird.daisy.match) and [the lounge record](https://pdsls.dev/at://did:plc:6vxjigxrqizmbo56gojxico3/com.atproto.lexicon.schema/cafe.thunderbird.daisy.lounge)
+- One match in two repos: [pyxorium.com's copy](https://pdsls.dev/at://did:plc:rqbqpaaluty5v47jwciowpik/cafe.thunderbird.daisy.match/3my6ysyudjkef) and [thunderbirdwine.bsky.social's copy](https://pdsls.dev/at://did:plc:joer5rzmwgec3dkr4srfmq45/cafe.thunderbird.daisy.match/3my6ysyudjkef)
+- [Web Tiles, by Robin Berjon](https://berjon.com/web-tiles/)
+- [DASL: Web Tiles specification](https://dasl.ing/tiles.html)
+- [DASL: Tiles Protocols](https://dasl.ing/tiles-protocols.html)

@@ -1,0 +1,42 @@
+---
+// A wide table in a blog post (first used by the Daisy post): smaller type, light rules, and
+// sideways scrolling on narrow screens instead of squeezed columns. Wrap a Markdown table:
+// <JobsTable>, a blank line, the table, a blank line, </JobsTable>.
+---
+<div class="jobs-table"><slot /></div>
+
+<style>
+	.jobs-table {
+		overflow-x: auto;
+		margin: 0 0 2em;
+		-webkit-overflow-scrolling: touch;
+	}
+	.jobs-table :global(table) {
+		min-width: 720px;
+		border-collapse: collapse;
+		font-size: 15px;
+		line-height: 1.4;
+		background: #fff;
+		border: 1px solid rgb(var(--gray-light));
+		border-radius: 8px;
+	}
+	.jobs-table :global(th),
+	.jobs-table :global(td) {
+		text-align: left;
+		vertical-align: top;
+		padding: 0.6em 0.75em;
+		border-bottom: 1px solid rgb(var(--gray-light));
+	}
+	.jobs-table :global(th) {
+		background: var(--teal-050);
+		font-weight: 700;
+	}
+	.jobs-table :global(td:first-child) {
+		font-weight: 700;
+		white-space: nowrap;
+	}
+	.jobs-table :global(tr:last-child td) {
+		border-bottom: none;
+		background: #fdf3ee;
+	}
+</style>

@@ -7,7 +7,7 @@ const ROBOT = `<svg class="dz-robot" width="16" height="16" viewBox="0 0 24 24" 
 export const MARKUP = `
 <header class="dz-head">
   <h1>Daisy <span aria-hidden="true">🌼</span></h1>
-  <p class="dz-lede">A dice race for two players. One die: roll as often as you like, but a 1 loses the turn. Bank to keep your points. First to 25 wins.</p>
+  <p class="dz-lede">A dice race for two players. One die: roll as often as you like, but a 1 loses the turn. Bank to keep your points. First to 25 wins. <a class="dz-how" href="/blog/daisy/">How this game works →</a></p>
 </header>
 
 <p class="dz-account" hidden><span class="dz-account-text"></span>
@@ -114,5 +114,5 @@ export const MARKUP = `
 </div>
 
 <details class="dz-log"><summary>What passes between the pages</summary><ol></ol></details>
-<p class="dz-foot">A testing page (Daisy build step 7: the bot). Each player's page runs its own copy of the house, and the dice come from both players together, so neither can choose them. Drag your die to turn it, scroll or pinch to zoom: the other player sees it move. A saved match can be re-checked from its record alone.</p>
+<p class="dz-foot">Each player's page runs its own copy of the house, and the dice come from both players together, so neither can choose them. Drag your die to turn it, scroll or pinch to zoom: the other player sees it move. A saved match can be re-checked from its record alone.</p>
 `;

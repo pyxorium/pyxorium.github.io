@@ -67,6 +67,8 @@ function putBackCode(src, spans) {
 
 function stripImportsAndJSX(src) {
   return src
+    // MDX comments, e.g. `{/* a note for the author */}` (Oct 2026, the Daisy post)
+    .replace(/\{\/\*[\s\S]*?\*\/\}/g, '')
     // ESM import lines, e.g. `import WishDemo from '../../components/WishDemo.astro';`
     .replace(/^import .+ from .+;?\s*$/gm, '')
     // self-closing component tags, e.g. `<WishDemo height={640} />`
@@ -75,13 +77,29 @@ function stripImportsAndJSX(src) {
     .replace(/<\/?[A-Z][A-Za-z0-9]*(\s+[^>]*)?>/g, '');
 }
 
+// Tables (Oct 2026, the Daisy post, the first with a table): each body row becomes a list line,
+// "- First cell. Header: cell; header: cell." with an empty cell or a dash as "none", after a line
+// naming the columns. Runs before the link and emphasis rules, which then clean the cells.
+function tablesToText(src) {
+  const cells = (line) => line.trim().replace(/^\|/, '').replace(/\|$/, '').split('|').map((c) => c.trim());
+  return src.replace(/^(\|.*\|)\n\|[\s:|-]+\|\n((?:\|.*\|\n?)+)/gm, (_, head, body) => {
+    const names = cells(head);
+    const label = (n) => n.replace(/\s*\([^)]*\)\s*$/, '');            // "Wish (all addressed)" -> "Wish"
+    const rows = body.trim().split('\n').map(cells);
+    const plain = (c) => (!c || /^[—–-]$/.test(c) ? 'none' : c);
+    const lines = rows.map((r) => `- ${r[0]}. ` + names.slice(1).map((n, i) => `${i ? label(n).toLowerCase() : label(n)}: ${plain(r[i + 1])}`).join('; ') + '.');
+    return `Table: ${names.join(', ')}.\n\n${lines.join('\n')}\n`;
+  });
+}
+
 function markdownToPlainText(src) {
-  return src
+  return tablesToText(src)
     // headers: "## Title" -> "Title"
     .replace(/^#{1,6}\s+(.+)$/gm, '$1')
     // pictures: "![alt](path)" -> "Diagram: alt" (before the link rule, which would leave a stray "!";
     // Oct 2026, the first post with pictures in its body)
-    .replace(/^!\[([^\]]*)\]\([^)]+\)\s*$/gm, (_, alt) => (alt.trim() ? `Diagram: ${alt.trim()}` : ''))
+    // (an alt text that already starts with "Screenshot" is kept as it is; Oct 2026, the Daisy post)
+    .replace(/^!\[([^\]]*)\]\([^)]+\)\s*$/gm, (_, alt) => (!alt.trim() ? '' : /^screenshot\b/i.test(alt.trim()) ? alt.trim() : `Diagram: ${alt.trim()}`))
     .replace(/!\[([^\]]*)\]\([^)]+\)/g, '$1')
     // links: "[text](url)" -> "text" (matches the style already used on the first post's live record)
     .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')

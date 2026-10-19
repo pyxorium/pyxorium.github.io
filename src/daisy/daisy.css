@@ -7,6 +7,7 @@
 #daisy [hidden] { display: none !important; }
 #daisy h1 { font-size: 30px; margin: 0 0 4px; letter-spacing: -.01em; }
 #daisy .dz-lede { margin: 0 0 18px; color: var(--soft); max-width: 40em; }
+#daisy .dz-how { color: var(--ink); font-weight: 600; white-space: nowrap; }
 #daisy button { font: inherit; font-weight: 700; padding: 9px 20px; border-radius: 999px; border: 2px solid var(--ink);
   background: var(--ink); color: var(--paper); cursor: pointer; }
 #daisy button.quiet { background: transparent; color: var(--ink); }
