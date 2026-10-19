@@ -9,6 +9,15 @@ import '../../../daisy/daisy.css';
 import { pageCsp } from '../../../daisy/config.js';
 // The policy goes on the built page only: Astro's dev server adds inline scripts of its own.
 const csp = import.meta.env.PROD ? pageCsp() : null;
+// The link card. The picture is the player tile's own card art (public/webtiles/daisy/card.png, a copy of
+// daisy-tiles/player/banner.png), as for Seven-Up.
+const CARD = {
+	title: 'Daisy',
+	description: "Roll or bank: a 1 loses the turn, first to 25 wins. A dice race for two players, made of web tiles: find someone to play in the lounge, or play the table's bot, and save your matches to your own atproto repo.",
+	url: 'https://thunderbird.cafe/webtiles/daisy/',
+	image: 'https://thunderbird.cafe/webtiles/daisy/card.png',
+	imageAlt: 'Daisy: roll or bank. A 1 loses the turn. First to 25 wins. A marigold die showing a four.',
+};
 ---
 
 <!doctype html>
@@ -19,9 +28,23 @@ const csp = import.meta.env.PROD ? pageCsp() : null;
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="referrer" content="no-referrer" />
 		<title>Daisy · thunderbird.cafe</title>
-		<meta name="description" content="A dice race for two players, made of web tiles. Find someone to play in the lounge, or play the table's bot, and save your matches to your own atproto repo." />
+		<meta name="description" content={CARD.description} />
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content="thunderbird.cafe" />
+		<meta property="og:title" content={CARD.title} />
+		<meta property="og:description" content={CARD.description} />
+		<meta property="og:url" content={CARD.url} />
+		<meta property="og:image" content={CARD.image} />
+		<meta property="og:image:width" content="1280" />
+		<meta property="og:image:height" content="720" />
+		<meta property="og:image:alt" content={CARD.imageAlt} />
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:title" content={CARD.title} />
+		<meta name="twitter:description" content={CARD.description} />
+		<meta name="twitter:image" content={CARD.image} />
 		<link rel="icon" href="/favicon.ico" sizes="any" />
 		<link rel="icon" type="image/png" sizes="32x32" href="/icon-32.png" />
+		<link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
 	</head>
 	<body>
 		<div id="daisy"><noscript><p>This table runs in your browser and needs JavaScript.</p></noscript></div>
