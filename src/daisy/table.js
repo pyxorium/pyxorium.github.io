@@ -8,6 +8,9 @@
 // Step 5: the live page plays through the real relay on Fly.io (RELAY_URL in config.js); on this
 // computer the stand-in stays the default.
 // Step 6: the lounge (lounge.js) on the start screen; an invitation both said yes to opens a table here.
+// Step 7: Play the bot. The bot (@dicesprite.thunderbird.cafe) sits at seat 2 in a second copy of the house
+// ("bot"), run hidden on this page: the page passes the two houses' messages to each other (no relay),
+// with no timers. Its state is kept in this browser with yours, so a reload picks the match up again.
 //
 // mountTable(root, deps): deps carries the loader classes and the sign-in (and stand-ins for the checks),
 // so this file has no package imports.
@@ -25,7 +28,7 @@ import { mountLounge } from './lounge.js';
 import { TILES } from './tiles.generated.js';
 import {
   TILE_LOAD_DOMAIN, MEMORY_IDS, TIMES, AWAY_MS, relayUrl, loungeUrl, timerSet, loadSourceOverride, newTableId,
-  PUBLISHED, tileSource, houseVersion, houseAddress, COLLECTION, recordLink,
+  PUBLISHED, tileSource, houseVersion, houseAddress, COLLECTION, recordLink, BOT,
 } from './config.js';
 
 const UP = 'tiles-protocol-up-data-payload';
@@ -69,6 +72,12 @@ export function mountTable(root, { TileMothership, MemoryTileLoader, Tile, auth,
   let mismatch = false;        // the other page runs a different house: nothing passes between them
   let busy = null;             // a sign-in under way: { abort }
   const saved = {};            // matchId → { uri }
+  let vsBot = false;           // this table is against the bot (step 7)
+  let botSnapshot = null;      // the bot's house state (kept in this browser with yours)
+  let botReady = false, botSaid = false;
+  // What this browser keeps for the table (storage.js): your seat, your house's state and, against the
+  // bot, its house's state too.
+  const remember = () => { if (me && table) keep(table, { me, other, snapshot, ...(vsBot ? { vsBot: true, bot: botSnapshot } : {}) }); };
   const hello = { mine: false, theirs: false };
 
   // ---------- the tiles ----------
@@ -89,11 +98,11 @@ export function mountTable(root, { TileMothership, MemoryTileLoader, Tile, auth,
       return ship;
     },
     tileUrlFor: (role) => {
-      const which = role === 'house' ? 'house' : 'player';
+      const which = role === 'house' || role === 'bot' ? 'house' : 'player';
       return source === 'published' ? PUBLISHED[which].uri : MEMORY_IDS[which];
     },
-    mounts: { house: $('.dz-house-mount'), mine: $('.dz-mine .dz-mount'), theirs: $('.dz-theirs .dz-mount') },
-    heights: { house: 200, mine: 560, theirs: 560 },
+    mounts: { house: $('.dz-house-mount'), mine: $('.dz-mine .dz-mount'), theirs: $('.dz-theirs .dz-mount'), bot: $('.dz-bot-mount') },
+    heights: { house: 200, mine: 560, theirs: 560, bot: 200 },
     times: TIMES,
     onStatus,
     ping: (role, n) => router.fromPage(role, 'ping', { n }),
@@ -105,7 +114,8 @@ export function mountTable(root, { TileMothership, MemoryTileLoader, Tile, auth,
       if (payload.kind === 'view' && target === 'mine' && payload.view) onView(payload.view);
       frames.send(target, payload);
     },
-    toRelay: (data) => relay && !mismatch && relay.send(data),
+    // Against the bot, your house's messages for the other house go to the bot's house on this page.
+    toRelay: (data) => (vsBot ? router.toBot(data) : relay && !mismatch && relay.send(data)),
     onPage,
     onLog: log,
   });
@@ -120,12 +130,21 @@ export function mountTable(root, { TileMothership, MemoryTileLoader, Tile, auth,
   });
 
   function onStatus(role, status, extra) {
+    if (role === 'bot') {
+      // The bot's house: the same note as the house's (it's part of the table), Try again restarts it.
+      const note = $('.dz-house-note');
+      const text = { slow: 'Still opening the table…', stuck: 'Still opening the table…', failed: "The bot couldn't start.", stopped: 'The bot stopped answering.' }[status];
+      if (status === 'loading' || status === 'stopped') { botSaid = false; botReady = false; }
+      if (text) { note.hidden = false; $('p', note).textContent = text; $('.dz-house-retry').hidden = !['stuck', 'failed', 'stopped'].includes(status); retryRole = 'bot'; }
+      else if (retryRole === 'bot') { note.hidden = true; retryRole = 'house'; }
+      return;
+    }
     if (role === 'house') {
       const note = $('.dz-house-note');
       const text = { loading: '', slow: 'Still opening the table…', stuck: 'Still opening the table…',
         failed: changed.has(PUBLISHED && PUBLISHED.house.uri) ? CHANGED_TEXT : "The table couldn't open.", stopped: 'The table stopped answering.' }[status];
       note.hidden = !text;
-      if (text) $('p', note).textContent = text;
+      if (text) { $('p', note).textContent = text; retryRole = 'house'; }
       $('.dz-house-retry').hidden = !['stuck', 'failed', 'stopped'].includes(status);
       if (status === 'loading' || status === 'stopped') { houseSaid = false; houseReady = false; tellPlayersHouse('gone'); }
       return;
@@ -139,11 +158,13 @@ export function mountTable(root, { TileMothership, MemoryTileLoader, Tile, auth,
     if (status === 'ready' && extra.recovered) introduce(role);
   }
   for (const role of ['mine', 'theirs']) $(`.dz-seat[data-role="${role}"] .dz-retry`).addEventListener('click', () => frames.start(role));
-  $('.dz-house-retry').addEventListener('click', () => frames.start('house'));
+  let retryRole = 'house';
+  $('.dz-house-retry').addEventListener('click', () => frames.start(retryRole));
   const tellPlayersHouse = (state) => { for (const r of ['mine', 'theirs']) if (hello[r]) router.fromPage(r, 'presence', { who: 'house', state }); };
 
   // ---------- messages for the page ----------
   function onPage(from, p) {
+    if (from === 'bot') return onBot(p);
     switch (p.kind) {
       case 'hello':
         if (from === 'house') { houseSaid = true; setupHouse(); } else { hello[from] = true; introduce(from); }
@@ -156,7 +177,7 @@ export function mountTable(root, { TileMothership, MemoryTileLoader, Tile, auth,
       }
       case 'state':
         snapshot = p.snapshot;
-        if (me && table) keep(table, { me, other, snapshot });
+        remember();
         break;
       case 'resumed': log({ dir: 'page', from: 'house', kind: 'resumed', note: 'picked up from this browser' }); break;
       case 'result':
@@ -182,20 +203,44 @@ export function mountTable(root, { TileMothership, MemoryTileLoader, Tile, auth,
     if (role === 'theirs' && theirView) frames.send('theirs', { ...theirView, game: 'daisy', v: 1, kind: 'die-view', from: 'peer' });
     if (houseReady && houseSaid) router.fromPage(role, 'presence', { who: 'house', state: 'back' });
     if (role === 'mine' && result && saved[result.matchId]) router.fromPage('mine', 'save-status', { state: 'saved', handle: me.handle });
+    if (role === 'mine') tellOther();
+  }
+  // Your tile hears whether the other player's page is still at the table (step 7: the end screen says so,
+  // and offers no Rematch when nobody is there to agree).
+  function tellOther() {
+    if (hello.mine && other) router.fromPage('mine', 'presence', { who: 'other', state: other.here ? 'back' : 'gone' });
   }
 
   // The house: set up once both it and the relay are ready (or hand it back its kept state).
   function setupHouse() {
     if (!houseSaid || houseReady || !me || !me.seat) return;
     houseReady = true;
-    router.fromPage('house', 'setup', { seat: me.seat, timers, snapshot: snapshot || undefined });
+    router.fromPage('house', 'setup', { seat: me.seat, timers: vsBot ? 'bot' : timers, snapshot: snapshot || undefined });
     router.fromPage('house', 'seated', { seat: me.seat, did: me.did, handle: me.handle });
-    if (other) router.fromPage('house', 'seated', { seat: other.seat, did: other.did, handle: other.handle });
+    if (other) router.fromPage('house', 'seated', { seat: other.seat, did: other.did, handle: other.handle, ...(vsBot ? { bot: true } : {}) });
     if (other && !other.here) router.fromPage('house', 'presence', { seat: other.seat, state: 'gone' });
     router.fromPage('house', 'reconnected');
     tellPlayersHouse('back');
   }
   setInterval(() => { if (houseReady) router.fromPage('house', 'tick'); }, TIMES.tick);
+
+  // ---------- the bot's house (step 7) ----------
+  function onBot(p) {
+    switch (p.kind) {
+      case 'hello': botSaid = true; setupBot(); break;
+      case 'state': botSnapshot = p.snapshot; remember(); break;
+      case 'resumed': log({ dir: 'page', from: 'bot', kind: 'resumed', note: 'the bot picked up from this browser' }); break;
+      case 'ignored': if (!['already had it'].includes(p.why)) log({ dir: 'drop', from: 'bot', kind: p.about, why: p.why }); break;
+    }
+  }
+  function setupBot() {
+    if (!vsBot || !botSaid || botReady || !me || !me.seat) return;
+    botReady = true;
+    router.fromPage('bot', 'setup', { seat: 2, timers: 'bot', bot: true, snapshot: botSnapshot || undefined });
+    router.fromPage('bot', 'seated', { seat: 1, did: me.did, handle: me.handle });
+    router.fromPage('bot', 'seated', { seat: 2, did: BOT.did, handle: BOT.handle, bot: true });
+    router.fromPage('bot', 'reconnected');           // ask your house for anything it sent before the bot was ready
+  }
 
   // ---------- the relay ----------
   function connect() {
@@ -214,7 +259,8 @@ export function mountTable(root, { TileMothership, MemoryTileLoader, Tile, auth,
             joinedHere = true;
             me.seat = m.seat;
             if (m.other) other = { ...m.other, seat: m.seat === 1 ? 2 : 1 };
-            keep(table, { me, other, snapshot });
+            remember();
+            tellOther();
             if (m.other) checkHouse(m.other.house);
             showTable();
             introduce('mine'); introduce('theirs');
@@ -228,7 +274,8 @@ export function mountTable(root, { TileMothership, MemoryTileLoader, Tile, auth,
             break;
           case 'presence':
             other = { did: m.did, handle: m.handle, seat: m.seat, here: m.state === 'here', house: m.house };
-            keep(table, { me, other, snapshot });
+            remember();
+            tellOther();
             if (m.state === 'here') checkHouse(m.house);
             if (houseReady) {
               router.fromPage('house', 'seated', { seat: m.seat, did: m.did, handle: m.handle });
@@ -280,7 +327,7 @@ export function mountTable(root, { TileMothership, MemoryTileLoader, Tile, auth,
   const goHome = () => { try { relay && relay.stop(); } catch {} loc.assign(startUrl()); };
   const underWay = () => ['flipping', 'playing'].includes(phase) && !result;
   function backToStart() {
-    if (!underWay()) return goHome();
+    if (!underWay() || vsBot) return goHome();        // against the bot the match simply waits (no timers)
     $('.dz-leave').hidden = false;          // during a match, ask first (the away rule, said plainly)
     $('.dz-leave-no').focus();
   }
@@ -292,6 +339,7 @@ export function mountTable(root, { TileMothership, MemoryTileLoader, Tile, auth,
     clearInterval(goneTimer);
     if (!me || !me.seat) return;
     if (problem) { setStatus(problem); return; }
+    if (vsBot) { setStatus(phase === 'over' ? `Match over · playing @${BOT.handle}, the table's bot` : `Playing @${BOT.handle}, the table's bot`); return; }
     if (other && !other.here && goneAt && phase !== 'over' && phase !== 'abandoned') {
       const awayFor = AWAY_MS[timers];
       const show = () => setStatus(`${at(other.handle)} lost connection. Waiting… ${mmss(awayFor - (Date.now() - goneAt))}`);
@@ -333,7 +381,19 @@ export function mountTable(root, { TileMothership, MemoryTileLoader, Tile, auth,
     if (lounge) lounge.leaveForTable(); else $('.dz-lounge').hidden = true;
     showAccount();
     frames.start('house'); frames.start('mine'); frames.start('theirs');
+    if (vsBot) return startBot();
     connect();
+  }
+  // Against the bot: no relay. You sit at seat 1 and the bot at seat 2, both houses on this page.
+  function startBot() {
+    me.seat = 1;
+    other = { did: BOT.did, handle: BOT.handle, seat: 2, here: true, bot: true };
+    remember();
+    frames.start('bot');
+    showTable();
+    introduce('mine'); introduce('theirs');
+    setupHouse(); setupBot();
+    updateStatus();
   }
 
   // ---------- the start screen: one sign-in first (owner, Oct 18, option B) ----------
@@ -412,7 +472,7 @@ export function mountTable(root, { TileMothership, MemoryTileLoader, Tile, auth,
   function showStart() {
     if (me) return;                          // at a table: showAccount() keeps the line
     $('.dz-lobby').hidden = !!who;
-    for (const b of ['.dz-open', '.dz-sit']) $(b).disabled = !who;
+    for (const b of ['.dz-open', '.dz-sit', '.dz-bot']) $(b).disabled = !who;
     $('.dz-play').classList.toggle('dz-waiting', !who);
     const line = $('.dz-account');
     line.hidden = !who;
@@ -433,6 +493,7 @@ export function mountTable(root, { TileMothership, MemoryTileLoader, Tile, auth,
       const li = document.createElement('li');
       const u = new URL(startUrl());
       u.searchParams.set('table', g.table);
+      if (g.bot) u.searchParams.set('bot', '1');
       const a = Object.assign(document.createElement('a'), { href: u.toString(), textContent: 'Back to the table' });
       li.append(`You have a match in progress with @${g.with}.`, a);
       list.append(li);
@@ -448,6 +509,18 @@ export function mountTable(root, { TileMothership, MemoryTileLoader, Tile, auth,
     u.searchParams.set('table', table);
     try { history.replaceState(null, '', u); } catch {}
     me = { ...who, signedIn: true, seat: null };
+    start(1);
+  });
+  // Play the bot (step 7): a new table of your own, the bot at seat 2.
+  $('.dz-bot').addEventListener('click', () => {
+    if (!who) return;
+    table = newTableId();
+    const u = new URL(loc.href);
+    u.searchParams.set('table', table);
+    u.searchParams.set('bot', '1');
+    try { history.replaceState(null, '', u); } catch {}
+    vsBot = true;
+    me = { ...who, signedIn: true, seat: 1 };
     start(1);
   });
   $('.dz-sit').addEventListener('click', () => {
@@ -479,6 +552,7 @@ export function mountTable(root, { TileMothership, MemoryTileLoader, Tile, auth,
   // if not, the game goes on and saving asks to sign in again.
   async function backAt(k) {
     me = { ...k.me, signedIn: false }; other = k.other ? { ...k.other, here: false } : null; snapshot = k.snapshot;
+    if (k.vsBot) { vsBot = true; botSnapshot = k.bot || null; }
     setStatus('Back at your seat…');
     start(me.seat);
     if (auth && auth.ready() && !authProblem) me.signedIn = await auth.restore(me.did);
@@ -544,9 +618,11 @@ export function mountTable(root, { TileMothership, MemoryTileLoader, Tile, auth,
     asking = { record };
     const them = otherPlayer(result, me.seat);
     $('#dz-dialog-title').textContent = `Save this match to @${me.handle}?`;
-    $('.dz-dialog-text').textContent =
-      `This adds a public record to @${me.handle}'s account (a Daisy match record and nothing else). It mentions @${them.handle}, who played the other seat. ` +
-      'Anyone can re-check the dice from it.';
+    $('.dz-dialog-text').textContent = vsBot
+      ? `This adds a public record to @${me.handle}'s account (a Daisy match record and nothing else). It names @${them.handle}, the table's bot, which played the other seat from this page. ` +
+        "Both players' dice came from this page, so the record shows how the match went, but nobody else can check the dice."
+      : `This adds a public record to @${me.handle}'s account (a Daisy match record and nothing else). It mentions @${them.handle}, who played the other seat. ` +
+        'Anyone can re-check the dice from it.';
     $('.dz-dialog-record').textContent = JSON.stringify(record, null, 2);
     $('.dz-dialog-details').open = false;
     setDialog('', me.signedIn ? 'Save' : 'Sign in and save', 'Not now');
@@ -612,8 +688,16 @@ export function mountTable(root, { TileMothership, MemoryTileLoader, Tile, auth,
 
   if (table) {
     $('.dz-open').hidden = true;
+    $('.dz-bot').hidden = true;
+    $('.dz-bot-text').hidden = true;
     $('.dz-sit').hidden = false;
     const mine = kept(table);
+    // A match against the bot lives in the browser that started it (both houses' secrets are there).
+    if (params.get('bot') === '1' && !mine.some((k) => k.vsBot)) {
+      $('.dz-sit').hidden = true;
+      $('.dz-play-text').hidden = true;
+      setStatus("This match against the bot is kept in the browser that started it, so it can't be opened here.");
+    }
     const tab = tabAccount(table);
     const resume = mine.find((k) => k.me.did === tab);
     if (resume) {
@@ -655,6 +739,7 @@ export function mountTable(root, { TileMothership, MemoryTileLoader, Tile, auth,
     get result() { return result; }, get hello() { return { ...hello, house: houseSaid }; },
     get mismatch() { return mismatch; }, get source() { return source; }, saved: () => saved, myHouse,
     get lounge() { return lounge; },
+    get vsBot() { return vsBot; }, get botSnapshot() { return botSnapshot; },
     blip: () => relay && relay.blip(),
     frames,
   };

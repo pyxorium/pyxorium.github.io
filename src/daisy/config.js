@@ -122,6 +122,10 @@ export function pageCsp(loadDomain = TILE_LOAD_DOMAIN) {
   ].join('; ');
 }
 
+// The table's bot (step 7): Seven-Up's bot account, @dicesprite.thunderbird.cafe. It plays seat 2 from your
+// own page (a second copy of the house), with no relay and no timers.
+export const BOT = Object.freeze({ did: 'did:plc:hd2efebmfhpqcusfya4lguce', handle: 'dicesprite.thunderbird.cafe' });
+
 export const newTableId = () => {
   const b = new Uint8Array(10);
   crypto.getRandomValues(b);

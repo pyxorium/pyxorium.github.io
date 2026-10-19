@@ -1,4 +1,9 @@
 // The Daisy page's markup (used by table.js and by the browser checks).
+import { BOT } from './config.js';
+
+// A small outline robot after the bot's name (the drawing on Seven-Up's bot button).
+const ROBOT = `<svg class="dz-robot" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true" focusable="false"><line x1="12" y1="2.5" x2="12" y2="5.5"/><circle cx="12" cy="2.3" r="0.6" fill="currentColor"/><rect x="4.5" y="6" width="15" height="12" rx="3.5"/><circle cx="9.3" cy="12" r="1.3" fill="currentColor" stroke="none"/><circle cx="14.7" cy="12" r="1.3" fill="currentColor" stroke="none"/><line x1="2.5" y1="11" x2="2.5" y2="13.5"/><line x1="21.5" y1="11" x2="21.5" y2="13.5"/></svg>`;
+
 export const MARKUP = `
 <header class="dz-head">
   <h1>Daisy <span aria-hidden="true">🌼</span></h1>
@@ -27,7 +32,9 @@ export const MARKUP = `
 <section class="dz-play dz-waiting" aria-label="Play">
   <button class="dz-open" type="button" disabled>Open a table</button>
   <button class="dz-sit" type="button" hidden disabled>Take a seat</button>
+  <button class="dz-bot quiet" type="button" disabled>Play the bot ${ROBOT}</button>
   <p class="dz-play-text">You get a link to send to a friend.</p>
+  <p class="dz-bot-text">Or play @${BOT.handle}, the table's bot, right here: no timers, and you can save the match.</p>
   <div class="dz-back" hidden></div>
 </section>
 
@@ -79,6 +86,7 @@ export const MARKUP = `
     <div class="dz-tile-status" hidden><p></p><button class="dz-retry quiet" type="button" hidden>Try again</button></div>
   </div>
   <div class="dz-house-mount"></div>
+  <div class="dz-bot-mount"></div>
   <div class="dz-house-note" hidden><p></p><button class="dz-house-retry quiet" type="button" hidden>Try again</button></div>
 </section>
 
@@ -87,7 +95,7 @@ export const MARKUP = `
 <div class="dz-leave" hidden>
   <div class="dz-dialog-box" role="dialog" aria-modal="true" aria-labelledby="dz-leave-title">
     <h2 id="dz-leave-title">Leave this match?</h2>
-    <p class="dz-dialog-text">If you don't come back within 2 minutes, it ends by forfeit.</p>
+    <p class="dz-dialog-text dz-leave-text">If you don't come back within 2 minutes, it ends by forfeit.</p>
     <div class="dz-dialog-actions"><button type="button" class="dz-leave-yes">Leave</button><button type="button" class="dz-leave-no quiet">Stay</button></div>
   </div>
 </div>
@@ -106,5 +114,5 @@ export const MARKUP = `
 </div>
 
 <details class="dz-log"><summary>What passes between the pages</summary><ol></ol></details>
-<p class="dz-foot">A testing page (Daisy build step 6: the lounge). Each player's page runs its own copy of the house, and the dice come from both players together, so neither can choose them. Drag your die to turn it, scroll or pinch to zoom: the other player sees it move. A saved match can be re-checked from its record alone.</p>
+<p class="dz-foot">A testing page (Daisy build step 7: the bot). Each player's page runs its own copy of the house, and the dice come from both players together, so neither can choose them. Drag your die to turn it, scroll or pinch to zoom: the other player sees it move. A saved match can be re-checked from its record alone.</p>
 `;

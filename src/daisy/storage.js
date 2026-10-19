@@ -1,5 +1,5 @@
 // storage.js: what this browser keeps for a Daisy table, so a reload picks up where it was.
-//   localStorage  daisy-table:<table>:<did>  { me, other, snapshot, savedAt }   (a day)
+//   localStorage  daisy-table:<table>:<did>  { me, other, snapshot, vsBot?, bot?, savedAt }   (a day; bot: the bot's house state)
 //   sessionStorage daisy-tab:<table>          the account this tab sits as
 // The snapshot is this seat's house state, with its secret seed: it stays in this browser. Every read
 // and write is guarded (private windows and blocked storage just mean no resuming).
@@ -51,7 +51,7 @@ export function inProgress(did, now = Date.now()) {
       if (!v || !v.me || v.me.did !== did || !(now - v.savedAt < TIMES.keepFor) || !v.other || !v.other.handle) continue;
       const phase = v.snapshot && v.snapshot.shared && v.snapshot.shared.phase;
       if (phase === 'over' || phase === 'abandoned') continue;
-      out.push({ table: k.slice(KEEP_PREFIX.length, k.length - did.length - 1), with: v.other.handle, savedAt: v.savedAt });
+      out.push({ table: k.slice(KEEP_PREFIX.length, k.length - did.length - 1), with: v.other.handle, savedAt: v.savedAt, bot: !!v.vsBot });
     }
   });
   return out.sort((a, b) => b.savedAt - a.savedAt);

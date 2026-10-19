@@ -1,4 +1,4 @@
-// frames.js: the three tile frames of one seat at a Daisy table (its house, your player tile, and the copy
+// frames.js: the three tile frames (four against the bot: its own house) of one seat at a Daisy table (its house, your player tile, and the copy
 // watching the other seat) and their health. Copied from src/sevenup/frames.js (roles renamed).
 //
 // One shared tile loader ("mothership") for the page: each one listens to every message on the page,
@@ -12,7 +12,7 @@
 //   failed   → the loader couldn't load it at all
 // The page sends the heartbeat itself (ping); any message from a tile counts as an answer.
 
-export const ROLES = ['house', 'mine', 'theirs'];
+export const ROLES = ['house', 'mine', 'theirs', 'bot'];   // bot: the bot's house (step 7), only against the bot
 const DOWN = 'tiles-protocol-down-data-payload';
 
 export function createFrames({ makeMothership, tileUrlFor, mounts, heights, times, onStatus = () => {}, ping = () => {} }) {
@@ -42,7 +42,7 @@ export function createFrames({ makeMothership, tileUrlFor, mounts, heights, time
     if (mine !== s.attempt) return;
     if (!tile) { s.timers.forEach(clearTimeout); set(role, 'failed'); return; }
     s.frame = tile.renderContent(heights[role]);
-    s.frame.title = role === 'house' ? 'The house (referee)' : role === 'mine' ? 'Your seat' : 'The other seat';
+    s.frame.title = role === 'house' ? 'The house (referee)' : role === 'bot' ? "The bot's house" : role === 'mine' ? 'Your seat' : 'The other seat';
     mounts[role].appendChild(s.frame);
   }
 
