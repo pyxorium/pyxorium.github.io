@@ -5,11 +5,11 @@
 export const PUBLISHED = {
   "account": "did:plc:6vxjigxrqizmbo56gojxico3",
   "house": {
-    "uri": "at://did:plc:6vxjigxrqizmbo56gojxico3/ing.dasl.masl/3my6ucagtd32m",
-    "cid": "bafyreib473vajcpexj5m7xcpah4dtwyzfazknnuqss4mokiclqcvgvye54"
+    "uri": "at://did:plc:6vxjigxrqizmbo56gojxico3/ing.dasl.masl/3myfnyphiuw2t",
+    "cid": "bafyreidwwralslcgks5hwet7adtcthwti74k7vo47bcuipbwcqmspqk5zu"
   },
   "player": {
-    "uri": "at://did:plc:6vxjigxrqizmbo56gojxico3/ing.dasl.masl/3my6uchoghd2m",
-    "cid": "bafyreihsiqt4owq4p2bfudfwvz5qbxub3bw3q63b3ufnuepfa35p6yui7m"
+    "uri": "at://did:plc:6vxjigxrqizmbo56gojxico3/ing.dasl.masl/3myfnywxt6v2r",
+    "cid": "bafyreif3zbe7lxc2wbiszai4c3yk7ltzxzaszwnsdqtxl6rtx5kiwwn2be"
   }
 };
