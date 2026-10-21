@@ -63,6 +63,7 @@ export const MARKUP = `
   <div class="dz-dialog-box" role="dialog" aria-modal="true" aria-labelledby="dz-ldialog-title">
     <h2 id="dz-ldialog-title">Turn on mingling?</h2>
     <p class="dz-dialog-text">While you mingle and this page is open (not at a table), other mingling Daisy players who ask can see you and invite you to a game, and you can see and invite them. Players who have blocked you, or whom you've blocked, never see each other.</p>
+    <p class="dz-dialog-text">When you arrive in the lounge, mingling players in Raku who are on another tab may see a small mark that someone has arrived. It never says who.</p>
     <p class="dz-dialog-text dz-ldialog-first">Mingling needs <b>one additional authorization</b> from your account, <b>“Daisy lounge”</b> (only this first time): a lounge record in your account (it only says that you've chosen to mingle, not whether you're here or signed in) and a pass that proves to Daisy's relay who you are. Turning mingling off deletes the record.</p>
     <p class="dz-ldialog-status" aria-live="polite"></p>
     <div class="dz-dialog-actions"><button type="button" class="dz-ldialog-yes">Continue</button><button type="button" class="dz-ldialog-no quiet">Not now</button></div>
