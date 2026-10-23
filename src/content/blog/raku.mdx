@@ -1,0 +1,114 @@
+---
+title: 'Raku: a browser for web tiles'
+description: 'Raku opens web tiles in tabs, keeps the ones you like on a shelf, and finds new ones. A tour of using it, and a look at what it keeps, who it talks to, and why the tiles you open cannot follow you.'
+pubDate: 'Oct 23 2026'
+heroImage: '../../assets/raku-cover.png'
+---
+
+A web tile is a small page or app that someone publishes to their own atproto account. Because every tile is a record in someone's account, together they make a layer across the network, the tile layer: pages anyone can publish and anyone can open, wherever their author's data happens to live.
+
+Raku is a browser for that layer. It opens tiles in tabs, keeps the ones you like on a shelf, and helps you find new ones. Every earlier post on this blog showed tiles inside the post. This is the first one about something you can simply open and use: [open Raku →](https://raku.lexicographer.space/)
+
+You don't need an account to browse. Signing in is only for saving your matches at the game tables, and for playing Daisy with someone on another computer.
+
+## The first screen
+
+At the top is the address box: "Paste a tile's address, type a handle, or search tiles." Under it are six picks, tiles chosen to show the range of what people make: a sprite, a glass lantern, an activity route, a synth patch, a 3D CSS planet and a roller coaster. Click one and it opens in a tab.
+
+Below the picks, a Tile news row shows the latest three posts about web tiles. The screen also has the Tables, groups of tiles that play together, and, once you've kept some, your most recently kept tiles. The last line says what Raku is careful about, and links to the About page: "About Raku: what it keeps, who it talks to →".
+
+![Screenshot of Raku's first screen on a computer. The top bar has a Raku tab, the back, forward, reload, shelf and Discover buttons, the address box ("Paste a tile's address, type a handle, or search tiles") and Sign in. Below, the heading Raku and a line of introduction, then six picks as cards in two rows of three: a pixel sprite on a beach, a stained-glass die, a route map with an elevation line, a synth patch, a 3D CSS Saturn and a roller coaster in a park. Under them, a Discover more tiles button, and a Tile news row with the latest three posts.](../../assets/raku-first-screen.png)
+
+![Screenshot of Raku's first screen on a phone. Across the top, the Raku label, the account button and the address box. Below, the heading Raku and the line of introduction, then the picks in one column, each a card with its picture on the left and its name, description and author on the right: the sprite, the glass lantern, Moab Red Hot and Four On The Floor. At the bottom, the phone toolbar: back, forward, reload, the shelf, Discover, and the tab count.](../../assets/raku-phone.png)
+
+## Opening a tile
+
+**Anything that names a tile.** The address box takes a tile's at:// address, a tile link from lexicographer.space, appmosphe.re or webtil.es, or a handle. Type a handle and suggestions appear as you type, with avatars. Choose one and you see that [account's tiles](https://raku.lexicographer.space/#t=raku%3Atiles%2Fthunderbird.cafe&a=0) as cards, read live from the account's own server.
+
+**Posts open where you read posts.** Paste a link to a Bluesky post and Raku shows a short message first: where the link goes, and an "Open in" choice. Bluesky is the default; Blacksky and Northsky are among the others. Raku remembers your choice. A tile linked from a post opens in Raku itself.
+
+**Each tile gets its own tab.** Up to ten tiles can be open at once, and tabs in the background keep running. The open tabs live in the page's own address, so a reload brings them back, and a copied link opens the same tabs for someone else.
+
+**The shelf.** The star at the end of the address box keeps a tile, or a whole account, on [your shelf](https://raku.lexicographer.space/#t=raku%3Ashelf&a=0). The shelf is kept in this browser only. Export saves it as a small file, and Import adds it in another browser.
+
+**Large tiles ask first.** Raku reads a tile's size from its record before loading anything. Above 25 MB it asks "Open anyway?", and above 500 MB it refuses.
+
+**Messages.** If a tile sends Raku a message, a Messages button appears on its tab and lists what it said. Most tiles never send one: they have nothing to ask. We'll come back to this in the section on privacy.
+
+![Screenshot of a tile open in a Raku tab: the zine "chipmunks of maple pass" by @goose.art. The tab carries the zine's name and icon, the address box shows its at:// address with the star for keeping it at the end, and the zine's cover fills the page: the title, two orange hearts, a photo of a chipmunk on a rock, the author's signature and a small pixel goose, with page arrows below.](../../assets/raku-tile-tab.png)
+
+## Discover
+
+The compass button opens [Discover](https://raku.lexicographer.space/#t=raku%3Adiscover&a=0): the places to find tiles on the left, the one you chose in the center, and a preview of the others on the right. On a phone, the places become a row of chips across the top. Nothing on Discover runs a tile. It's all cards until you open one.
+
+**[Tile news](https://raku.lexicographer.space/#t=raku%3Adiscover%2Fnews&a=0)** is posts about web tiles from the "Web Tiles" feed, a Bluesky custom feed made with Graze that you can also pin in Bluesky and other apps. Raku draws the posts itself, follows Bluesky's moderation labels, and shows one card per thread, with a note like "+1 more reply in this thread".
+
+**[Following](https://raku.lexicographer.space/#t=raku%3Adiscover%2Ffollowing&a=0)** shows the newest tiles from the accounts on your shelf, all mixed together, with a quiet "New" on tiles made since your last visit.
+
+**[Recent tiles](https://raku.lexicographer.space/#t=raku%3Adiscover%2Frecent&a=0)** is the newest tiles on the network, as listed by [appmosphe.re](https://appmosphe.re/), Robin Berjon's tile directory. A "New" mark shows what appeared since you last looked, and More goes further back.
+
+**Search.** Type words in the address box and press Enter, or use the box on Discover. Results come in two parts. "Already in Raku" is matched here in your browser, from your shelf, Following and the picks. "From appmosphe.re" comes from appmosphe.re's search, which receives only the words you typed, and only when you press Enter. Here's [a search for "zine"](https://raku.lexicographer.space/#t=raku%3Asearch%2Fzine&a=0).
+
+**[Make a tile](https://raku.lexicographer.space/#t=raku%3Adiscover%2Fmake&a=0)** is for when you'd rather make one. It lists the tools people use today, in two groups:
+
+- No code needed: [ATMOSYNTH](https://atmosynth.at/), for synth patches you play together live; [Treeline](https://treeline.world/), whose "Share as webtile" turns an outdoor activity and its GPS track into a tile; and the [Web Tile Foundry](https://foundry.thunderbird.cafe/), where you fill in a form for a walking sprite, a stained-glass lantern, a roller coaster, a mixtape or a zine.
+- From your own files: [appmosphe.re publish](https://appmosphe.re/publish), for a folder with an index.html or a .tile file, and [szzt](https://szzt.app/publish/) by burrito.space, where you drag in a page, a folder or a .zip and see it run before you publish. szzt calls itself a testbed for the web tile specs.
+
+![Screenshot of Raku's Discover page. On the left, the places to look: Tile news, Recent tiles (chosen), Following, and below a rule, Make a tile. In the center, a search box and Recent tiles, "the newest tiles on the network, as listed by appmosphe.re": cards for a hiking trail replay with its route and elevation, two Atproto Web Names & Origins tiles by @burrito.space, and a Nightbird Gulch zine, each with its author and how long ago it was made. On the right, previews of Tile news and Following, a note that search looks at your shelf first and that nothing on this page runs until you open a card, and a link to About Raku.](../../assets/raku-discover.png)
+
+## Tables
+
+A table is a group of tiles that play together on one screen. Raku has two, the games from earlier posts: [Seven-Up](https://raku.lexicographer.space/#t=raku%3Atable%2Fsevenup&a=0), where a house tile referees two player tiles, and [Daisy](https://raku.lexicographer.space/#t=raku%3Atable%2Fdaisy&a=0), a dice race. You can [play Daisy against the bot](https://raku.lexicographer.space/#t=raku%3Atable%2Fdaisy%2Fbot&a=0) with no sign-in at all. A table loads only the exact tile versions Raku has approved, so a changed game is refused until it's checked. The Messages button in the table's bar lists everything passing between its tiles: the players asking the house, the house answering, and Raku in between.
+
+**Daisy across two computers.** Open a table and Raku gives you a link to send. Your friend opens it, signs in and takes the other seat. Raku uses the same outside relay and the same house tile as the [Daisy page](https://thunderbird.cafe/webtiles/daisy/), so a table opened in Raku can be joined from the Daisy page, and the other way round. Your seat is kept in this browser for a day, so a reload or a closed tab can come back to the match.
+
+**The lounge.** Daisy's start screen has the same lounge as the Daisy page: turn on Mingle to see who else is here right now, and to be seen. While you're on another tab, Raku stays quietly connected. When someone arrives, the relay says only that someone did, never who, and Daisy's tab glows turquoise.
+
+**Signing in, only for this.** You sign in to save a match, to sit with someone at another computer, or to mingle. Each game asks for its own permission the first time, through the game's permission set ("Play Seven-Up", "Play Daisy", "Daisy lounge"), so the Authorize screen shows the game's own words. Raku's promise sits beside every sign-in: it "doesn't touch your posts, likes, follows or anything else." The save prompt is Raku's own, drawn outside the tiles, and only the house tile's result is saved, to your own repo.
+
+![Screenshot of Daisy in Raku, a match across two computers, as @colorado.atprotocol.space sees it. The address box shows the table's own address, raku:table/daisy/ followed by the table's id. The bar says "Playing with @thunderbird.cafe" and has a Messages button counting 71 messages. On the left, your seat: seat 2, Jade, "Your turn", a jade die that rolled a 4, and Roll and Bank buttons. On the right, the other seat, watching: @thunderbird.cafe, seat 1, Brick, a brick-red die that rolled a 3, "Waiting". Both show the score, 9 to 15, first to 25 wins. A note underneath says the two houses run on their own pages and talk through Daisy's relay, which passes messages and stores nothing.](../../assets/raku-daisy.png)
+
+## What Raku keeps, and who it talks to
+
+An ordinary web page can load a picture from anywhere, and that picture can tell its server you looked. A tile can't. That's the promise of the tile layer, and most of what Raku does is keep it.
+
+**Each tile is a sealed box.** Every tile runs on its own address, apart from Raku and from other tiles, so it can't read your shelf, your sign-in, or another tile. It can't reach the internet on its own: no fetching, no pictures from elsewhere, no tracking pixels. What it shows comes from its author's account. It can talk only to Raku, and anything it says shows in its tab's Messages.
+
+**Raku talks to a short list of servers, by name.** Each tile's own account, for the tile and its pictures. Bluesky's public servers, for moderation labels, Tile news posts and profile pictures. plc.directory, to find which server holds an account. appmosphe.re, only when you search, for the Recent tiles list, and for pictures of the picks, Recent tiles and search results. lexicographer.space, for a coded copy of its hide list, which Raku checks here in your browser so nobody learns which tiles you open. typeahead.waow.tech, for handle suggestions while you type. The tile loading server, which gives each tile its own address to run on. And Daisy's relay, only while you play Daisy with someone on another computer.
+
+**What stays in this browser.** Raku has no server of its own and no accounts of its own. Your shelf, your last visits to Following and Recent tiles, the app you chose for posts, the accounts you've signed in with, and a Daisy seat for a day are kept in this browser, and nowhere else. Clearing the site's data clears them.
+
+![Raku in the middle, running in your browser. On the left, what stays in your browser: your shelf, your last visits for the New marks, the app you chose for posts, the accounts you signed in with, and a Daisy seat for a day. Below Raku, three tiles, each a sealed box on its own address, each joined to Raku by a single line marked messages only, with no line from any tile to the internet. On the right, the servers Raku talks to and what each one gets: each tile's own account, the tile and its pictures; Bluesky's public servers, labels, Tile news and profile pictures; plc.directory, where an account lives; appmosphe.re, only your search words, plus the Recent tiles list and pictures; lexicographer.space, a coded copy of its hide list; typeahead.waow.tech, handle suggestions while you type; the tile loading server, an address for each tile; Daisy's relay, only while you play someone on another computer. One dashed line runs from a tile to a new tab, an ordinary web page: the one exception, a link you click in a tile. Underneath: Raku asks only these servers, each for the one thing named; the list is on Raku's About page, and it changes whenever Raku starts talking to someone new.](../../assets/raku-talks-to.png)
+
+**One exception.** A tile can open a link in a new tab when you click it, and that link could carry information about what you did in the tile. It's the same as clicking a link on any web page, so use the same care.
+
+**Hidden tiles.** Raku hides tiles and accounts on lexicographer.space's hide list, and accounts that Bluesky's moderation hides. To report a tile, see [Reporting and takedowns](https://lexicographer.space/takedowns). All of this is on Raku's own [About page](https://raku.lexicographer.space/#t=raku%3Aabout&a=0), which changes whenever Raku starts talking to someone new.
+
+## Tiles working together
+
+A single tile needs no work to appear in Raku: anyone's tile opens, because a tile describes itself completely. Tables are different. Each is several tiles on one screen, and Raku does the wiring: it passes messages between the house and the players by fixed rules, connects to the relay, and holds the sign-in. In the earlier posts, the page did that job; in Raku, Raku is the carrier for every table. (The [Daisy post's table](https://thunderbird.cafe/blog/daisy/) shows where each job has lived so far.)
+
+Bringing a group of tiles into a browser still takes real work, because nothing yet lets a group say which tiles belong together and what may pass between them. That knowledge lives in a host someone wrote by hand. Where this is heading is wishes, where a tile asks for something and the person, through the browser, chooses what answers ([the first wishes post](https://thunderbird.cafe/blog/wishes-color-scheme-demo/) has a small one). Robin Berjon's early notes on tiles go further: a browser built for tiles would leave the one-page-per-tab model behind, so tiles can be arranged and work side by side. Raku still has tabs. The tables are its first step past them.
+
+## What this isn't
+
+**It's not the only way to open tiles.** Tiles also open in the [viewer at lexicographer.space](https://lexicographer.space), in [webtil.es](https://webtil.es)'s browser, and in pages like the posts on this blog. Raku is one host among several, built for browsing the layer.
+
+**It's not a general web browser.** Raku opens tiles. Posts open in the app you chose, and ordinary web links leave Raku.
+
+**It's not a service you join.** Raku has no accounts and no server of its own. You sign in with your own atproto account, and only to save a match, sit with someone or mingle.
+
+**It's not an app store.** Nothing is reviewed before it appears. The hide list removes tiles that have been reported, and the sealed box limits what any tile can do to you, but Raku doesn't vouch for what's inside a tile.
+
+## Further reading
+
+- [Raku](https://raku.lexicographer.space/), and its [About page](https://raku.lexicographer.space/#t=raku%3Aabout&a=0)
+- The code: [pyxorium/raku](https://github.com/pyxorium/raku)
+- [Daisy: a web tile game with a lounge where players find each other](https://thunderbird.cafe/blog/daisy/)
+- [Seven-Up: a referee tile between two player tiles](https://thunderbird.cafe/blog/seven-up/)
+- [A Live Gallery of Every Web Tile](https://thunderbird.cafe/blog/web-tiles-gallery/)
+- [Wishes: Creating Two Web Tiles that Talk to Each Other](https://thunderbird.cafe/blog/wishes-color-scheme-demo/)
+- [The Web Tile Foundry](https://thunderbird.cafe/blog/web-tile-foundry/)
+- [appmosphe.re](https://appmosphe.re/), the tile directory behind Recent tiles and search
+- [Web Tiles, by Robin Berjon](https://berjon.com/web-tiles/)
+- [DASL: Web Tiles specification](https://dasl.ing/tiles.html)
