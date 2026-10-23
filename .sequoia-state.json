@@ -119,6 +119,16 @@
         "uri": "at://did:plc:6vxjigxrqizmbo56gojxico3/app.bsky.feed.post/3my75rtv2ml26",
         "cid": "bafyreieyrrlgjpxpvj3k7bnftvbmolqakk5oaxfvsp3aclwlvsji62d7ji"
       }
+    },
+    "src\\content\\blog\\raku.mdx": {
+      "contentHash": "2fa6ad91df5de7e191fdabd1f46f16c52c7e2c3d96b69c4a171361c1f76fe3ae",
+      "atUri": "at://did:plc:6vxjigxrqizmbo56gojxico3/site.standard.document/3mykkt54p5t26",
+      "lastPublished": "2026-10-23T16:08:53.136Z",
+      "slug": "raku",
+      "bskyPostRef": {
+        "uri": "at://did:plc:6vxjigxrqizmbo56gojxico3/app.bsky.feed.post/3mykkt5w6xm26",
+        "cid": "bafyreihranwtgijkfp7shcid6luodrnzd5mnpixnvh5rma5eqtpcyzsnyi"
+      }
     }
   },
   "publication": {
