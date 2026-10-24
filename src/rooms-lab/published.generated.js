@@ -5,7 +5,7 @@
 export const PUBLISHED = {
   "account": "did:plc:6vxjigxrqizmbo56gojxico3",
   "house": {
-    "uri": "at://did:plc:6vxjigxrqizmbo56gojxico3/ing.dasl.masl/3mylumvep4r2b",
-    "cid": "bafyreibwt44dgseqngksrq4s4m5wykrgr3wmgsxoyu5kmrkfu2ynwf26oe"
+    "uri": "at://did:plc:6vxjigxrqizmbo56gojxico3/ing.dasl.masl/3mymwzw63gp2g",
+    "cid": "bafyreidyssz5pnugrwbjs22g3kbgfgdqpyztae3cyeuxdol5xamt4hm5ue"
   }
 };
