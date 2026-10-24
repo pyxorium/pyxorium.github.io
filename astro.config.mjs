@@ -6,8 +6,8 @@ import { defineConfig, fontProviders } from 'astro/config';
 
 // Hidden lab pages: noindex, unlinked, and left out of the sitemap. (Hidden isn't secret: anyone with
 // the address can open them.) The Seven-Up table and Daisy each went public with their blog posts
-// (/blog/seven-up/, /blog/daisy/); none is hidden now.
-const HIDDEN_PAGES = [];
+// (/blog/seven-up/, /blog/daisy/). The Rooms lab (Oct 24 2026) is hidden while it's a proof of concept.
+const HIDDEN_PAGES = ['/webtiles/rooms-lab/'];
 
 // https://astro.build/config
 export default defineConfig({
