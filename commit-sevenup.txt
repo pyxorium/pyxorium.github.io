@@ -1,0 +1,7 @@
+git add src/sevenup/
+git add src/pages/webtiles/sevenup/index.astro
+git add public/webtiles/sevenup/oauth.json
+git add astro.config.mjs
+git add package.json package-lock.json
+git status
+git commit -m "Seven-Up: a dice table made of web tiles, a hidden lab page at /webtiles/sevenup/ (sign-in saves match records; sitemap leaves it out; dev server on 127.0.0.1)"

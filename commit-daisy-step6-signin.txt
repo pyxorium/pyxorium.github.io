@@ -1,0 +1,5 @@
+cd C:\thunderbird-cafe\pyxorium.github.io
+git add src/daisy
+git status
+git commit -m "Daisy (hidden page): one sign-in at the top of the start screen; Open a table and the lounge use it (build step 6)"
+git push

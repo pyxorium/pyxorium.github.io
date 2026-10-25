@@ -1,0 +1,5 @@
+cd C:\thunderbird-cafe\pyxorium.github.io
+git add src/daisy/markup.js
+git status
+git commit -m "Daisy lounge: say that minglers in Raku may see an anonymous mark when you arrive"
+git push

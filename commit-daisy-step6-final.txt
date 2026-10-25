@@ -1,0 +1,5 @@
+cd C:\thunderbird-cafe\pyxorium.github.io
+git add src/daisy
+git status
+git commit -m "Daisy (hidden page): lounge card wording; the start screen lists matches in progress with Back to the table (build step 6)"
+git push

@@ -1,0 +1,17 @@
+cd C:\thunderbird-cafe\pyxorium.github.io
+git add src/content/blog/seven-up.mdx
+git add src/components/SevenUpDemo.astro
+git add src/sevenup/embed.js
+git add src/sevenup/embed-main.js
+git add src/sevenup/sevenup-embed.css
+git add src/sevenup/sevenup-page.css
+git add src/sevenup/sevenup.css
+git add src/sevenup/markup.js
+git add src/pages/webtiles/sevenup/index.astro
+git add astro.config.mjs
+git add src/assets/seven-up-cover.png
+git add src/assets/seven-up-dice-style.png
+git add src/assets/seven-up-passing.png
+git add src/assets/seven-up-referee.png
+git status
+git commit -m "Seven-Up blog post with an embedded table against the bot; the table page goes public"

@@ -1,0 +1,7 @@
+git add src/lib/tile-gallery/config.js
+git add src/lib/tile-gallery/util.js
+git add src/lib/tile-gallery/render.js
+git add src/lib/tile-gallery/preview.js
+git add src/pages/webtiles/gallery.astro
+git status
+git commit -m "Gallery: Open goes to the tile's page on lexicographer.space; Preview gets Open on its own page"

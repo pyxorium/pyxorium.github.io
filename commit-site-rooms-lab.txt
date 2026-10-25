@@ -1,0 +1,6 @@
+cd C:\thunderbird-cafe\pyxorium.github.io
+git add astro.config.mjs
+git add src/rooms-lab src/pages/webtiles/rooms-lab/index.astro
+git status
+git commit -m "Rooms lab: a hidden page for small live rooms (copied from rooms-lab)"
+git push

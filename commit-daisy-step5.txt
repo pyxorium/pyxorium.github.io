@@ -1,0 +1,5 @@
+cd C:\thunderbird-cafe\pyxorium.github.io
+git add astro.config.mjs src/daisy src/pages/webtiles/daisy public/webtiles/daisy
+git status
+git commit -m "Daisy (hidden page): two computers through the relay at relay.daisy.thunderbird.cafe (build steps 2 to 5)"
+git push

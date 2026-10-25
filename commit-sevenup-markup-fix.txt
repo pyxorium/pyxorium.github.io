@@ -1,0 +1,4 @@
+git add src/sevenup/markup.js
+git add src/pages/webtiles/sevenup/index.astro
+git status
+git commit -m "Seven-Up: the dice header and Sign out markup (markup.js was missing from the last commit), and the site's favicon"

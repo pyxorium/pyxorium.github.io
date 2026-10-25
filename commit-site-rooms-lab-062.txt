@@ -1,0 +1,5 @@
+cd C:\thunderbird-cafe\pyxorium.github.io
+git add src/rooms-lab/room-page.js
+git status
+git commit -m "Rooms lab: the host keeps its own tiles after a reload"
+git push

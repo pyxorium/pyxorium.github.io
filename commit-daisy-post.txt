@@ -1,0 +1,11 @@
+cd C:\thunderbird-cafe\pyxorium.github.io
+Remove-Item match-pyxorium.json, match-thunderbirdwine.json
+git add src/content/blog/daisy.mdx
+git add src/components/JobsTable.astro
+git add src/assets/daisy-cover.png src/assets/daisy-lounge.png src/assets/daisy-fair.png src/assets/daisy-lounge-screen.png src/assets/daisy-match-screen.png
+git add scripts/clean_mdx_for_atproto.mjs
+git add astro.config.mjs
+git add src/pages/webtiles/daisy/index.astro
+git add src/daisy/markup.js src/daisy/daisy.css
+git status
+git commit -m "Daisy blog post, and the Daisy page made public (indexed, in the sitemap, linked to the post)"

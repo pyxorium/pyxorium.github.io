@@ -1,0 +1,5 @@
+cd C:\thunderbird-cafe\pyxorium.github.io
+git add src/daisy public/webtiles/daisy
+git status
+git commit -m "Daisy (hidden page): the lounge, and sign-in with Daisy's permission sets (build step 6)"
+git push

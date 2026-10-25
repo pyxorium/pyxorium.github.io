@@ -1,0 +1,6 @@
+git add src/sevenup/tiles.generated.js
+git add src/sevenup/published.generated.js
+git add src/sevenup/record.js
+git add src/sevenup/relay.js
+git status
+git commit -m "Seven-Up polish round: TID match ids, coin flip, settling roll, new emoji (tiles republished)"

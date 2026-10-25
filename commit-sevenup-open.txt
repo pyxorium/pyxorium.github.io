@@ -1,0 +1,9 @@
+git add src/sevenup/config.js
+git add src/sevenup/markup.js
+git add src/sevenup/table.js
+git add src/sevenup/typeahead.js
+git add src/sevenup/sevenup.css
+git add src/pages/webtiles/sevenup/index.astro
+git add public/webtiles/sevenup/card.png
+git status
+git commit -m "Seven-Up: open to any atproto account, a link card, a robot mark on the bot button, handle suggestions, a dice header, Sign out at the seats"

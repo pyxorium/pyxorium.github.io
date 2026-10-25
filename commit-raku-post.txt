@@ -1,0 +1,6 @@
+cd C:\thunderbird-cafe\pyxorium.github.io
+git add src/content/blog/raku.mdx
+git add src/assets/raku-cover.png src/assets/raku-talks-to.png src/assets/raku-first-screen.png src/assets/raku-tile-tab.png src/assets/raku-discover.png src/assets/raku-daisy.png src/assets/raku-phone.png
+git status
+git commit -m "Raku blog post: a browser for web tiles"
+git push

@@ -1,0 +1,3 @@
+Rooms lab: TURN fallback through Cloudflare (rooms-lab 0.7.0)
+
+Copied by rooms-lab's copy-to-site.mjs: the page waits briefly for the relay's TURN credentials, refreshes them in place, shows "direct" or "via relay" per person, takes &turn=only as a test switch, and says where media goes.

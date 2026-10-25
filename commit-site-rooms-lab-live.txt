@@ -1,0 +1,22 @@
+cd C:\thunderbird-cafe\pyxorium.github.io
+git add src/rooms-lab/config.js
+git add src/rooms-lab/formats.js
+git add src/rooms-lab/room-link.js
+git add src/rooms-lab/mesh.js
+git add src/rooms-lab/levels.js
+git add src/rooms-lab/presenting.js
+git add src/rooms-lab/messages.js
+git add src/rooms-lab/house-bridge.js
+git add src/rooms-lab/tile-records.js
+git add src/rooms-lab/hide-check.js
+git add src/rooms-lab/tile-strip.js
+git add src/rooms-lab/live.js
+git add src/rooms-lab/room-page.js
+git add src/rooms-lab/room.css
+git add src/rooms-lab/main.js
+git add src/rooms-lab/page-csp.js
+git add src/rooms-lab/published.generated.js
+git add src/pages/webtiles/rooms-lab/index.astro
+git status
+git commit -m "Rooms lab: live tiles, and the house pinned again (it knows live)"
+git push

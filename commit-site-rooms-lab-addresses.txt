@@ -1,0 +1,7 @@
+cd C:\thunderbird-cafe\pyxorium.github.io
+git add src/rooms-lab/address.js
+git add src/rooms-lab/room-page.js
+git add src/rooms-lab/tile-records.js
+git status
+git commit -m "Rooms lab: the address box takes the forms Raku takes"
+git push

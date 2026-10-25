@@ -1,0 +1,3 @@
+git add src/lib/tile-load-domain.js src/components/WebTile.astro src/components/CosmicJunkyardDemo.astro src/components/WishDemo.astro src/components/DieDemo.astro src/lib/tile-gallery/config.js src/lib/web-tile-mount.js
+git status
+git commit -m "Load tiles through load.tiles.lexicographer.space (a random name per tile), set in one place"

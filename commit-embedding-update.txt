@@ -1,0 +1,3 @@
+git add src/content/blog/embedding-a-web-tile.mdx
+git status
+git commit -m "Embedding post: October 2026 update on the new tile loader"

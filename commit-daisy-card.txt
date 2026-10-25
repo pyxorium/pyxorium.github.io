@@ -1,0 +1,4 @@
+cd C:\thunderbird-cafe\pyxorium.github.io
+git add public/webtiles/daisy/card.png src/pages/webtiles/daisy/index.astro
+git status
+git commit -m "Daisy page: a link card (the player tile card art)"
