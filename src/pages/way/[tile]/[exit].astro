@@ -1,0 +1,39 @@
+---
+// COPY of maze-tiles/site/way-page.astro: edit it there, then run scripts/copy-to-site.mjs.
+// /way/<tile>/<exit>: the fallback page for an exit of one of thunderbird.cafe's tiles (the Escher maze's
+// obelisk first: /way/maze/obelisk). A tile opened where nothing carries travellers offers this address in a new
+// tab; the page reads the exit's signpost and says where it leads. Hidden (HIDDEN_PAGES in astro.config.mjs:
+// noindex, unlinked, left out of the sitemap). One page per exit in src/way/pages.generated.js, written by
+// copy-to-site.mjs from each tile's ways.json. Plan: claude/escher-maze-ways-plan.md in the Foundry project.
+import '../../../way/way.css';
+import { pageCsp } from '../../../way/page-csp.js';
+import { WAY_PAGES } from '../../../way/pages.generated.js';
+
+export function getStaticPaths() {
+	return WAY_PAGES.map((p) => ({ params: { tile: p.tile, exit: p.exit }, props: p }));
+}
+const { signpost, from, title } = Astro.props;
+// The policy goes on the built page only: Astro's dev server adds inline scripts of its own.
+const csp = import.meta.env.PROD ? pageCsp() : null;
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		{csp && <meta http-equiv="Content-Security-Policy" content={csp} />}
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="referrer" content="no-referrer" />
+		<meta name="robots" content="noindex, nofollow" />
+		<title>{title} · thunderbird.cafe</title>
+		<meta name="description" content={`Where ${from} leads.`} />
+		<link rel="icon" href="/favicon.ico" sizes="any" />
+		<link rel="icon" type="image/png" sizes="32x32" href="/icon-32.png" />
+	</head>
+	<body>
+		<main id="way" data-signpost={signpost} data-from={from}><noscript><p>This page reads where the way leads in your browser, and needs JavaScript.</p></noscript></main>
+		<script>
+			import '../../../way/way-main.js';
+		</script>
+	</body>
+</html>

@@ -6,8 +6,10 @@ import { defineConfig, fontProviders } from 'astro/config';
 
 // Hidden lab pages: noindex, unlinked, and left out of the sitemap. (Hidden isn't secret: anyone with
 // the address can open them.) The Seven-Up table and Daisy each went public with their blog posts
-// (/blog/seven-up/, /blog/daisy/). The Rooms lab (Oct 24 2026) is hidden while it's a proof of concept.
-const HIDDEN_PAGES = ['/webtiles/rooms-lab/'];
+// (/blog/seven-up/, /blog/daisy/). The Rooms lab (Oct 24 2026) is hidden while it's a proof of concept. The way
+// pages (/way/<tile>/<exit>, Oct 26 2026: where a tile's exit leads, e.g. the Escher maze's obelisk) are hidden
+// for now too; they come from C:\thunderbird-cafe\maze-tiles\scripts\copy-to-site.mjs.
+const HIDDEN_PAGES = ['/webtiles/rooms-lab/', '/way/'];
 
 // https://astro.build/config
 export default defineConfig({
