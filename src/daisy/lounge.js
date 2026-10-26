@@ -17,6 +17,10 @@ const OFF_TEXT = 'Off. Turn it on to see other mingling Daisy players who are he
 const OFF_TEXT_READY = 'Off. Turn it on to see other mingling Daisy players who are here now, and let them see you.';
 const WAIT_TEXT = 'Sign in above to mingle. Joining the lounge requires one additional authorization.';
 const ON_TEXT = 'Mingling: other mingling players can see you while you\'re on this page.';
+// The relay takes lounge passes from did:plc accounts only (Oct 26; daisy-relay's README says why), so a
+// did:web account is told plainly instead of being asked to sign in to the lounge again and again.
+export const WEB_TEXT = 'Mingling in the lounge works with most accounts, but not this kind yet.';
+export const canMingleAs = (did) => typeof did === 'string' && did.startsWith('did:plc:');
 
 export function mountLounge(root, { auth, authProblem = null, onTable, url, WebSocketImpl = globalThis.WebSocket, fetchImpl = (...a) => fetch(...a), log = () => {}, loc = globalThis.location }) {
   // With ?timers=short on this computer, "No answer" comes after 4 s (for the checks), as the game's short timers.
@@ -27,7 +31,7 @@ export function mountLounge(root, { auth, authProblem = null, onTable, url, WebS
   const dialog = $('.dz-ldialog');
   let account = null;          // { did, handle } of the mingling account
   let mingling = false;        // the record exists (as far as this page knows)
-  let state = 'off';           // off | joining | here | idle | needs-signin | away (another window) | unavailable | left
+  let state = 'off';           // off | joining | here | idle | needs-signin | away (another window) | unavailable | left | unsupported (did:web)
   let ws = null, retry = 0, retryTimer = null, lastHereSent = 0;
   let knock = null;            // { id, from, expires, timer }
   const invited = new Map();   // did → timer (Invite sent → No answer)
@@ -42,7 +46,8 @@ export function mountLounge(root, { auth, authProblem = null, onTable, url, WebS
     $('.dz-who').hidden = state !== 'here';
     $('.dz-lounge-retry').hidden = !['needs-signin', 'idle', 'away', 'left'].includes(state);
     $('.dz-lounge-retry').textContent = state === 'needs-signin' ? 'Sign in to the lounge' : 'Rejoin the lounge';
-    if (state === 'off') note(!account ? WAIT_TEXT : approved ? OFF_TEXT_READY : OFF_TEXT);
+    if (state === 'unsupported') note(WEB_TEXT);
+    else if (state === 'off') note(!account ? WAIT_TEXT : approved ? OFF_TEXT_READY : OFF_TEXT);
     else if (state === 'joining') note(`Joining the lounge as @${account.handle}…`);
     else if (state === 'here') note(`${ON_TEXT} (as @${account.handle})`);
   }
@@ -59,8 +64,9 @@ export function mountLounge(root, { auth, authProblem = null, onTable, url, WebS
     if (account && (!a || a.did !== account.did)) { leave(); mingling = false; }
     account = a || null;
     panel.classList.toggle('dz-waiting', !account);
-    sw.disabled = !account || !!authProblem || !auth || !auth.ready();
+    sw.disabled = !account || !!authProblem || !auth || !auth.ready() || !canMingleAs(account.did);
     if (!account) { approved = false; setState('off'); return; }
+    if (!canMingleAs(account.did)) { approved = false; setState('unsupported'); return; }
     approved = await auth.canMingle(account.did).catch(() => false);
     if (n !== setting) return;
     if (!mingling) setState('off');
@@ -75,6 +81,7 @@ export function mountLounge(root, { auth, authProblem = null, onTable, url, WebS
   // ---------- the switch ----------
   sw.addEventListener('click', () => {
     if (sw.disabled || !account) return;
+    if (!canMingleAs(account.did)) return setState('unsupported');
     if (mingling) return turnOff();
     pendingDialog = { handle: account.handle };
     // The explanation comes first (owner, Oct 18), each time someone turns mingling on; the line about the
@@ -92,6 +99,7 @@ export function mountLounge(root, { auth, authProblem = null, onTable, url, WebS
     withLoungeSignIn(handle, approved ? account : null, async (who) => {
       dialog.hidden = true; pendingDialog = null;
       account = who;
+      if (!canMingleAs(who.did)) return setState('unsupported');   // never a lounge record the relay would refuse
       try {
         await auth.call(who.did, 'com.atproto.repo.putRecord', { body: { repo: who.did, collection: LOUNGE_COLLECTION, rkey: 'self', record: { $type: LOUNGE_COLLECTION, createdAt: new Date().toISOString() } } });
       } catch (err) {
@@ -200,7 +208,8 @@ export function mountLounge(root, { auth, authProblem = null, onTable, url, WebS
       case 'in': retry = 0; lastHereSent = Date.now(); setState('here'); break;
       case 'refused':
         leaving = true;
-        if (m.why === 'NoLoungeRecord') { mingling = false; setState('off', 'Your account has no lounge record any more, so mingling is off.'); }
+        if (m.why === 'AccountType') { mingling = false; setState('unsupported'); }
+        else if (m.why === 'NoLoungeRecord') { mingling = false; setState('off', 'Your account has no lounge record any more, so mingling is off.'); }
         else if (m.why === 'NotReady') setState('unavailable', 'The lounge isn\'t open right now. Try again later.');
         else setState('needs-signin', 'The relay didn\'t accept this page\'s lounge pass: sign in to the lounge again.');
         break;
