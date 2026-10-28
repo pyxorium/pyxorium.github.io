@@ -1,11 +1,13 @@
-// way-page.js: the fallback page for a tile's exit, e.g. https://thunderbird.cafe/way/maze/obelisk
-// (claude/escher-maze-ways-plan.md, M19, M25). A tile opened where no host carries travellers (a plain viewer)
-// offers this address in a new tab. The page reads the exit's signpost (a cafe.thunderbird.way.signpost record)
-// straight from its account, which a page can do and a tile can't, and says where the exit leads:
+// way-page.js: reading where a tile's exit leads, and the page's plain views, for the way pages, e.g.
+// https://thunderbird.cafe/way/maze/obelisk (claude/escher-maze-ways-plan.md, M19, M25). Since Winter Forest's step 3
+// (claude/winter-forest-step3-plan.md, W39 to W45, and claude/winter-forest-plan.md, W17, W26) the page is a travel
+// page: travel.js takes you there and carries you on. This file reads the exit's signpost (a
+// cafe.thunderbird.way.signpost record) straight from its account, which a page can do and a tile can't:
 //   empty (or missing)  "This doesn't lead anywhere yet."
-//   one destination     its card, with links to open it in Raku and on lexicographer.space
-//   several             their cards side by side ("pick a door")
+//   one destination     travel.js takes you there
+//   several             their cards side by side ("pick a door"), each with "Go this way"
 // A destination is a place (cafe.thunderbird.way.place: a tile's address and exact version) or a tile record.
+// The cards are also what's shown when the page can't run tiles (no tile loader: the checks of this file alone).
 //
 // The source is C:\thunderbird-cafe\maze-tiles\site\ (tested there); the site has a COPY made by
 // scripts/copy-to-site.mjs. Edit it there.
@@ -56,8 +58,10 @@ async function getRecord(fetchImpl, at, cache) {
 // One destination → a door: the tile it opens, as a card.
 async function doorOf(fetchImpl, dest, cache) {
   const label = clip(dest.label, 100);
-  let tileUri = null, pinned = null, placeName = '';
+  const entrance = typeof dest.entrance === 'string' && /^[a-z0-9-]{1,64}$/.test(dest.entrance) ? dest.entrance : null;
+  let tileUri = null, pinned = null, placeName = '', placeUri = null;
   if (dest.place) {
+    placeUri = dest.place;
     const at = parseAtUri(dest.place);
     if (!at || at.collection !== PLACE) return { label, broken: 'This way points at something that isn\'t a place.' };
     const place = await getRecord(fetchImpl, at, cache);
@@ -73,6 +77,10 @@ async function doorOf(fetchImpl, dest, cache) {
   const iconCid = icon && icon.src && icon.src.ref && icon.src.ref.$link;
   return {
     label,
+    place: placeUri,
+    tile: tileUri,
+    pinned,
+    entrance,
     name: clip(t.name, 100) || placeName || 'A tile',
     description: clip(t.description, 600),
     by: rec.handle,
@@ -83,15 +91,58 @@ async function doorOf(fetchImpl, dest, cache) {
   };
 }
 
+// Test signposts (W41): on this computer only (127.0.0.1 or localhost), the address may say what a signpost
+// should lead to, as if it were filled, e.g. ?sign=maze.obelisk:winter-forest/lamppost
+//   <signpost's name>:<place's name>/<entrance>   (the place in the same account as the signpost)
+// Several destinations joined with commas; nothing after the colon means empty (dormant); several signposts, several
+// sign= in the address. Everything else stays real. The live site ignores it. Returns Map(name → to[]).
+export const isHere = (loc) => !!loc && ['127.0.0.1', 'localhost'].includes(loc.hostname);
+export function testSignposts(loc = globalThis.location) {
+  const out = new Map();
+  if (!isHere(loc)) return out;
+  for (const v of new URLSearchParams(loc.search).getAll('sign')) {
+    const m = /^([A-Za-z0-9._~-]{1,200}):(.*)$/.exec(v);
+    if (!m) continue;
+    const to = [];
+    for (const d of m[2].split(/[,\s]+/).filter(Boolean)) {      // (a "+" in an address reads as a space)
+      const dm = /^([A-Za-z0-9._~-]{1,200})(?:\/([a-z0-9-]{1,64}))?$/.exec(d);
+      if (dm) to.push({ placeName: dm[1], ...(dm[2] ? { entrance: dm[2] } : {}) });
+    }
+    out.set(m[1], to);
+  }
+  return out;
+}
+// The test destinations for this signpost, as a signpost's `to` would say them, or null (use the real one).
+function overrideFor(at, overrides) {
+  if (!overrides || !overrides.has(at.rkey)) return null;
+  return overrides.get(at.rkey).map((d) => ({ place: `at://${at.did}/${PLACE}/${d.placeName}`, ...(d.entrance ? { entrance: d.entrance } : {}) }));
+}
+
+// Is this signpost filled? 'open' | 'dormant' (also when it can't be read: the tile then says so if walked into).
+export async function signpostState({ signpost, fetchImpl = fetch, overrides = null, cache = new Map() }) {
+  const at = parseAtUri(signpost);
+  if (!at || at.collection !== SIGNPOST) return 'dormant';
+  const o = overrideFor(at, overrides);
+  if (o) return o.length ? 'open' : 'dormant';
+  try {
+    const rec = await getRecord(fetchImpl, at, cache);
+    return Array.isArray(rec.value && rec.value.to) && rec.value.to.length ? 'open' : 'dormant';
+  } catch { return 'dormant'; }
+}
+
 // Where a signpost leads: { state: 'dormant' | 'open' | 'error', note, doors }.
-export async function lookUpWay({ signpost, fetchImpl = fetch }) {
+export async function lookUpWay({ signpost, fetchImpl = fetch, overrides = null }) {
   const at = parseAtUri(signpost);
   if (!at || at.collection !== SIGNPOST) return { state: 'error', message: 'This page names no signpost.' };
   const cache = new Map();
   let rec;
-  try { rec = await getRecord(fetchImpl, at, cache); } catch (err) {
-    if (err.error === 'RecordNotFound' || err.status === 404) return { state: 'dormant', note: '', doors: [] };
-    return { state: 'error', message: 'The signpost couldn\'t be read just now. Try again in a moment.' };
+  const o = overrideFor(at, overrides);
+  if (o) rec = { value: { to: o, note: '' } };
+  else {
+    try { rec = await getRecord(fetchImpl, at, cache); } catch (err) {
+      if (err.error === 'RecordNotFound' || err.status === 404) return { state: 'dormant', note: '', doors: [] };
+      return { state: 'error', message: 'The signpost couldn\'t be read just now. Try again in a moment.' };
+    }
   }
   const v = rec.value || {};
   const note = clip(v.note, 100);
@@ -103,18 +154,24 @@ export async function lookUpWay({ signpost, fetchImpl = fetch }) {
 }
 
 // ---- drawing (DOM only; no innerHTML) ----------------------------------------------------------------------------
-function el(tag, attrs = {}, ...kids) {
+export function el(tag, attrs = {}, ...kids) {
   const e = document.createElement(tag);
   for (const [k, v] of Object.entries(attrs)) if (v !== null && v !== undefined && v !== false) e.setAttribute(k, v);
   for (const k of kids) if (k !== null && k !== undefined && k !== '') e.append(k);
   return e;
 }
 
-function card(door) {
+// A door's card. With onGo (the travel page), its main button takes you through; without, links to Raku.
+function card(door, onGo) {
   if (door.broken) return el('li', { class: 'door broken' }, door.label ? el('p', { class: 'label' }, door.label) : null, el('p', {}, door.broken));
+  let go = null;
+  if (onGo) {
+    go = el('button', { type: 'button', class: 'go' }, 'Go this way');
+    go.addEventListener('click', () => onGo(door));
+  }
   const links = el('p', { class: 'links' },
-    el('a', { href: door.raku, class: 'go' }, 'Open in Raku'),
-    door.viewer ? el('a', { href: door.viewer }, 'on lexicographer.space') : null);
+    go || el('a', { href: door.raku, class: 'go' }, 'Open in Raku'),
+    !onGo && door.viewer ? el('a', { href: door.viewer }, 'on lexicographer.space') : null);
   return el('li', { class: 'door' },
     door.label ? el('p', { class: 'label' }, door.label) : null,
     el('div', { class: 'head' },
@@ -125,11 +182,13 @@ function card(door) {
     links);
 }
 
-export function render(root, view, { from = 'this way' } = {}) {
+// view: { state: 'loading' | 'error' | 'dormant' | 'open', … }. onGo(door): the travel page's "Go this way";
+// onCancel: a "Stay here" under the doors (when picking a door on the way out of a place).
+export function render(root, view, { from = 'this way', onGo = null, onCancel = null } = {}) {
   root.replaceChildren();
   root.append(el('p', { class: 'from' }, `You came through ${from}.`));
   if (view.state === 'loading') { root.append(el('p', { class: 'wait' }, 'Looking at the signpost…')); return; }
-  if (view.state === 'error') { root.append(el('h1', {}, 'Can\'t see the way'), el('p', {}, view.message)); return; }
+  if (view.state === 'error') { root.append(el('h1', {}, view.title || 'Can\'t see the way'), el('p', {}, view.message)); return; }
   if (view.state === 'dormant') {
     root.append(el('h1', {}, "This doesn't lead anywhere yet."));
     if (view.note) root.append(el('p', { class: 'note' }, view.note));
@@ -138,12 +197,18 @@ export function render(root, view, { from = 'this way' } = {}) {
   }
   root.append(el('h1', {}, view.doors.length > 1 ? 'Pick a door' : 'This way leads to'));
   if (view.note) root.append(el('p', { class: 'note' }, view.note));
-  root.append(el('ul', { class: view.doors.length > 1 ? 'doors several' : 'doors' }, ...view.doors.map(card)));
+  root.append(el('ul', { class: view.doors.length > 1 ? 'doors several' : 'doors' }, ...view.doors.map((d) => card(d, onGo))));
+  if (onCancel) {
+    const stay = el('button', { type: 'button', class: 'stay' }, 'Stay here');
+    stay.addEventListener('click', onCancel);
+    root.append(el('p', { class: 'links' }, stay));
+  }
 }
 
+// Without a tile loader (start(root) alone): the plain page of cards, as before the travel page.
 export async function start(root = document.getElementById('way'), fetchImpl = fetch) {
   if (!root) return;
   const from = root.dataset.from || 'this way';
   render(root, { state: 'loading' }, { from });
-  render(root, await lookUpWay({ signpost: root.dataset.signpost, fetchImpl }), { from });
+  render(root, await lookUpWay({ signpost: root.dataset.signpost, fetchImpl, overrides: testSignposts() }), { from });
 }

@@ -1,12 +1,14 @@
 ---
 // COPY of maze-tiles/site/way-page.astro: edit it there, then run scripts/copy-to-site.mjs.
-// /way/<tile>/<exit>: the fallback page for an exit of one of thunderbird.cafe's tiles (the Escher maze's
-// obelisk first: /way/maze/obelisk). A tile opened where nothing carries travellers offers this address in a new
-// tab; the page reads the exit's signpost and says where it leads. Hidden (HIDDEN_PAGES in astro.config.mjs:
+// /way/<tile>/<exit>: the travel page for an exit of one of thunderbird.cafe's tiles (the Escher maze's obelisk,
+// /way/maze/obelisk, and Winter Forest's four). A tile opened where nothing carries travellers offers this address
+// in a new tab; the page reads the exit's signpost and takes you where it leads, carrying you on from there
+// (src/way/travel.js; claude/winter-forest-step3-plan.md). Hidden (HIDDEN_PAGES in astro.config.mjs:
 // noindex, unlinked, left out of the sitemap). One page per exit in src/way/pages.generated.js, written by
 // copy-to-site.mjs from each tile's ways.json. Plan: claude/escher-maze-ways-plan.md in the Foundry project.
 import '../../../way/way.css';
 import { pageCsp } from '../../../way/page-csp.js';
+import { TILE_LOAD_DOMAIN } from '../../../lib/tile-load-domain.js';
 import { WAY_PAGES } from '../../../way/pages.generated.js';
 
 export function getStaticPaths() {
@@ -14,7 +16,7 @@ export function getStaticPaths() {
 }
 const { signpost, from, title } = Astro.props;
 // The policy goes on the built page only: Astro's dev server adds inline scripts of its own.
-const csp = import.meta.env.PROD ? pageCsp() : null;
+const csp = import.meta.env.PROD ? pageCsp(TILE_LOAD_DOMAIN) : null;
 ---
 
 <!doctype html>
@@ -31,7 +33,7 @@ const csp = import.meta.env.PROD ? pageCsp() : null;
 		<link rel="icon" type="image/png" sizes="32x32" href="/icon-32.png" />
 	</head>
 	<body>
-		<main id="way" data-signpost={signpost} data-from={from}><noscript><p>This page reads where the way leads in your browser, and needs JavaScript.</p></noscript></main>
+		<main id="way" data-signpost={signpost} data-from={from}><noscript><p>This page takes you where the way leads, in your browser, and needs JavaScript.</p></noscript></main>
 		<script>
 			import '../../../way/way-main.js';
 		</script>

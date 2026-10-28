@@ -1,22 +1,78 @@
-/* way.css: the way pages (way-page.js). COPY in the site; the source is C:\thunderbird-cafe\maze-tiles\site\. */
+/* way.css: the way pages (way-page.js: the cards; travel.js: the trip). COPY in the site; the source is
+   C:\thunderbird-cafe\maze-tiles\site\. Edit it there. */
 :root { --bg: #eee7d7; --ink: #2f2a26; --soft: #6b6157; --card: #fbf8f1; --line: #d8ccb2; --accent: #4260b0; }
 html, body { margin: 0; background: var(--bg); color: var(--ink); }
 body { font: 17px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
 #way { max-width: 760px; margin: 0 auto; padding: 48px 20px 64px; }
-#way .from { color: var(--soft); margin: 0 0 6px; font-size: 15px; }
-#way h1 { font-size: 30px; line-height: 1.2; margin: 0 0 14px; }
-#way .note { font-style: italic; }
-#way .small, #way .wait { color: var(--soft); font-size: 15px; }
-#way .doors { list-style: none; padding: 0; margin: 20px 0 0; display: grid; gap: 16px; }
-#way .doors.several { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
-#way .door { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; }
-#way .door .label { margin: 0 0 8px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--soft); }
-#way .head { display: flex; gap: 14px; align-items: center; }
-#way .head img { width: 64px; height: 64px; border-radius: 12px; flex: none; background: var(--line); }
-#way h2 { font-size: 21px; margin: 0; }
-#way .by { margin: 2px 0 0; color: var(--soft); font-size: 15px; }
-#way .desc { margin: 12px 0 0; }
-#way .links { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; margin: 14px 0 0; }
-#way .links a { color: var(--accent); }
-#way .links a.go { background: var(--accent); color: #fff; text-decoration: none; padding: 7px 16px; border-radius: 999px; }
-#way .broken { color: var(--soft); }
+:is(#way, .doorsbox) .from { color: var(--soft); margin: 0 0 6px; font-size: 15px; }
+:is(#way, .doorsbox) h1 { font-size: 30px; line-height: 1.2; margin: 0 0 14px; }
+:is(#way, .doorsbox) .note { font-style: italic; }
+:is(#way, .doorsbox) .small, #way .wait { color: var(--soft); font-size: 15px; }
+:is(#way, .doorsbox) .doors { list-style: none; padding: 0; margin: 20px 0 0; display: grid; gap: 16px; }
+:is(#way, .doorsbox) .doors.several { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+:is(#way, .doorsbox) .door { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; }
+:is(#way, .doorsbox) .door .label { margin: 0 0 8px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--soft); }
+:is(#way, .doorsbox) .head { display: flex; gap: 14px; align-items: center; }
+:is(#way, .doorsbox) .head img { width: 64px; height: 64px; border-radius: 12px; flex: none; background: var(--line); }
+:is(#way, .doorsbox) h2 { font-size: 21px; margin: 0; }
+:is(#way, .doorsbox) .by { margin: 2px 0 0; color: var(--soft); font-size: 15px; }
+:is(#way, .doorsbox) .desc { margin: 12px 0 0; }
+:is(#way, .doorsbox) .links { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; margin: 14px 0 0; }
+:is(#way, .doorsbox) .links a { color: var(--accent); }
+:is(#way, .doorsbox) .links a.go { background: var(--accent); color: #fff; text-decoration: none; padding: 7px 16px; border-radius: 999px; }
+:is(#way, .doorsbox) .broken { color: var(--soft); }
+:is(#way, .doorsbox) .door button.go, :is(#way, .doorsbox) .links button { font: inherit; cursor: pointer; border: 0; }
+:is(#way, .doorsbox) .door button.go { background: var(--accent); color: #fff; padding: 7px 16px; border-radius: 999px; }
+:is(#way, .doorsbox) button.stay { background: none; color: var(--accent); text-decoration: underline; padding: 0; }
+
+/* The travel page (travel.js): the tile fills the window under a slim bar. */
+body.travelling { overflow: hidden; background: #05070c; }
+.trip { position: fixed; inset: 0; display: flex; flex-direction: column; background: #05070c; color: #e8ecf5;
+  font: 15px/1.35 system-ui, -apple-system, "Segoe UI", sans-serif; }
+.trip[hidden] { display: none; }
+.tripbar { flex: none; display: flex; align-items: center; gap: 10px; min-height: 40px; box-sizing: border-box; padding: 4px 12px;
+  background: #11141d; border-bottom: 1px solid #262b3a; }
+.tripbar .where { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tripbar .where .by { color: #9aa3b8; }
+.tripbar .gap { flex: 1; }
+.tripbar .testmark { flex: none; font-size: 12px; color: #1b1406; background: #ffd28a; border-radius: 999px; padding: 2px 9px; }
+.tripbar .testmark[hidden], .tripbar [hidden] { display: none; }
+.tripbar button, .tripbar a { flex: none; font: inherit; font-size: 14px; color: #e8ecf5; background: #222838; border: 1px solid #3a4256;
+  border-radius: 999px; padding: 5px 13px; text-decoration: none; cursor: pointer; }
+.tripbar button:hover, .tripbar a:hover { background: #2d3449; }
+.trip button:focus-visible, .trip a:focus-visible { outline: 3px solid #ffd28a; outline-offset: 2px; }
+.triptab { display: none; }
+.tripstage { position: relative; flex: 1; min-height: 0; }
+.tripframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; background: #05070c; }
+.tripframe.loading { visibility: hidden; }
+.tripscreen { position: absolute; inset: 0; z-index: 5; display: flex; align-items: center; justify-content: center; text-align: center;
+  color: #f2f4fa; opacity: 1; transition: opacity 0.4s ease; padding: 16px; box-sizing: border-box; overflow: auto; }
+.tripscreen[hidden] { display: none; }
+.tripscreen.going { opacity: 0; pointer-events: none; }
+.tripscreen.light { color: #222838; }
+.tripscreen .inner { max-width: 760px; width: 100%; }
+.tripscreen .inner > .name { font-size: 30px; font-weight: 650; margin: 0; letter-spacing: 0.01em; }
+.tripscreen .inner > .by { margin: 4px 0 0; opacity: 0.8; }
+.tripscreen .inner > .by:empty, .tripscreen .inner > .msg:empty, .tripscreen .inner > .btns:empty { display: none; }
+.tripscreen .inner > .msg { margin: 16px 0 0; font-weight: 600; }
+.tripscreen .inner > .btns { margin: 22px 0 0; }
+.tripscreen .inner > .btns button { font: inherit; font-size: 17px; font-weight: 600; cursor: pointer; color: #1b1f2c; background: #f6f1e4;
+  border: 0; border-radius: 999px; padding: 11px 26px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25); }
+.tripscreen.light .inner > .btns button { background: #222838; color: #f6f1e4; }
+.tripscreen .inner > .btns button:disabled { opacity: 0.75; cursor: default; }
+.tripscreen .doorsbox { text-align: left; margin-top: 8px; --bg: #eee7d7; --ink: #2f2a26; --soft: #6b6157; --card: #fbf8f1; --line: #d8ccb2; --accent: #4260b0;
+  background: var(--bg); color: var(--ink); border-radius: 16px; padding: 18px 20px; }
+.tripscreen .doorsbox[hidden] { display: none; }
+.tripnote { position: absolute; left: 50%; bottom: 70px; transform: translateX(-50%); z-index: 6; margin: 0; padding: 8px 16px; border-radius: 999px;
+  background: rgba(10, 14, 26, 0.9); color: #fff; font-weight: 600; max-width: calc(100% - 48px); width: max-content; text-align: center;
+  opacity: 0; transition: opacity 0.25s; pointer-events: none; }
+.tripnote.show { opacity: 1; }
+/* Phones: the bar tucks away to a thin tab above the tile until tapped (W26). */
+@media (max-width: 640px), (pointer: coarse) and (max-width: 900px) {
+  .tripbar { position: absolute; top: 0; left: 0; right: 0; z-index: 7; transform: translateY(-100%); transition: transform 0.25s ease; flex-wrap: wrap; }
+  .trip.barout .tripbar { transform: none; }
+  .triptab { display: block; flex: none; height: 22px; width: 100%; border: 0; border-bottom: 1px solid #262b3a; background: #11141d; color: #9aa3b8;
+    font: 12px/22px system-ui, -apple-system, "Segoe UI", sans-serif; padding: 0 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
+  .triptab::after { content: " \25BE"; }
+  .tripscreen .inner > .name { font-size: 25px; }
+}
