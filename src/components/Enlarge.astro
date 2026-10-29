@@ -1,0 +1,119 @@
+---
+// A picture in a blog post that opens large in a pop-up over the page (first used by the ways post, for its
+// diagram). A click on the picture, or Enter or Space once it has the keyboard's focus, opens it; Escape, the ×
+// or a click outside closes it, and the focus goes back to the picture. Wrap a Markdown picture:
+// <Enlarge>, a blank line, the picture, a blank line, </Enlarge>.
+// The atproto copy of a post (scripts/clean_mdx_for_atproto.mjs) drops these tags and keeps the picture's
+// description, as it does for <JobsTable>. Draw the picture at twice the size it shows in the post, so the
+// enlarged view is sharp.
+---
+<div class="enlarge" data-enlarge>
+	<slot />
+	<p class="enlarge-hint" aria-hidden="true">Click to enlarge</p>
+	<dialog class="enlarge-dialog" aria-label="Enlarged picture">
+		<button type="button" class="enlarge-close" aria-label="Close">×</button>
+		<div class="enlarge-view"></div>
+	</dialog>
+</div>
+
+<style is:global>
+	.enlarge {
+		margin: 0 0 2em;
+	}
+	.enlarge img {
+		cursor: zoom-in;
+		display: block;
+	}
+	.enlarge img:focus-visible {
+		outline: 3px solid var(--accent, #2337ff);
+		outline-offset: 3px;
+	}
+	.enlarge-hint {
+		margin: 0.4em 0 0;
+		font-size: 0.85em;
+		color: rgb(var(--gray, 96, 115, 159));
+		text-align: center;
+	}
+	.enlarge-dialog {
+		padding: 0;
+		border: none;
+		border-radius: 10px;
+		max-width: 96vw;
+		max-height: 94vh;
+		overflow: hidden;
+		background: #fff;
+		box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+	}
+	.enlarge-dialog::backdrop {
+		background: rgba(15, 18, 25, 0.72);
+	}
+	.enlarge-view {
+		max-height: 94vh;
+		overflow: auto;
+		-webkit-overflow-scrolling: touch;
+	}
+	.enlarge-view img {
+		display: block;
+		/* As large as fits the window both ways (the picture's own shape, set by the script), at most its size in CSS pixels. */
+		width: min(var(--enlarge-w, 1600px), 96vw, calc(94vh * var(--enlarge-ratio, 1.6)));
+		max-width: none;
+		height: auto;
+	}
+	.enlarge-close {
+		position: absolute;
+		top: 8px;
+		right: 8px;
+		z-index: 1;
+		width: 40px;
+		height: 40px;
+		border: none;
+		border-radius: 50%;
+		background: rgba(30, 30, 30, 0.75);
+		color: #fff;
+		font-size: 26px;
+		line-height: 1;
+		cursor: pointer;
+	}
+	.enlarge-close:focus-visible {
+		outline: 3px solid #fff;
+		outline-offset: 2px;
+	}
+</style>
+
+<script>
+	for (const box of document.querySelectorAll<HTMLElement>('[data-enlarge]')) {
+		const img = box.querySelector<HTMLImageElement>(':scope > p img, :scope > img');
+		const dialog = box.querySelector<HTMLDialogElement>('dialog');
+		const view = box.querySelector<HTMLElement>('.enlarge-view');
+		const close = box.querySelector<HTMLButtonElement>('.enlarge-close');
+		const hint = box.querySelector<HTMLElement>('.enlarge-hint');
+		if (!img || !dialog || !view || !close || typeof dialog.showModal !== 'function') {
+			if (hint) hint.hidden = true;       // an older browser: just the picture, as before
+			continue;
+		}
+		img.tabIndex = 0;
+		img.setAttribute('role', 'button');
+		img.setAttribute('aria-haspopup', 'dialog');
+		const open = () => {
+			const big = new Image();
+			big.src = img.currentSrc || img.src;
+			big.alt = img.alt;
+			// Its shape, so it fits the window's height too; its size in the post's own pixels (drawn at twice that).
+			const w = img.naturalWidth, h = img.naturalHeight;
+			if (w && h) { big.style.setProperty('--enlarge-ratio', String(w / h)); big.style.setProperty('--enlarge-w', `${Math.round(w / 2)}px`); }
+			view.replaceChildren(big);
+			dialog.showModal();
+			view.scrollTop = 0;
+			close.focus();
+		};
+		img.addEventListener('click', open);
+		img.addEventListener('keydown', (e) => {
+			if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); }
+		});
+		close.addEventListener('click', () => dialog.close());
+		// A click on the dim backdrop (the dialog itself, outside its content) closes it; a tap on the big picture
+		// doesn't, so pinching to zoom on a phone can't close it by accident.
+		dialog.addEventListener('click', (e) => { if (e.target === dialog) dialog.close(); });
+		dialog.addEventListener('close', () => { view.replaceChildren(); img.focus(); });
+	}
+</script>

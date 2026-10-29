@@ -1,0 +1,127 @@
+---
+title: 'Ways: walking a portal loop between web tiles'
+description: 'Two web tiles on two different accounts, an impossible maze and a snowy forest, joined by ways you can walk through and back. A walk around the loop, then how it works.'
+pubDate: 'Oct 29 2026'
+heroImage: '../../assets/ways-portal-loop-cover.png'
+---
+
+import WebTile from '../../components/WebTile.astro';
+import Enlarge from '../../components/Enlarge.astro';
+
+In this post I describe how two web tiles, published separately on two different accounts, are joined by ways you can walk through and back. Each tile is sealed in its own sandbox, and a page carries you between them using records anyone can read.
+
+*Ways* are what I've been calling the doors between web tiles. You can also think of them as doorways, or portals. A tile says where its exits are, a signpost says where each exit leads, and a page carries you through to the destination. The two tiles here are an Escher maze, an impossible place that doesn't fit one real space, and Winter Forest, a snowy forest at night. The maze has a way out that leads to the forest, and the forest has a way out that leads back to the maze. Together they make a loop.
+
+## The walk
+
+Here is the maze. Click it, then hold **↑** or **W** to walk and **←** **→** or **A** **D** to turn, or drag across it to look round. On a phone, put your left thumb down in the lower left to walk. **Map** shows the rooms you've found, and **Sound** turns the sound off and on.
+
+<WebTile uri="at://did:plc:rqbqpaaluty5v47jwciowpik/ing.dasl.masl/3myyjuyr2ja2s" height={480} />
+
+The maze has twelve rooms in three colors, and every doorway shows the room beyond it. Climb the four flights from the Courtyard and you keep going up, all the way round, and end where you began. Step into the hole in the Well room and you fall into a cellar. Walk into the Closet, two blocks across, and it opens into a hall far bigger than it.
+
+That hall, the Great Hall, holds an obelisk, and the obelisk is a way out of the maze. To find it, go from the Courtyard through the door into the Gallery, along the Gallery and into the little Closet, then out of the Closet into the hall. Step into the obelisk.
+
+In the maze as it is embedded in this page, above, nothing is holding it that knows about ways, so the obelisk can't take you anywhere by itself. It offers **Open where this leads** instead, and that opens the way's own page in a new tab. That page is the travel page, and the rest of the trip happens there.
+
+The travel page starts with a screen in the Great Hall's blue that names where the way leads, Winter Forest by @thunderbird.cafe, and a **Step through** button. Step through and you're standing by a lamp post in a clearing, at night, with snow falling. Four paths wind away from the lamp post, to a wardrobe, a great old tree, a stone arch and a small library. Three of them don't lead anywhere yet. The library does.
+
+The library is bigger inside than out. There are shelves and tables, a fire, open books and a rolling ladder, and a stair up to a reading nook. From there a walkway turns back over the entrance, with a crow on its railing watching you pass. At the end of the walkway is a bench, and beside it a door the size of a figurine. Walk into it and you shrink and drop onto a slide, a wooden spiral first, then a long run of ice out through the forest, then a dive into blue. You come out in the maze, beside the obelisk, in the Great Hall.
+
+Now the obelisk's tip glows, because this time the page holding the maze knows where the obelisk leads. Step into it and you're back at the lamp post. That's the loop. The travel page's bar shows where you are and whose place it is, its **Back** steps back along the trail, and the browser's own Back and Forward do the same. The address follows the last way you took, so a reload or a shared link replays that leg.
+
+The maze has one more way, the Lantern room's door. For now it stays shut and says "This door is closed, for now." It has a signpost like the obelisk's, but an empty one, waiting for somewhere to lead.
+
+The two tiles live on different accounts. The maze is published by pyxorium.com and the forest by thunderbird.cafe, and the bar shows each place's account as you arrive. Both accounts are mine, so this isn't yet two different people's tiles joined together. Still, the two tiles are independent, and neither knows the other exists. Everything that joins them is in a few small public records.
+
+## How it works
+
+A web tile is sealed. Everything it will ever use is in its record when it's published, and once it's running it can't reach the network or open other tiles. So a tile can't take you anywhere. What it can do is send messages to the page holding it, and that page can do what the tile can't.
+
+Ways split the doorway function into three parts. The tile says where its exits and entrances are. Records on the network say where each exit leads. And a page that holds the tile reads those records and does the carrying.
+
+<Enlarge>
+
+![The portal loop. On the left, the pyxorium.com account. It holds the Escher maze, drawn as a sealed tile that can't reach the network or other tiles, and inside it the tile's ways.json, with exits obelisk and second door, entrances obelisk and second door, and each exit naming its signpost. Below the tile are three records. The place maze says the maze is currently this tile, at this exact version, and points up at the tile. The signpost maze.obelisk leads to the place winter-forest, entrance at the lamp post. The signpost maze.second-door is empty, so the door stays closed for now. On the right, the thunderbird.cafe account holds the same shape for Winter Forest. Its ways.json has exits wardrobe, tree-door, arch and slide, and entrances lamp post, wardrobe, tree-door and arch. Its place winter-forest points at the forest tile. Its signpost winter-forest.slide leads to the place maze, entrance at the obelisk, and its signposts wardrobe, tree-door and arch are empty for now. Two arrows cross between the accounts, one from the maze's obelisk signpost to the forest's place and one from the forest's slide signpost to the maze's place, labeled the signposts point across accounts. In the middle is the travel page, at thunderbird.cafe/way/. It reads the exit's signpost, reads the place it leads to, loads that tile at that version, sends you in at the entrance, and when you leave by an exit does it again. Double arrows join it to each tile, and below it a box names the way messages between tile and page, hello, status, arrive and leave. The tiles never talk to each other, only to the page holding them. Every part of the ways format is marked in teal, each ways.json, the place and signpost records, and the way messages.](../../assets/ways-diagram.png)
+
+</Enlarge>
+
+### A tile's ways.json
+
+Each tile carries one small file, `/ways.json`, as part of what it publishes. It names the tile, its place, its exits and its entrances. This is the maze's.
+
+```json
+{
+  "v": 1,
+  "tile": "maze",
+  "place": "at://did:plc:rqbqpaaluty5v47jwciowpik/cafe.thunderbird.way.place/maze",
+  "exits": [
+    {
+      "id": "obelisk",
+      "signpost": "at://did:plc:rqbqpaaluty5v47jwciowpik/cafe.thunderbird.way.signpost/maze.obelisk",
+      "fallback": "https://thunderbird.cafe/way/maze/obelisk"
+    },
+    {
+      "id": "second-door",
+      "signpost": "at://did:plc:rqbqpaaluty5v47jwciowpik/cafe.thunderbird.way.signpost/maze.second-door",
+      "fallback": "https://thunderbird.cafe/way/maze/second-door"
+    }
+  ],
+  "entrances": [
+    { "id": "obelisk" },
+    { "id": "second-door" }
+  ]
+}
+```
+
+An exit names its signpost, and a fallback address for when nothing holding the tile knows about ways. That fallback is what the obelisk offered you inside this blog post. An entrance is a spot where travelers can arrive, and the tile itself decides what arriving there looks like, beside the obelisk facing down the hall, or just inside the Lantern room's door with the door swinging shut behind you.
+
+The forest's file has one more line, `"entry": "ways-only"`. Opened on its own, the forest shows only a postcard that says it's reached through other places. You get in by arriving through a way.
+
+The file is frozen with the tile. It never says where an exit leads, only which signpost to ask, so the tile never has to be published again when a way changes.
+
+### Places and signposts
+
+Two kinds of record do the rest, and both are ordinary records in someone's account, of two published types, `cafe.thunderbird.way.place` and `cafe.thunderbird.way.signpost`. Anyone can write records of a published type in their own account, so these work the same on any account.
+
+A **place** is a stable name for a tile. It holds the tile's current address and its exact version. If I publish a new version of the maze, its place moves to the new record, so whatever points at the place keeps working and always gets the current maze. The travel page opens exactly the version the place names and checks it, file by file.
+
+A **signpost** says where one exit leads. It holds a list of destinations, each a place and, if you like, an entrance there. This is the forest's slide.
+
+```json
+{
+  "to": [
+    {
+      "place": "at://did:plc:rqbqpaaluty5v47jwciowpik/cafe.thunderbird.way.place/maze",
+      "entrance": "obelisk"
+    }
+  ],
+  "$type": "cafe.thunderbird.way.signpost",
+  "updatedAt": "2026-10-29T12:00:00.000Z"
+}
+```
+
+An empty list means the way is dormant and leads nowhere yet. That's the second door in the maze, and three of the forest's four paths. One destination means straight there. Several mean the page offers you a choice of doors. A signpost can be edited at any time, and the tile never has to change.
+
+That last part is what let the maze move. The maze originally lived on thunderbird.cafe, alongside the forest. Later, I moved it to pyxorium.com, with its own place and signposts there. The only thing that changed on the forest's side was one edit to the slide's signpost, pointing it at the new place. The forest itself wasn't touched.
+
+### The messages
+
+A tile and the page holding it talk with four messages, sent with `postMessage` under the names `tiles-protocol-up-way-payload` (tile to page) and `tiles-protocol-down-way-payload` (page to tile).
+
+- **hello**, from the tile when it loads, naming itself and its ways file.
+- **status**, from the page, saying which of the tile's exits lead somewhere and which are dormant. The maze lights its obelisk only when the page says it's open.
+- **arrive**, from the page, saying which entrance a traveler is coming in by.
+- **leave**, from the tile, saying which exit the traveler took and which way they were facing.
+
+None of them say who is traveling. If no page answers the hello within about a second, the tile knows it's on its own, in a gallery, a viewer or a post like this one, and its exits offer their fallback addresses instead.
+
+### The travel page
+
+Every exit has a travel page at `thunderbird.cafe/way/` followed by the tile and the exit, and that's the page that carries you. It reads the exit's signpost, then the place it points to, then loads that place's tile at that exact version. It answers the tile's hello with which of its exits lead somewhere, and sends arrive. When the tile says leave, it reads that exit's signpost and does it all again.
+
+The first time you open one, from a new tab, a reload or a shared link, it waits for you to press Step through. That press is what lets the tile's sound start and gives it the keys. After that, each leg goes by with only a short screen in the color of the way you came through. If a way's destination can't be found, it says "The way is blocked." and puts you back where you left.
+
+## What's next
+
+In the maze, the second door is waiting. The forest has three dormant paths of its own. In the future, the signposts for each of these portals could point at another tile of mine, or at a place someone else publishes for a tile of theirs. Likewise, someone else could point one of their own ways at the maze or forest. Then loops would run through tiles by different people, each still sealed and still unaware of the others.
