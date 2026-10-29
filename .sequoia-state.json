@@ -129,6 +129,16 @@
         "uri": "at://did:plc:6vxjigxrqizmbo56gojxico3/app.bsky.feed.post/3mykkt5w6xm26",
         "cid": "bafyreihranwtgijkfp7shcid6luodrnzd5mnpixnvh5rma5eqtpcyzsnyi"
       }
+    },
+    "src\\content\\blog\\ways-portal-loop.mdx": {
+      "contentHash": "2ca3115b06edd1d27fd41aa491d994bcba683d7b3252b33766eda2950c480497",
+      "atUri": "at://did:plc:6vxjigxrqizmbo56gojxico3/site.standard.document/3myzcrzmmll2f",
+      "lastPublished": "2026-10-29T12:55:03.555Z",
+      "slug": "ways-portal-loop",
+      "bskyPostRef": {
+        "uri": "at://did:plc:6vxjigxrqizmbo56gojxico3/app.bsky.feed.post/3myzcs47f6m2y",
+        "cid": "bafyreifdv4e3u7b5szp2alwreqmjmigoqcg4d2rsfctq2b34jkmwxnybmy"
+      }
     }
   },
   "publication": {
