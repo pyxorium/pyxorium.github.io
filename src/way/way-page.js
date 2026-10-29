@@ -92,10 +92,14 @@ async function doorOf(fetchImpl, dest, cache) {
 }
 
 // Test signposts (W41): on this computer only (127.0.0.1 or localhost), the address may say what a signpost
-// should lead to, as if it were filled, e.g. ?sign=maze.obelisk:winter-forest/lamppost
-//   <signpost's name>:<place's name>/<entrance>   (the place in the same account as the signpost)
+// should lead to, as if it were filled, e.g. ?sign=maze.obelisk:winter-forest@thunderbird.cafe/lamppost
+//   <signpost's name>:<place's name>/<entrance>            the place in the same account as the signpost
+//   <signpost's name>:<place's name>@<account>/<entrance>  the place in another account (0.4.0: the maze is
+//                                                           pyxorium.com's, the forest thunderbird.cafe's); the
+//                                                           account a did, or one of the two handles in TEST_ACCOUNTS
 // Several destinations joined with commas; nothing after the colon means empty (dormant); several signposts, several
 // sign= in the address. Everything else stays real. The live site ignores it. Returns Map(name → to[]).
+export const TEST_ACCOUNTS = Object.freeze({ 'thunderbird.cafe': 'did:plc:6vxjigxrqizmbo56gojxico3', 'pyxorium.com': 'did:plc:rqbqpaaluty5v47jwciowpik' });
 export const isHere = (loc) => !!loc && ['127.0.0.1', 'localhost'].includes(loc.hostname);
 export function testSignposts(loc = globalThis.location) {
   const out = new Map();
@@ -105,8 +109,11 @@ export function testSignposts(loc = globalThis.location) {
     if (!m) continue;
     const to = [];
     for (const d of m[2].split(/[,\s]+/).filter(Boolean)) {      // (a "+" in an address reads as a space)
-      const dm = /^([A-Za-z0-9._~-]{1,200})(?:\/([a-z0-9-]{1,64}))?$/.exec(d);
-      if (dm) to.push({ placeName: dm[1], ...(dm[2] ? { entrance: dm[2] } : {}) });
+      const dm = /^([A-Za-z0-9._~-]{1,200})(?:@([A-Za-z0-9._:%-]{1,200}))?(?:\/([a-z0-9-]{1,64}))?$/.exec(d);
+      if (!dm) continue;
+      const did = dm[2] ? (dm[2].startsWith('did:') ? dm[2] : TEST_ACCOUNTS[dm[2]]) : null;
+      if (dm[2] && !did) continue;
+      to.push({ placeName: dm[1], ...(did ? { did } : {}), ...(dm[3] ? { entrance: dm[3] } : {}) });
     }
     out.set(m[1], to);
   }
@@ -115,7 +122,7 @@ export function testSignposts(loc = globalThis.location) {
 // The test destinations for this signpost, as a signpost's `to` would say them, or null (use the real one).
 function overrideFor(at, overrides) {
   if (!overrides || !overrides.has(at.rkey)) return null;
-  return overrides.get(at.rkey).map((d) => ({ place: `at://${at.did}/${PLACE}/${d.placeName}`, ...(d.entrance ? { entrance: d.entrance } : {}) }));
+  return overrides.get(at.rkey).map((d) => ({ place: `at://${d.did || at.did}/${PLACE}/${d.placeName}`, ...(d.entrance ? { entrance: d.entrance } : {}) }));
 }
 
 // Is this signpost filled? 'open' | 'dormant' (also when it can't be read: the tile then says so if walked into).

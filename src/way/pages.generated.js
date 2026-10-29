@@ -4,10 +4,18 @@ export const WAY_PAGES = [
   {
     "tile": "maze",
     "exit": "obelisk",
-    "signpost": "at://did:plc:6vxjigxrqizmbo56gojxico3/cafe.thunderbird.way.signpost/maze.obelisk",
-    "place": "at://did:plc:6vxjigxrqizmbo56gojxico3/cafe.thunderbird.way.place/maze",
+    "signpost": "at://did:plc:rqbqpaaluty5v47jwciowpik/cafe.thunderbird.way.signpost/maze.obelisk",
+    "place": "at://did:plc:rqbqpaaluty5v47jwciowpik/cafe.thunderbird.way.place/maze",
     "from": "the Escher maze's obelisk",
     "title": "Where the Escher maze's obelisk leads"
+  },
+  {
+    "tile": "maze",
+    "exit": "second-door",
+    "signpost": "at://did:plc:rqbqpaaluty5v47jwciowpik/cafe.thunderbird.way.signpost/maze.second-door",
+    "place": "at://did:plc:rqbqpaaluty5v47jwciowpik/cafe.thunderbird.way.place/maze",
+    "from": "the Escher maze's second door",
+    "title": "Where the Escher maze's second door leads"
   },
   {
     "tile": "winter-forest",

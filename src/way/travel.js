@@ -41,9 +41,11 @@ export const TIMES = Object.freeze({
   noteMs: 3200,             // "The way is blocked." stays this long
   tuckMs: 6000,             // on phones, the bar tucks away again after this
 });
-// The portals' fade colours (the tiles' own: the forest's THROUGH_COLOUR and the ride's blue; the maze's Great Hall).
+// The portals' fade colours (the tiles' own: the forest's THROUGH_COLOUR and the ride's blue; the maze's Great Hall;
+// the glow behind the Lantern room's door, M28).
 export const COLOURS = Object.freeze({
   'maze/obelisk': '#4260b0',
+  'maze/second-door': '#8498cc',
   'winter-forest/wardrobe': '#ffffff',
   'winter-forest/tree-door': '#c98a3e',
   'winter-forest/arch': '#cfe2ee',
