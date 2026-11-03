@@ -68,6 +68,7 @@ export function normalize(collection, did, rkey, cid, value, firstSeen) {
 		recordCid: cid || '',
 		maslCid: value.cid || '',
 		name: t.name || '(untitled)',
+		named: typeof t.name === 'string' && !!t.name.trim(), // a real name (repeats.js: untitled tiles never fold)
 		description: t.description || '',
 		image: pickImage(t, resources),
 		resourceCount,

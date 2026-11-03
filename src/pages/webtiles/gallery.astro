@@ -288,6 +288,33 @@ const description =
 		color: white;
 		background: var(--teal-800);
 	}
+	/* Repeats (src/lib/tile-gallery/repeats.js): the same account, name and description fold into one card, the
+	   newest, with a quiet line under it that opens the group in place; the earlier copies follow it, quieter. */
+	.tg-earlier {
+		font: inherit;
+		font-size: 0.82rem;
+		text-align: left;
+		padding: 0.5em 1em;
+		border: 0;
+		border-top: 1px solid rgb(var(--gray-light));
+		color: rgb(var(--gray));
+		background: rgba(var(--gray-light), 35%);
+		cursor: pointer;
+	}
+	.tg-earlier:hover {
+		color: var(--teal-800);
+		background: var(--teal-050);
+	}
+	.tg-earlier[aria-expanded='true'] {
+		color: var(--teal-800);
+	}
+	.tg-card.tg-copy {
+		background: rgba(var(--gray-light), 25%);
+		border-style: dashed;
+	}
+	.tg-card.tg-copy .tg-name {
+		font-size: 1rem;
+	}
 	.tg-empty {
 		grid-column: 1 / -1;
 		text-align: center;

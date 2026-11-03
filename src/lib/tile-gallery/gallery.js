@@ -8,6 +8,8 @@ import { createResolver } from './identity.js';
 import { connectLive } from './live.js';
 import { renderCard } from './render.js';
 import { loadTypedImages } from './typed-images.js';
+import { groupRepeats, earlierLine, HIDE_EARLIER } from './repeats.js';
+import { esc } from './util.js';
 import { backfill as networkBackfill } from './sources/network.js';
 import { backfill as indexerBackfill } from './sources/indexer.js';
 
@@ -33,20 +35,27 @@ export function initGallery(root, config = CONFIG) {
 	const store = new TileStore();
 	const resolveAuthor = createResolver(config, store);
 	const cards = new Map(); // uri -> { node, sig }
+	// Repeats (repeats.js): the same account, name and description fold into one card, the newest, with a quiet
+	// "+59 earlier versions" line that opens the group in place. The groups opened on this page:
+	const opened = new Set();
 
 	const setStatus = (t) => (el.status.textContent = t);
 
 	/* ---------- filtering and sorting ---------- */
-	function visibleTiles() {
+	// The groups to show (repeats.js): repeats fold into their newest; a search matches any copy and shows its
+	// group; the groups are sorted by their newest copy.
+	function visibleGroups() {
 		const text = el.search.value.trim().toLowerCase();
 		const who = el.author.value;
 		let list = [...store.tiles.values()];
 		if (who) list = list.filter((t) => t.did === who);
+		let groups = groupRepeats(list);
 		if (text) {
-			list = list.filter((t) => {
+			const hit = (t) => {
 				const a = store.authors.get(t.did);
 				return [t.name, t.description, a?.handle, t.did].some((s) => s && s.toLowerCase().includes(text));
-			});
+			};
+			groups = groups.filter((g) => hit(g.head) || g.earlier.some(hit));
 		}
 		const time = (t) => t.date?.getTime() ?? 0;
 		const handle = (t) => store.authors.get(t.did)?.handle || t.did;
@@ -56,18 +65,34 @@ export function initGallery(root, config = CONFIG) {
 			author: (x, y) => handle(x).localeCompare(handle(y)) || time(y) - time(x),
 			name: (x, y) => x.name.localeCompare(y.name),
 		};
-		return list.sort(sorters[el.sort.value] || sorters.new);
+		const by = sorters[el.sort.value] || sorters.new;
+		return groups.sort((x, y) => by(x.head, y.head));
 	}
+	// Every tile shown, repeats too (the CSV export: a full record).
+	const visibleTiles = () => visibleGroups().flatMap((g) => [g.head, ...g.earlier]);
+	// The cards, in order: each group's newest (with its line), then, if opened, its earlier copies.
+	function visibleCards() {
+		const out = [];
+		for (const g of visibleGroups()) {
+			const n = g.earlier.length;
+			const open = n > 0 && opened.has(g.key);
+			out.push({ tile: g.head, line: n ? { key: g.key, n, open } : null, copy: false });
+			if (open) for (const t of g.earlier) out.push({ tile: t, line: null, copy: true });
+		}
+		return out;
+	}
+	const lineHtml = (line) =>
+		`<button type="button" class="tg-earlier" data-group="${esc(encodeURIComponent(line.key))}" aria-expanded="${line.open}">${line.open ? HIDE_EARLIER : earlierLine(line.n)}</button>`;
 
 	/* ---------- rendering (keyed: only changed cards are redrawn) ---------- */
 	function render() {
 		const show = el.images.checked;
-		const list = visibleTiles();
+		const list = visibleCards();
 		const nodes = [];
 
-		for (const tile of list) {
+		for (const { tile, line, copy } of list) {
 			const author = store.authors.get(tile.did);
-			const html = renderCard(config, tile, author, show);
+			const html = renderCard(config, tile, author, show) + (line ? lineHtml(line) : '');
 			const sig = html + tile.fresh;
 			let entry = cards.get(tile.uri);
 			if (!entry) {
@@ -82,6 +107,8 @@ export function initGallery(root, config = CONFIG) {
 				entry.sig = sig;
 			}
 			entry.node.classList.toggle('tg-fresh', tile.fresh);
+			entry.node.classList.toggle('tg-copy', copy);           // an earlier copy, under its group's card
+			entry.node.classList.toggle('tg-has-earlier', !!line);
 			nodes.push(entry.node);
 		}
 
@@ -151,6 +178,14 @@ export function initGallery(root, config = CONFIG) {
 	el.exportCsv.addEventListener('click', exportCsv);
 
 	el.grid.addEventListener('click', async (e) => {
+		const group = e.target.closest('[data-group]');
+		if (group) {
+			const key = decodeURIComponent(group.dataset.group);
+			if (opened.has(key)) opened.delete(key);
+			else opened.add(key);
+			store.changed();
+			return;
+		}
 		const copy = e.target.closest('[data-copy]');
 		if (copy) {
 			navigator.clipboard?.writeText(copy.dataset.copy).then(() => {
