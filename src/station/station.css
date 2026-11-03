@@ -1,0 +1,249 @@
+/* station.css: Thunderbird Café Station (/webtiles/station/). The approved mockup, round 3
+   (claude/station-mockup-r3.html in the Foundry project), with the owner's panel settings fixed in (ST7):
+   Cinzel, even lettering, a soft paint edge, lit cream title; the streaked window "faint, smudgier"; bright glow;
+   marquee on; two columns; the mug cursor with steam; the hand over links. The page doesn't use the blog's layout. */
+:root {
+  --street: #18292e;
+  --fluor: #ebe48e;
+  --fluor-soft: rgba(235, 228, 142, .35);
+  --ochre: #b9a066;
+  --cream: #f3eccb;
+  --wood: #362317;
+  --wood-2: #4a3222;
+  --wood-dark: #221509;
+  --brick: #9e2f22;
+  --brick-hi: #c8503c;
+  --glass: #9fc7b6;
+  --counter: #773d22;
+  --counter-hi: #8f4b2b;
+  --counter-lo: #5a2a17;
+  --text: #e8e3cc;
+  --muted: #a9b0a0;
+  --sign-font: "Cinzel", "Trajan Pro", Georgia, serif;
+  --label-font: "Silkscreen", ui-monospace, monospace;
+  --glow: 14px;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--street);
+  color: var(--text);
+  font-family: Verdana, Tahoma, "Trebuchet MS", sans-serif;
+  font-size: 14px; line-height: 1.5; min-height: 100vh;
+  position: relative;
+}
+/* The diner mug (a 32×32 SVG, hotspot at the rim); the hand over links and buttons. Only where there's a mouse. */
+@media (pointer: fine) {
+  body {
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cellipse cx='14' cy='27' rx='12' ry='3' fill='%23f3eccb' stroke='%23221509' stroke-width='1.2'/%3E%3Cpath d='M5 9 h18 v10 a6 6 0 0 1 -6 6 h-6 a6 6 0 0 1 -6 -6 z' fill='%23f7f2dc' stroke='%23221509' stroke-width='1.4'/%3E%3Cpath d='M23 12 h2.5 a3.5 3.5 0 0 1 0 7 h-2.5' fill='none' stroke='%23221509' stroke-width='1.6'/%3E%3Crect x='5' y='13' width='18' height='2.5' fill='%239e2f22'/%3E%3Cellipse cx='14' cy='9' rx='9' ry='1.6' fill='%233a2414' stroke='%23221509' stroke-width='1'/%3E%3C/svg%3E") 5 8, auto;
+  }
+  a, button, smallweb-subway-creativesclub { cursor: pointer; }
+}
+
+/* The streaked window: vertical brush streaks from stretched noise, faint and smudged; no image file. */
+body::before {
+  content: ""; position: fixed; inset: -24px; z-index: -1; pointer-events: none;
+  opacity: .4;
+  filter: blur(5px);
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600'%3E%3Cfilter id='s'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65 0.005' numOctaves='3' seed='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.24  0 0 0 0 0.38  0 0 0 0 0.40  1.6 0 0 0 -0.62'/%3E%3C/filter%3E%3Crect width='600' height='600' filter='url(%23s)'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600'%3E%3Cfilter id='d'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.18 0.005' numOctaves='2' seed='11' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.04  0 0 0 0 0.09  0 0 0 0 0.10  1.8 0 0 0 -0.75'/%3E%3C/filter%3E%3Crect width='600' height='600' filter='url(%23d)'/%3E%3C/svg%3E");
+  background-size: 600px 100%;
+  background-repeat: repeat-x;
+}
+body::after { /* darker at the top and the bottom, like the edges of a night scene */
+  content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: linear-gradient(180deg, rgba(5,12,14,.55), transparent 25%, transparent 75%, rgba(5,12,14,.6));
+}
+
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 16px 60px; }
+a { color: var(--glass); }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--fluor); outline-offset: 2px; }
+
+/* ---------- the sign ---------- */
+.signboard {
+  margin: 26px 0 6px; padding: 18px 20px 16px; text-align: center; position: relative;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='500' height='200'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.004 0.35' numOctaves='3' seed='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.10  0 0 0 0 0.06  0 0 0 0 0.03  1.4 0 0 0 -0.5'/%3E%3C/filter%3E%3Crect width='500' height='200' filter='url(%23g)'/%3E%3C/svg%3E"),
+    linear-gradient(180deg, var(--wood-2), var(--wood) 45%, var(--wood-dark));
+  border-top: 3px solid #57402c; border-bottom: 4px solid #120a04;
+  box-shadow: 0 10px 24px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.06);
+}
+.signboard::before { /* the light falling on the bottom edge of the board */
+  content: ""; position: absolute; left: 0; right: 0; bottom: -4px; height: 4px; background: var(--fluor); opacity: .55; filter: blur(1px);
+}
+.title {
+  margin: 0; font-family: var(--sign-font); font-weight: 700; color: var(--cream);
+  font-size: clamp(24px, 4.6vw, 54px); letter-spacing: .08em; line-height: 1.1;
+  text-transform: uppercase;
+  text-shadow: 0 0 1px rgba(243,236,203,.9), 0 0 10px rgba(235,228,142,.35);
+  filter: blur(.25px);
+}
+.title .w { display: inline-block; white-space: nowrap; }
+.subtitle { color: var(--muted); margin: 10px 0 0; font-size: 13px; text-align: center; }
+.subtitle b { color: var(--fluor); font-weight: normal; }
+
+/* ---------- Gus's widget, in a lit panel with the line's stripes ---------- */
+.subway { margin: 14px auto 6px; max-width: 640px; padding: 4px 14px 2px; text-align: center; color: var(--cream); }
+.subway .stripe { height: 8px; margin: 6px 0; background: repeating-linear-gradient(90deg, var(--fluor) 0 18px, transparent 18px 24px); }
+.subway smallweb-subway-creativesclub { display: block; font-family: var(--sign-font); letter-spacing: .04em; }
+
+/* ---------- neon-outline windows ---------- */
+.win {
+  border: 2px solid var(--fluor);
+  background: rgba(12,22,24,.82);
+  box-shadow: 0 0 var(--glow) var(--fluor-soft), inset 0 0 calc(var(--glow) * .8) rgba(235,228,142,.10);
+}
+
+/* ---------- the marquee: a second wooden sign ---------- */
+.marquee {
+  overflow: hidden; white-space: nowrap; margin: 14px 0 22px; padding: 6px 0;
+  background: linear-gradient(180deg, var(--wood-2), var(--wood-dark));
+  border-top: 1px solid #57402c; border-bottom: 2px solid #120a04;
+  font-family: var(--sign-font); font-size: 18px; letter-spacing: .12em; text-transform: uppercase; color: var(--cream);
+  text-shadow: 0 0 6px rgba(235,228,142,.45);
+}
+.marquee .track { display: inline-block; padding-left: 100%; animation: scroll 40s linear infinite; }
+.marquee .track span { margin: 0 22px; }
+.marquee .track i { font-style: normal; color: var(--brick-hi); }
+@keyframes scroll { to { transform: translateX(-100%); } }
+@media (prefers-reduced-motion: reduce) { .marquee .track { animation-duration: 120s; } }
+
+/* ---------- the gallery ---------- */
+.gallery { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; }
+@media (max-width: 680px) { .gallery { grid-template-columns: 1fr; } }
+.tile { display: flex; flex-direction: column; min-width: 0; }
+.titlebar {
+  display: flex; align-items: center; gap: 8px; padding: 6px 10px;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='60'%3E%3Cfilter id='c'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.005 0.5' numOctaves='3' seed='8' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.20  0 0 0 0 0.07  0 0 0 0 0.03  1.3 0 0 0 -0.45'/%3E%3C/filter%3E%3Crect width='400' height='60' filter='url(%23c)'/%3E%3C/svg%3E"),
+    linear-gradient(180deg, var(--counter-hi), var(--counter) 55%, var(--counter-lo));
+  border-bottom: 1px solid var(--fluor-soft);
+  box-shadow: inset 0 1px 0 rgba(255,220,180,.18);
+  color: var(--cream); font-family: var(--sign-font); font-size: 13px; letter-spacing: .08em; text-transform: uppercase;
+}
+.titlebar h2 { flex: 1; margin: 0; font: inherit; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.kind { font-family: var(--label-font); font-size: 9px; padding: 1px 6px; letter-spacing: 1px; text-transform: none; flex: none; }
+.kind.live { color: #0f1f1a; background: var(--glass); }
+.kind.run { color: var(--cream); background: #5a160e; box-shadow: 0 0 0 1px rgba(243,236,203,.55); }
+
+.frame { position: relative; aspect-ratio: 16 / 10; margin: 10px; overflow: hidden; background: #000; border: 1px solid rgba(235,228,142,.25); }
+
+/* A tile's mount (src/lib/web-tile-mount.js): its picture until the tile shows itself, then the tile's frame on top. */
+.frame .web-tile-mount { position: absolute; inset: 0; }
+.frame .still { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; display: block; }
+.frame .web-tile-mount iframe { position: absolute; inset: 0; width: 100% !important; height: 100% !important; border: 0; display: block; background: #000; }
+.frame .web-tile-mount:not(.is-ready) iframe { visibility: hidden; }
+.web-tile-status {
+  position: absolute; inset: 0; z-index: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+  gap: 8px; padding: 12px; pointer-events: none;
+}
+.web-tile-status[hidden] { display: none; }
+.web-tile-loading {
+  font-family: var(--label-font); font-size: 11px; color: var(--cream); background: rgba(10,16,18,.78); padding: 3px 9px;
+}
+.web-tile-loading:empty { display: none; }
+.web-tile-retry {
+  pointer-events: auto; font-family: var(--label-font); font-size: 12px; color: #1a1a10; background: var(--fluor);
+  border: 2px solid; border-color: #fffbd6 #7d7630 #7d7630 #fffbd6; padding: 4px 12px;
+}
+.web-tile-retry[hidden] { display: none; }
+
+/* ▶ RUN: the banner over the frame until clicked. */
+.banner { position: absolute; inset: 0; z-index: 2; display: flex; align-items: center; justify-content: center; }
+.banner img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+.banner::after { /* every window lit from inside */
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(ellipse at 50% 0%, rgba(235,228,142,.18), transparent 60%);
+}
+.runbtn {
+  position: relative; z-index: 1;
+  font-family: var(--label-font); font-size: 14px; color: var(--cream);
+  background: linear-gradient(180deg, var(--brick-hi), var(--brick)); padding: 8px 18px;
+  border: 2px solid; border-color: #e0806c #4a120b #4a120b #e0806c;
+  box-shadow: 0 2px 12px rgba(0,0,0,.6);
+}
+.runbtn:active { border-color: #4a120b #e0806c #e0806c #4a120b; }
+.tile.on .banner { display: none; }
+
+.caption { padding: 0 12px 12px; font-size: 12px; color: var(--muted); }
+.caption p { margin: 0; }
+.caption .links { margin-top: 4px; font-size: 11px; }
+.caption .links a { margin-right: 12px; }
+
+/* ---------- the maze card's trip (travel.js inside the card, ST13) ----------
+   The trip's own look comes from way.css (src/way/), which is made for a whole window and sets the page's colours,
+   so the rules it needs are copied here, kept inside the card and recoloured to the station. */
+.loop { position: absolute; inset: 0; }
+.loop .waybox { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 16px; text-align: center; color: var(--cream); }
+.loop .waybox[hidden] { display: none; }
+.loop .waybox h1, .loop .waybox h2 { font-family: var(--sign-font); font-size: 18px; margin: 0 0 6px; }
+.loop .waybox p { margin: 4px 0; font-size: 12px; }
+.loop .trip { position: absolute; inset: 0; display: flex; flex-direction: column; background: #05070c; color: var(--cream);
+  font: 12px/1.35 Verdana, Tahoma, sans-serif; }
+.loop .trip[hidden] { display: none; }
+.loop .tripbar { flex: none; display: flex; align-items: center; gap: 8px; min-height: 30px; padding: 3px 8px;
+  background: rgba(0,0,0,.55); border-bottom: 1px solid var(--fluor-soft); position: static; transform: none; }
+.loop .tripbar .where { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: var(--label-font); font-size: 10px; color: var(--fluor); }
+.loop .tripbar .where b { font-weight: normal; }
+.loop .tripbar .where .by { color: var(--muted); }
+.loop .tripbar .gap { flex: 1; }
+.loop .tripbar [hidden], .loop .tripbar .testmark { display: none; }
+.loop .tripbar button, .loop .tripbar a {
+  flex: none; font-family: var(--label-font); font-size: 10px; color: #1a1a10; background: var(--fluor); text-decoration: none;
+  border: 2px solid; border-color: #fffbd6 #7d7630 #7d7630 #fffbd6; padding: 2px 8px; border-radius: 0;
+}
+.loop .triptab { display: none; }
+.loop .tripstage { position: relative; flex: 1; min-height: 0; }
+.loop .tripframe { position: absolute; inset: 0; width: 100% !important; height: 100% !important; border: 0; display: block; background: #05070c; }
+.loop .tripframe.loading { visibility: hidden; }
+.loop .tripscreen { position: absolute; inset: 0; z-index: 5; display: flex; align-items: center; justify-content: center; text-align: center;
+  color: #f2f4fa; opacity: 1; transition: opacity .4s ease; padding: 12px; overflow: auto; }
+.loop .tripscreen[hidden] { display: none; }
+.loop .tripscreen.going { opacity: 0; pointer-events: none; }
+.loop .tripscreen.light { color: #222838; }
+.loop .tripscreen .inner { width: 100%; }
+.loop .tripscreen .inner > .name { font-family: var(--sign-font); font-size: 22px; font-weight: 700; margin: 0; letter-spacing: .04em; text-transform: uppercase; }
+.loop .tripscreen .inner > .by { margin: 4px 0 0; opacity: .8; }
+.loop .tripscreen .inner > .by:empty, .loop .tripscreen .inner > .msg:empty, .loop .tripscreen .inner > .btns:empty { display: none; }
+.loop .tripscreen .inner > .msg { margin: 12px 0 0; font-weight: bold; }
+.loop .tripscreen .inner > .btns { margin: 14px 0 0; }
+.loop .tripscreen .inner > .btns button {
+  font-family: var(--label-font); font-size: 12px; color: #1a1a10; background: var(--fluor);
+  border: 2px solid; border-color: #fffbd6 #7d7630 #7d7630 #fffbd6; padding: 5px 12px;
+}
+.loop .tripscreen .doorsbox { text-align: left; margin-top: 8px; background: rgba(12,22,24,.92); color: var(--text); padding: 12px; border: 1px solid var(--fluor-soft); }
+.loop .tripscreen .doorsbox[hidden] { display: none; }
+.loop .tripscreen .doorsbox .doors { list-style: none; padding: 0; margin: 10px 0 0; display: grid; gap: 10px; }
+.loop .tripscreen .doorsbox button { font-family: var(--label-font); font-size: 11px; }
+.loop .tripnote { position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%); z-index: 6; margin: 0; padding: 5px 12px;
+  background: rgba(10,14,26,.9); color: var(--cream); font-family: var(--label-font); font-size: 11px; max-width: calc(100% - 32px); width: max-content;
+  text-align: center; opacity: 0; transition: opacity .25s; pointer-events: none; }
+.loop .tripnote.show { opacity: 1; }
+
+/* ---------- the footer ---------- */
+.footer-buttons { display: flex; justify-content: center; flex-wrap: wrap; gap: 6px; margin-top: 34px; }
+.b88 {
+  width: 88px; height: 31px; display: flex; align-items: center; justify-content: center; text-align: center; line-height: 1;
+  font-family: var(--label-font); font-size: 9px; text-decoration: none; border: 1px solid #000; overflow: hidden;
+  box-shadow: inset 1px 1px 0 rgba(255,255,255,.35), inset -1px -1px 0 rgba(0,0,0,.5);
+}
+.b88.a { background: linear-gradient(180deg, var(--wood-2), var(--wood-dark)); color: var(--ochre); }
+.b88.b { background: linear-gradient(180deg, var(--brick-hi), var(--brick)); color: var(--cream); }
+.b88.c { background: #0f1f22; color: var(--glass); }
+.b88.d { background: var(--fluor); color: #1a1a10; }
+.b88.e { background: repeating-linear-gradient(90deg, var(--fluor) 0 8px, #1a1a10 8px 10px); color: #1a1a10; text-shadow: 0 0 2px #fff; }
+.b88.f { background: var(--cream); color: var(--wood); }
+footer { text-align: center; margin-top: 20px; color: var(--muted); font-size: 11px; }
+footer .tiny { font-family: var(--sign-font); letter-spacing: .15em; text-transform: uppercase; font-size: 11px; margin-top: 6px; color: var(--ochre); }
+
+/* ---------- steam from the mug ---------- */
+.wisp { position: fixed; pointer-events: none; z-index: 60; width: 12px; height: 22px; opacity: 0; animation: rise 1.6s ease-out forwards; }
+@keyframes rise {
+  0% { opacity: 0; transform: translate(0, 0) scale(.7); }
+  20% { opacity: .75; }
+  100% { opacity: 0; transform: translate(var(--dx), -34px) scale(1.25); }
+}
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }

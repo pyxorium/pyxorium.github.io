@@ -21,13 +21,19 @@
 // Each mount element carries data-uri and data-height, and holds a status box:
 //   <div class="web-tile-status"><span class="web-tile-loading">Loading tile…</span>
 //   <button class="web-tile-retry" type="button" hidden>Try again</button></div>
+//
+// Pages with more going on (the station, /webtiles/station/) pass the page's
+// one loader in (`mothership`, already started, with its loaders added) so
+// other code on the page can share it, and start and stop tiles themselves:
+//   const card = mount(el, { autostart: false });   // → { start, stop }
+//   card.start(); … card.stop();   // stop removes the tile's frame
 
 export const TILE_LOAD_TIMES = Object.freeze({ still: 4000, retry: 8000 });
 
-export function createTileMounter({ loadDomain, Mothership, loaders = [], times = TILE_LOAD_TIMES }) {
+export function createTileMounter({ loadDomain, Mothership, loaders = [], times = TILE_LOAD_TIMES, mothership: given = null }) {
   // One loader ("mothership") for every tile on the page: each one listens to
   // every message on the page, so several would trip over each other's tiles.
-  let mothership = null;
+  let mothership = given;
   function ship() {
     if (!mothership) {
       mothership = new Mothership({ loadDomain });
@@ -37,10 +43,13 @@ export function createTileMounter({ loadDomain, Mothership, loaders = [], times 
     return mothership;
   }
 
-  return function mount(el) {
+  // (forEach passes the index as the second argument: only an object with
+  // autostart: false holds a tile back.)
+  return function mount(el, opts) {
+    const autostart = !(opts && typeof opts === 'object' && opts.autostart === false);
     const uri = el.dataset.uri;
     const height = Number(el.dataset.height) || 500;
-    if (!uri) return;
+    if (!uri) return null;
     const status = el.querySelector('.web-tile-status');
     const words = el.querySelector('.web-tile-loading');
     const retry = el.querySelector('.web-tile-retry');
@@ -102,7 +111,18 @@ export function createTileMounter({ loadDomain, Mothership, loaders = [], times 
       el.appendChild(frame);
     }
 
+    // Stop: the frame goes (and the tile with it); a late answer from the
+    // loader is ignored, as for a fresh start.
+    function stop() {
+      attempt += 1;
+      clearTimers();
+      if (frame) { frame.remove(); frame = null; }
+      el.classList.remove('is-ready');
+      say('');
+    }
+
     if (retry) retry.addEventListener('click', () => start());
-    start();
+    if (autostart) start();
+    return { start, stop };
   };
 }

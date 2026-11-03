@@ -1,0 +1,127 @@
+---
+// /webtiles/station: Thunderbird Café Station, a stop on the Smallweb Subway's Creatives Club line (Gus Becker's
+// webrings, https://gusbus.space/smallweb-subway/). A small gallery of eight web tiles, embedded live, after hours.
+// Public (in the sitemap). Everything it uses lives in src/station/ and doesn't use the blog's layout or styles.
+// Plan: claude/smallweb-subway-station-plan.md in the Foundry project (ST1 to ST14).
+import '../../../station/station.css';
+import { TILES, SUBWAY_SCRIPT, BUTTONS, pageCsp, raku } from '../../../station/config.js';
+import { TILE_LOAD_DOMAIN } from '../../../lib/tile-load-domain.js';
+// The policy goes on the built page only: Astro's dev server adds inline scripts of its own.
+const csp = import.meta.env.PROD ? pageCsp(TILE_LOAD_DOMAIN) : null;
+const CARD = {
+	title: 'Thunderbird Café Station',
+	description: 'A stop on the Smallweb Subway: eight web tiles, embedded live and open late. A 3D object, a cube, a game, a stained-glass die, a roller coaster, two zines and an impossible maze.',
+	url: 'https://thunderbird.cafe/webtiles/station/',
+	image: 'https://thunderbird.cafe/webtiles/station/card.png',
+	imageAlt: 'Thunderbird Café Station: a wooden sign over a gallery of web tiles, lit in yellow against a dark teal night.',
+};
+const MARQUEE = ['now serving: web tiles', 'a rotatable 3D object', 'at-proto colorado', 'cosmic junkyard', 'glass lantern',
+	'roller coaster', 'this and that zine', 'blues trio zine', 'the escher maze & winter forest', 'open late'];
+const kindOf = (t) => (t.loop ? 'loop' : t.run ? 'run' : 'live');
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		{csp && <meta http-equiv="Content-Security-Policy" content={csp} />}
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="referrer" content="no-referrer" />
+		<title>Thunderbird Café Station · thunderbird.cafe</title>
+		<meta name="description" content={CARD.description} />
+		<link rel="canonical" href={CARD.url} />
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content="thunderbird.cafe" />
+		<meta property="og:title" content={CARD.title} />
+		<meta property="og:description" content={CARD.description} />
+		<meta property="og:url" content={CARD.url} />
+		<meta property="og:image" content={CARD.image} />
+		<meta property="og:image:width" content="1280" />
+		<meta property="og:image:height" content="720" />
+		<meta property="og:image:alt" content={CARD.imageAlt} />
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:title" content={CARD.title} />
+		<meta name="twitter:description" content={CARD.description} />
+		<meta name="twitter:image" content={CARD.image} />
+		<link rel="icon" href="/favicon.ico" sizes="any" />
+		<link rel="icon" type="image/png" sizes="32x32" href="/icon-32.png" />
+		<link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
+		<link rel="apple-touch-icon" sizes="180x180" href="/icon-180.png" />
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Silkscreen&display=swap" rel="stylesheet" />
+	</head>
+	<body>
+		<div class="wrap" id="station">
+			<header>
+				<div class="signboard">
+					<h1 class="title"><span class="w">Thunderbird</span> <span class="w">Café</span> <span class="w">Station</span></h1>
+				</div>
+				<p class="subtitle">a stop on the Smallweb Subway's <b>Yellow Line</b> · web tiles, open late</p>
+
+				<nav class="subway win" aria-label="The Smallweb Subway, Creatives Club line">
+					<div class="stripe" aria-hidden="true"></div>
+					<script is:inline src={SUBWAY_SCRIPT}></script>
+					<smallweb-subway-creativesclub></smallweb-subway-creativesclub>
+					<div class="stripe" aria-hidden="true"></div>
+				</nav>
+
+				<div class="marquee" aria-hidden="true"><div class="track">
+					{MARQUEE.map((m, i) => (<><span>{m}</span>{i < MARQUEE.length - 1 && <i>✦</i>}</>))}
+				</div></div>
+			</header>
+
+			<main class="gallery" aria-label="Eight web tiles">
+				{TILES.map((t) => (
+					<section class="tile win" data-kind={kindOf(t)} data-uri={t.uri} data-name={t.name} id={t.id}>
+						<div class="titlebar">
+							<h2 class="name">{t.name}</h2>
+							{t.run ? <span class="kind run">CLICK TO RUN</span> : <span class="kind live">LIVE</span>}
+						</div>
+						<div class="frame">
+							{t.loop
+								? <div class="loop"></div>
+								: (
+									<div class="web-tile-mount" data-uri={t.uri} data-height="400">
+										{!t.run && <img class="still" src={t.picture} alt="" loading="lazy" decoding="async" />}
+										<div class="web-tile-status" role="status">
+											<span class="web-tile-loading"></span>
+											<button class="web-tile-retry" type="button" hidden>Try again</button>
+										</div>
+									</div>
+								)}
+							{t.run && (
+								<div class="banner">
+									<img src={t.picture} alt={t.pictureAlt || ''} loading="lazy" decoding="async" />
+									<button class="runbtn" type="button" aria-label={`Run ${t.name}`}>▶ RUN</button>
+								</div>
+							)}
+						</div>
+						<div class="caption">
+							<p>{t.caption}</p>
+							<div class="links">
+								<a href={raku(t.uri)} target="_blank" rel="noopener">open in Raku</a>
+								{t.post && <a href={t.post.href}>{t.post.label}</a>}
+							</div>
+						</div>
+					</section>
+				))}
+			</main>
+
+			<noscript><p class="subtitle">The tiles run in your browser and need JavaScript.</p></noscript>
+
+			<div class="footer-buttons">
+				{BUTTONS.map((b) => (
+					<a class={`b88 ${b.cls}`} href={b.href} aria-label={b.label} set:html={b.html} />
+				))}
+			</div>
+			<footer>
+				<div>made at <a href="/">thunderbird.cafe</a> · tiles on atproto</div>
+				<div class="tiny">open late</div>
+			</footer>
+		</div>
+		<script>
+			import '../../../station/main.js';
+		</script>
+	</body>
+</html>
