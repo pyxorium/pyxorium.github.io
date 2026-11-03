@@ -10,12 +10,12 @@ import { TILE_LOAD_DOMAIN } from '../../../lib/tile-load-domain.js';
 const csp = import.meta.env.PROD ? pageCsp(TILE_LOAD_DOMAIN) : null;
 const CARD = {
 	title: 'Thunderbird Café Station',
-	description: 'A stop on the Smallweb Subway: eight web tiles, embedded live and open late. A 3D object, a cube, a game, a stained-glass die, a roller coaster, two zines and an impossible maze.',
+	description: 'A stop on the Smallweb Subway: eight web tiles, embedded live and open late. Pong, a cube, a game, a stained-glass die, a roller coaster, two zines and an impossible maze.',
 	url: 'https://thunderbird.cafe/webtiles/station/',
 	image: 'https://thunderbird.cafe/webtiles/station/card.png',
 	imageAlt: 'Thunderbird Café Station: a wooden sign over a gallery of web tiles, lit in yellow against a dark teal night.',
 };
-const MARQUEE = ['now serving: web tiles', 'a rotatable 3D object', 'at-proto colorado', 'cosmic junkyard', 'glass lantern',
+const MARQUEE = ['now serving: web tiles', 'pong', 'at-proto colorado', 'cosmic junkyard', 'glass lantern',
 	'roller coaster', 'this and that zine', 'blues trio zine', 'the escher maze & winter forest', 'open late'];
 const kindOf = (t) => (t.loop ? 'loop' : t.run ? 'run' : 'live');
 ---

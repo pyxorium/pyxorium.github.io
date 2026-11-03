@@ -4,8 +4,9 @@
 // The eight tiles, in the order agreed with the owner (ST4, ST9, ST11). `run` tiles (heavy WebGL) show their banner
 // with ▶ RUN and load only when clicked; the others load as they come near (ST5). The maze's card carries the loop
 // to Winter Forest and back (ST6, ST13). Pictures come straight from each account's server, as the Live Gallery
-// does (src/lib/tile-gallery/render.js), except the 3D object's, a screenshot kept with this page (ST10).
-// Record CIDs are as read on Nov 2 2026; the cards load each tile's current record, as the blog's embeds do.
+// does (src/lib/tile-gallery/render.js), except Pong's, a screenshot kept with this page (ST16; it replaced the
+// Rotatable 3D Object Nov 3). Record CIDs are as read on Nov 2 2026 (Pong's wasn't read: it isn't used); the cards
+// load each tile's current record, as the blog's embeds do.
 
 const PDS = {
   thunderbird: 'https://fibercap.us-west.host.bsky.network',
@@ -26,11 +27,11 @@ export const raku = (uri) => `https://raku.lexicographer.space/#t=${encodeURICom
 
 export const TILES = [
   {
-    id: 'object-3d', name: 'Rotatable 3D Object', run: true,
-    uri: tile('thunderbird', '3mw763im3qw2t'), cid: 'bafyreieqxjigvgstwd2p2r53gz2y5dyi2u2wv6o6garhq537azuy3bke7a',
-    picture: '/webtiles/station/3d-object.jpg', pictureAlt: 'A many-coloured icosahedron on a dark grid',
-    caption: 'Drag it, spin it, zoom in. The gear can set it turning or change its shape.',
-    post: { href: '/blog/embedding-a-web-tile/', label: 'read the post' },
+    id: 'pong', name: 'Pong', run: true,
+    uri: tile('thunderbird', '3mwbkd6kudm2m'), cid: null,
+    picture: '/webtiles/station/pong.jpg', pictureAlt: 'A game of Pong: two green paddles, a ball and the score, zero to zero',
+    caption: 'A small game of Pong. Keep the rally going.',
+    post: { href: '/blog/web-tiles-gallery/', label: 'read the post' },
   },
   {
     id: 'colorado', name: 'at-proto Colorado',

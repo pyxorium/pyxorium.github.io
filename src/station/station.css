@@ -233,7 +233,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--fluor); outline
 .b88.b { background: linear-gradient(180deg, var(--brick-hi), var(--brick)); color: var(--cream); }
 .b88.c { background: #0f1f22; color: var(--glass); }
 .b88.d { background: var(--fluor); color: #1a1a10; }
-.b88.e { background: repeating-linear-gradient(90deg, var(--fluor) 0 8px, #1a1a10 8px 10px); color: #1a1a10; text-shadow: 0 0 2px #fff; }
+.b88.e { background: #9cb36a; color: #1a1a10; }   /* the Smallweb Subway: solid yellow-green (owner, Nov 3) */
 .b88.f { background: var(--cream); color: var(--wood); }
 footer { text-align: center; margin-top: 20px; color: var(--muted); font-size: 11px; }
 footer .tiny { font-family: var(--sign-font); letter-spacing: .15em; text-transform: uppercase; font-size: 11px; margin-top: 6px; color: var(--ochre); }
