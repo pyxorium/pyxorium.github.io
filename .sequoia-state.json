@@ -139,6 +139,16 @@
         "uri": "at://did:plc:6vxjigxrqizmbo56gojxico3/app.bsky.feed.post/3myzcs47f6m2y",
         "cid": "bafyreifdv4e3u7b5szp2alwreqmjmigoqcg4d2rsfctq2b34jkmwxnybmy"
       }
+    },
+    "src\\content\\blog\\rooms.mdx": {
+      "contentHash": "088bdc520296f766985ffc77001ed8a9cf2bcbdc5613da4185b4b0557f1f0a80",
+      "atUri": "at://did:plc:6vxjigxrqizmbo56gojxico3/site.standard.document/3mzir2h5j5e2z",
+      "lastPublished": "2026-11-04T16:20:13.272Z",
+      "slug": "rooms",
+      "bskyPostRef": {
+        "uri": "at://did:plc:6vxjigxrqizmbo56gojxico3/app.bsky.feed.post/3mzir2hxcnp2p",
+        "cid": "bafyreib6lp4actqqbhrf24zzqh73aygzxqfqozqnzvtlgwfkn32zzp4534"
+      }
     }
   },
   "publication": {
