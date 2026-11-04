@@ -1,0 +1,82 @@
+---
+// A short silent clip in a blog post that plays on a loop, like a moving picture (first used by the rooms post,
+// for the live poll). It starts by itself, muted, and plays inline on phones; the poster (its first frame) shows
+// until it plays, and stays for anyone who asked their system for less motion (it then waits for a click on
+// Play). A Pause / Play button under it stops and starts it, as a moving picture longer than five seconds needs.
+// `alt` describes the whole clip, as a picture's alt text does; screen readers get it in place of the video.
+// The atproto copy of a post (scripts/clean_mdx_for_atproto.mjs) turns the tag into a line, "Video: " and the alt.
+// Put the clip and its poster in public/ (e.g. public/blog/rooms/) and pass their addresses from the site's root.
+// Keep `alt` free of straight double quotes (use “ ”), so the cleaner can read it.
+interface Props {
+	src: string;
+	poster: string;
+	alt: string;
+	width: number;
+	height: number;
+}
+const { src, poster, alt, width, height } = Astro.props;
+---
+<figure class="loop-video" data-loop-video>
+	<video
+		src={src}
+		poster={poster}
+		width={width}
+		height={height}
+		muted
+		loop
+		playsinline
+		preload="metadata"
+		aria-label={alt}
+	></video>
+	<button type="button" class="loop-video-toggle" hidden>Pause</button>
+</figure>
+
+<style is:global>
+	.loop-video {
+		margin: 0 0 2em;
+		text-align: center;
+	}
+	.loop-video video {
+		display: block;
+		width: 100%;
+		max-width: min(100%, var(--loop-video-max, 540px));
+		height: auto;
+		margin: 0 auto;
+		border-radius: 8px;
+		background: #171411;
+	}
+	.loop-video-toggle {
+		margin: 0.5em auto 0;
+		padding: 0.25em 0.9em;
+		font: inherit;
+		font-size: 0.85em;
+		color: rgb(var(--gray, 96, 115, 159));
+		background: none;
+		border: 1px solid rgba(var(--gray, 96, 115, 159), 0.5);
+		border-radius: 999px;
+		cursor: pointer;
+	}
+	.loop-video-toggle:focus-visible {
+		outline: 3px solid var(--accent, #2337ff);
+		outline-offset: 2px;
+	}
+</style>
+
+<script>
+	const still = window.matchMedia('(prefers-reduced-motion: reduce)');
+	for (const box of document.querySelectorAll<HTMLElement>('[data-loop-video]')) {
+		const video = box.querySelector<HTMLVideoElement>('video');
+		const button = box.querySelector<HTMLButtonElement>('.loop-video-toggle');
+		if (!video || !button) continue;
+		const show = () => { button.textContent = video.paused ? 'Play' : 'Pause'; };
+		video.addEventListener('play', show);
+		video.addEventListener('pause', show);
+		button.addEventListener('click', () => {
+			if (video.paused) video.play().catch(show); else video.pause();
+			show();
+		});
+		button.hidden = false;
+		show();
+		if (!still.matches) video.play().catch(show);   // a browser that refuses autoplay just leaves Play showing
+	}
+</script>

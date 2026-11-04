@@ -71,6 +71,9 @@ function stripImportsAndJSX(src) {
     .replace(/\{\/\*[\s\S]*?\*\/\}/g, '')
     // ESM import lines, e.g. `import WishDemo from '../../components/WishDemo.astro';`
     .replace(/^import .+ from .+;?\s*$/gm, '')
+    // a looping clip, e.g. `<LoopVideo src="…" alt="…" />` -> "Video: " and its description (Nov 2026, the
+    // rooms post, the first with a clip); the alt is in double quotes and holds none itself
+    .replace(/<LoopVideo\b[^>]*?\balt="([^"]*)"[^>]*\/>/g, (_, alt) => (alt.trim() ? `Video: ${alt.trim()}` : ''))
     // self-closing component tags, e.g. `<WishDemo height={640} />`
     .replace(/<[A-Z][A-Za-z0-9]*(\s+[^>]*)?\/>/g, '')
     // paired component tags (opening/closing), e.g. `<Foo>...</Foo>` -- keeps inner text
