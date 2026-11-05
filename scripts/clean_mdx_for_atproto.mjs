@@ -61,6 +61,14 @@ function setAsideCode(src, spans) {
     return `${CODE_MARK}${spans.length - 1}${CODE_MARK}`;
   });
 }
+// Fenced code blocks (Nov 2026, the Live Pong post, the first with one): the fence lines go, and the lines
+// between them are set aside like code spans, so no later rule touches them, and put back as they are.
+function setAsideFences(src, spans) {
+  return src.replace(/^```[^\n]*\n([\s\S]*?)\n```[ \t]*$/gm, (_, code) => {
+    spans.push(code);
+    return `${CODE_MARK}${spans.length - 1}${CODE_MARK}`;
+  });
+}
 function putBackCode(src, spans) {
   return src.replace(new RegExp(`${CODE_MARK}(\\d+)${CODE_MARK}`, 'g'), (_, i) => spans[Number(i)]);
 }
@@ -124,6 +132,7 @@ function cleanMdxFile(path) {
   const raw = readFileSync(path, 'utf8').replace(/\r\n?/g, '\n');
   const spans = [];
   let body = stripFrontmatter(raw);
+  body = setAsideFences(body, spans);
   body = setAsideCode(body, spans);
   body = stripImportsAndJSX(body);
   body = markdownToPlainText(body);
