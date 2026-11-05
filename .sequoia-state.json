@@ -149,6 +149,16 @@
         "uri": "at://did:plc:6vxjigxrqizmbo56gojxico3/app.bsky.feed.post/3mzis6ec4r224",
         "cid": "bafyreiacf5y57jitkv4ifoeqmdh3s2j3oovrihilopekp3wwmz5wajvgdy"
       }
+    },
+    "src\\content\\blog\\live-pong.mdx": {
+      "contentHash": "d0907b13d4639c7b6d6cbe62c1aa72702b5fa79ecdcab1f693b71c95c0f2b698",
+      "atUri": "at://did:plc:6vxjigxrqizmbo56gojxico3/site.standard.document/3mzlvloylkq2g",
+      "lastPublished": "2026-11-05T22:19:25.360Z",
+      "slug": "live-pong",
+      "bskyPostRef": {
+        "uri": "at://did:plc:6vxjigxrqizmbo56gojxico3/app.bsky.feed.post/3mzlvlpnkhe2a",
+        "cid": "bafyreifhb4w6w7pdoiwvy5rppnpglsdckvnjkft2xcjuunbuq66y3c3b3e"
+      }
     }
   },
   "publication": {
