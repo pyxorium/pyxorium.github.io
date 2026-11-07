@@ -1,0 +1,7 @@
+cd C:\thunderbird-cafe\pyxorium.github.io
+git add src/way/travel.js
+git add src/way/way-page.js
+git add commit-site-way-raku.txt
+git status
+git commit -m "Way pages: Open in Raku takes the way just taken (RW7)"
+git push

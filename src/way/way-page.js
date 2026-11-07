@@ -23,6 +23,15 @@ export function parseAtUri(uri) {
   return m ? { did: m[1], collection: m[2], rkey: m[3] } : null;
 }
 
+// "Open in Raku" for a way (claude/raku-ways-plan.md, RW7): Raku opens the way itself (raku:way/<account>/<signpost>),
+// reads the signpost and arrives where it leads, as this page does, so a trip moves into Raku at the same spot. Null
+// when the address isn't a signpost's.
+export function rakuWayLink(signpost) {
+  const at = parseAtUri(signpost);
+  if (!at || at.collection !== SIGNPOST) return null;
+  return `https://raku.lexicographer.space/#t=${encodeURIComponent(`raku:way/${at.did}/${at.rkey}`)}&a=0`;
+}
+
 const clip = (s, n) => (typeof s === 'string' ? (s.length > n ? `${s.slice(0, n - 1)}…` : s) : '');
 
 async function getJson(fetchImpl, url) {
@@ -157,6 +166,9 @@ export async function lookUpWay({ signpost, fetchImpl = fetch, overrides = null 
   if (!to.length) return { state: 'dormant', note, doors: [] };
   const doors = await Promise.all(to.map((d) => doorOf(fetchImpl, d && typeof d === 'object' ? d : {}, cache)
     .catch(() => ({ label: clip(d && d.label, 100), broken: 'This way couldn\'t be looked up just now.' }))));
+  // One destination: its card's "Open in Raku" takes the way itself (RW7), so Raku arrives at the signpost's entrance
+  // (several: each card keeps its tile's own link, since the way would ask Raku to pick a door again).
+  if (doors.length === 1 && !doors[0].broken) doors[0].raku = rakuWayLink(signpost);
   return { state: 'open', note, doors };
 }
 

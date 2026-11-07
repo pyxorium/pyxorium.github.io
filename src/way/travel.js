@@ -6,8 +6,9 @@
 //
 // What the traveller sees:
 //   - the tile filling the window under a slim bar (on phones the bar tucks away until tapped): the place's name and
-//     whose place it is, Back (when there's a place before this one in the tab), "Open in Raku" (open places only:
-//     not for a ways-only place like Winter Forest, which shows only a postcard when opened on its own);
+//     whose place it is, Back (when there's a place before this one in the tab), "Open in Raku": since Raku learnt ways
+//     (claude/raku-ways-plan.md, RW7) it opens the way just taken in Raku (raku:way/…), so Raku arrives at the same
+//     spot, for every place, ways-only ones too (before, it opened the tile itself, for open places only);
 //   - between places, a brief screen in the colour of the portal you went through, with the next place's name;
 //   - on first opening (a new tab, a reload, a shared link: W40) that screen waits for "Step through", so the
 //     browser lets the tile's sound start and the page can hand the keys to the tile;
@@ -27,7 +28,7 @@
 //
 // No DOM work happens before start(); everything outside (the loader, the records, fetch, history, timers) is passed
 // in, so the checks can run it with stand-ins.
-import { lookUpWay, signpostState, parseAtUri, render, el, PLACE, SIGNPOST } from './way-page.js';
+import { lookUpWay, signpostState, parseAtUri, rakuWayLink, render, el, PLACE, SIGNPOST } from './way-page.js';
 
 export const UP = 'tiles-protocol-up-way-payload';
 export const DOWN = 'tiles-protocol-down-way-payload';
@@ -180,7 +181,7 @@ export function createTravel({ root, page, pages = [], records, tileHost, fetchI
       const cache = new Map();
       await Promise.all(ways.exits.map(async (x) => { statuses[x.id] = await signpostState({ signpost: x.signpost, fetchImpl, overrides, cache }); }));
     }
-    const visit = { door, ways, statuses, rec, helloed: false, onHello: null };
+    const visit = { door, ways, statuses, rec, helloed: false, onHello: null, signpost: null };
     const shown = tileHost.render({ uri: rec.uri, manifest: rec.manifest, loader });
     visit.frame = shown.frame;
     visit.frame.classList.add('tripframe', 'loading');
@@ -207,7 +208,7 @@ export function createTravel({ root, page, pages = [], records, tileHost, fetchI
   }
 
   // ---- a leg: going to a door (first opening, or on from where you are, or back) ---------------------------------------
-  // how: { first, activated, colour, entrance, from: { tile, exit, place } | null, push, backTo }
+  // how: { first, activated, colour, entrance, from: { tile, exit, place } | null, push, backTo, signpost (the way taken) }
   async function go(door, how) {
     busy = true;
     const colour = how.colour || NIGHT;
@@ -239,6 +240,7 @@ export function createTravel({ root, page, pages = [], records, tileHost, fetchI
     // In: send the arrival, swap the frames, the bar, the title, the address.
     const entrance = visit.ways ? entranceFor(visit.ways, how.entrance) : null;
     visit.entrance = entrance;
+    visit.signpost = how.signpost || null;
     if (visit.ways) { sendStatus(visit); if (entrance) post(visit, { kind: 'arrive', entrance }); }
     const before = here;
     here = visit;
@@ -285,7 +287,7 @@ export function createTravel({ root, page, pages = [], records, tileHost, fetchI
     const view = await lookUpWay({ signpost: exit.signpost, fetchImpl, overrides }).catch(() => ({ state: 'error' }));
     const doors = view.state === 'open' ? view.doors.filter((d) => !d.broken) : [];
     if (!doors.length) return returnTo(here, exit.id, { blocked: true });
-    const onward = (door) => go(door, { activated: true, colour, entrance: door.entrance, from, push: true, door });
+    const onward = (door) => go(door, { activated: true, colour, entrance: door.entrance, from, push: true, door, signpost: exit.signpost });
     if (view.doors.length === 1) return onward(doors[0]);
     // Pick a door: the doors on the screen, and "Stay here".
     screenDoors.hidden = false;
@@ -299,16 +301,18 @@ export function createTravel({ root, page, pages = [], records, tileHost, fetchI
     where.replaceChildren(el('b', {}, d.name), d.by ? el('span', { class: 'by' }, ` by @${d.by}`) : '');
     tab.textContent = d.name;
     backBtn.hidden = leg === 0;
+    // The way just taken, in Raku (RW7); a tile's own address only if the way isn't known (never, in practice).
+    const way = rakuWayLink(here.signpost);
     const open = !here.ways || here.ways.entry !== 'ways-only';
-    rakuLink.hidden = !open;
-    if (open) rakuLink.href = `https://raku.lexicographer.space/#t=${encodeURIComponent(here.rec.uri)}&a=0`;
+    rakuLink.hidden = !way && !open;
+    rakuLink.href = way || `https://raku.lexicographer.space/#t=${encodeURIComponent(here.rec.uri)}&a=0`;
   }
 
   // ---- the address and history (W39) ----------------------------------------------------------------------------------
   const keep = (door) => ({ tile: door.tile, pinned: door.pinned || null, place: door.place || null, name: door.name, by: door.by || null, entrance: door.entrance || null });
   function record(visit, how) {
-    if (how.pop !== undefined) { leg = how.pop; legs[leg] = { ...(legs[leg] || {}), door: keep(visit.door), entrance: visit.entrance }; paintBar(); return; }
-    const state = { way: 1, door: keep(visit.door), entrance: visit.entrance, from: how.from || null };
+    if (how.pop !== undefined) { leg = how.pop; legs[leg] = { ...(legs[leg] || {}), door: keep(visit.door), entrance: visit.entrance, signpost: visit.signpost }; paintBar(); return; }
+    const state = { way: 1, door: keep(visit.door), entrance: visit.entrance, from: how.from || null, signpost: visit.signpost };
     if (how.push) {
       leg += 1;
       const path = (how.from && pathFor(pages, { tile: how.from.tile, place: how.from.place }, how.from.exit)) || loc.pathname;
@@ -329,7 +333,7 @@ export function createTravel({ root, page, pages = [], records, tileHost, fetchI
     const exit = after && after.from ? after.from.exit : null;
     const colour = (after && after.from && COLOURS[`${after.from.tile}/${after.from.exit}`]) || NIGHT;
     legs[st.leg] = { ...st };
-    await go(st.door, { activated: true, colour, entrance: back ? exit : st.entrance, pop: st.leg, from: null, door: st.door });
+    await go(st.door, { activated: true, colour, entrance: back ? exit : st.entrance, pop: st.leg, from: null, door: st.door, signpost: st.signpost || null });
   }
   win.addEventListener('popstate', (e) => onPop(e.state));
 
@@ -345,15 +349,15 @@ export function createTravel({ root, page, pages = [], records, tileHost, fetchI
     const doors = view.state === 'open' ? view.doors : [];
     const usable = doors.filter((d) => !d.broken);
     if (view.state !== 'open' || !usable.length) { render(root, view.state === 'open' ? { state: 'error', title: 'The way is blocked.', message: 'Where this leads couldn’t be opened just now. Try again in a moment.' } : view, { from }); return null; }
-    if (doors.length === 1) return go(usable[0], { first: true, activated: false, colour, entrance: usable[0].entrance, from: first, door: usable[0] });
+    if (doors.length === 1) return go(usable[0], { first: true, activated: false, colour, entrance: usable[0].entrance, from: first, door: usable[0], signpost: page.signpost });
     // Several: pick a door on the page; the click counts as stepping through.
-    render(root, view, { from, onGo: (d) => go(d, { first: true, activated: true, colour, entrance: d.entrance, from: first, door: d }) });
+    render(root, view, { from, onGo: (d) => go(d, { first: true, activated: true, colour, entrance: d.entrance, from: first, door: d, signpost: page.signpost }) });
     return null;
   }
 
   // For the checks (test/browser/check_travel.mjs): what the page knows right now.
   const info = () => ({ leg, busy, place: here && here.door.name, entrance: here && here.entrance, statuses: here && here.statuses, frames: visits.size,
     screen: !screen.hidden, screenText: screen.hidden ? '' : screen.innerText, note: noteEl.classList.contains('show') ? noteEl.textContent : '',
-    back: !backBtn.hidden, raku: !rakuLink.hidden, title: doc.title, path: loc.pathname, test: !testMark.hidden });
+    back: !backBtn.hidden, raku: !rakuLink.hidden, rakuHref: rakuLink.hidden ? '' : rakuLink.href, title: doc.title, path: loc.pathname, test: !testMark.hidden });
   return { start, info, go, frameOf: () => here && here.frame };
 }
