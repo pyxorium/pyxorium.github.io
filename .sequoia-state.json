@@ -159,6 +159,16 @@
         "uri": "at://did:plc:6vxjigxrqizmbo56gojxico3/app.bsky.feed.post/3mzlvlpnkhe2a",
         "cid": "bafyreifhb4w6w7pdoiwvy5rppnpglsdckvnjkft2xcjuunbuq66y3c3b3e"
       }
+    },
+    "src\\content\\blog\\renderer-tiles.mdx": {
+      "contentHash": "5b9c646dd9e9f570d21df1b730de73d8ff96000912f70e114f34a8027b04d6f4",
+      "atUri": "at://did:plc:6vxjigxrqizmbo56gojxico3/site.standard.document/3mzqerccutl2k",
+      "lastPublished": "2026-11-07T17:01:38.795Z",
+      "slug": "renderer-tiles",
+      "bskyPostRef": {
+        "uri": "at://did:plc:6vxjigxrqizmbo56gojxico3/app.bsky.feed.post/3mzqerd4rns2r",
+        "cid": "bafyreido4jupvg47k4bbgp6gdhexyvrsncycyjfpydseqqwhjyzqb5wz5a"
+      }
     }
   },
   "publication": {
