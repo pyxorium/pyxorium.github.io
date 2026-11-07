@@ -6,8 +6,12 @@
 // The atproto copy of a post (scripts/clean_mdx_for_atproto.mjs) drops these tags and keeps the picture's
 // description, as it does for <JobsTable>. Draw the picture at twice the size it shows in the post, so the
 // enlarged view is sharp.
+// <Enlarge tall> is for a picture taller than it is wide (first used by the renderer tiles post's diagram): the
+// enlarged view fills the window's width, up to the picture's size in CSS pixels, and scrolls down through it,
+// instead of shrinking it to fit the window's height.
+const { tall = false } = Astro.props;
 ---
-<div class="enlarge" data-enlarge>
+<div class="enlarge" data-enlarge data-tall={tall ? '' : undefined}>
 	<slot />
 	<p class="enlarge-hint" aria-hidden="true">Click to enlarge</p>
 	<dialog class="enlarge-dialog" aria-label="Enlarged picture">
@@ -58,6 +62,10 @@
 		width: min(var(--enlarge-w, 1600px), 96vw, calc(94vh * var(--enlarge-ratio, 1.6)));
 		max-width: none;
 		height: auto;
+	}
+	/* Tall pictures: as wide as the window allows (at most their size in CSS pixels), then scroll. */
+	.enlarge[data-tall] .enlarge-view img {
+		width: min(var(--enlarge-w, 1600px), 96vw);
 	}
 	.enlarge-close {
 		position: absolute;
