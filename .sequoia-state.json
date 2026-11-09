@@ -161,9 +161,9 @@
       }
     },
     "src\\content\\blog\\renderer-tiles.mdx": {
-      "contentHash": "5b9c646dd9e9f570d21df1b730de73d8ff96000912f70e114f34a8027b04d6f4",
+      "contentHash": "2d857f1876a4a095fbab5a184e1a433e5f18d8eb39aff21156eec3c0165689bc",
       "atUri": "at://did:plc:6vxjigxrqizmbo56gojxico3/site.standard.document/3mzqerccutl2k",
-      "lastPublished": "2026-11-07T17:01:38.795Z",
+      "lastPublished": "2026-11-09T16:31:06.122Z",
       "slug": "renderer-tiles",
       "bskyPostRef": {
         "uri": "at://did:plc:6vxjigxrqizmbo56gojxico3/app.bsky.feed.post/3mzqerd4rns2r",
