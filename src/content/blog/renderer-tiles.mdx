@@ -85,6 +85,8 @@ The payload Raku sends is the same shape for every kind of record:
 
 One catch, which [a change to Roomy's tile embeds](https://tangled.org/roomy.space/roomy/commit/e6abb2d9550f63fa3cc27f4f3bf9a2be5a329fec) (Tangled git pull request #543) spells out: `data.js` delivers a message only to handlers already added, and keeps nothing for later. Send the record as soon as the tile's frame loads and it can arrive before the tile is listening; the tile then shows nothing, with no error. So Raku sends only in answer to `ready` (matched to that tab's own tile frame), never on load, and answers every `ready`, so a tile that reloads asks again. And the renderers add their handler before calling `listen()`; a test in maze-tiles checks those two lines stay in that order.
 
+[*Update, Nov 9:* the loading server Raku uses now keeps the first thing the host sends after `listen()`, the record, and gives a copy to any handler added later, with a warning in the console. Answers to a tile's own requests aren't kept. Adding the handler before `listen()` is still the way to write a tile, because other hosts may not do this.]
+
 ### Raku's three requests
 
 tp-data says a tile may send data back to its host, but not what that data means. Raku gives three kinds of message a meaning. They travel inside `tiles-protocol-up-data-payload` like anything else; they're Raku's own, not part of the spec.
@@ -111,7 +113,7 @@ addDataHandler((msg) => {
   if (msg.value.link) sendData({ get: msg.value.link });
 });
 
-listen();   // last: data.js keeps nothing for a handler that isn't there yet
+listen();   // last: the stock data.js keeps nothing for a handler that isn't there yet
 ```
 
 How Raku picks a renderer is deliberately simple for now: a pinned list in its settings, one renderer per kind of record, each pinned to an exact version of its tile record. Raku checks the version before running it, so republishing a renderer means updating Raku too. Places and Signposts live in [the maze-tiles repo](https://github.com/pyxorium/maze-tiles) (`place/tile/` and `signpost/tile/`), and Raku's side is in [the raku repo](https://github.com/pyxorium/raku) (`src/renderers.js`).
