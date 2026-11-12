@@ -1,0 +1,15 @@
+cd C:\thunderbird-cafe\pyxorium.github.io
+git add src/content/blog/tile-posts.mdx
+git add src/components/LoopVideo.astro
+git add src/assets/tile-posts-cover.png
+git add src/assets/tile-posts-expand.png
+git add src/assets/tile-posts-foundry.png
+git add src/assets/tile-posts-hearts.png
+git add src/assets/tile-posts-share.png
+git add src/assets/tile-posts-write.png
+git add public/blog/tile-posts/tile-posts-play.mp4
+git add public/blog/tile-posts/tile-posts-play-poster.png
+git add commit-blog-tile-posts.txt
+git status
+git commit -m "Blog: Tile posts: a tile you can play, right in the post (the clip, five screenshots, the cover); LoopVideo can wait for Play (waitForPlay)"
+git push

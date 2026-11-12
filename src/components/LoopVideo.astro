@@ -7,16 +7,19 @@
 // The atproto copy of a post (scripts/clean_mdx_for_atproto.mjs) turns the tag into a line, "Video: " and the alt.
 // Put the clip and its poster in public/ (e.g. public/blog/rooms/) and pass their addresses from the site's root.
 // Keep `alt` free of straight double quotes (use “ ”), so the cleaner can read it.
+// `waitForPlay` (the tile posts post, Nov 2026): don't start by itself; the poster shows with Play under it, and a
+// click on the clip or on Play starts it.
 interface Props {
 	src: string;
 	poster: string;
 	alt: string;
 	width: number;
 	height: number;
+	waitForPlay?: boolean;
 }
-const { src, poster, alt, width, height } = Astro.props;
+const { src, poster, alt, width, height, waitForPlay = false } = Astro.props;
 ---
-<figure class="loop-video" data-loop-video>
+<figure class="loop-video" data-loop-video data-wait={waitForPlay ? "" : undefined}>
 	<video
 		src={src}
 		poster={poster}
@@ -44,6 +47,9 @@ const { src, poster, alt, width, height } = Astro.props;
 		margin: 0 auto;
 		border-radius: 8px;
 		background: #171411;
+	}
+	.loop-video[data-wait] video {
+		cursor: pointer;
 	}
 	.loop-video-toggle {
 		margin: 0.5em auto 0;
@@ -75,8 +81,11 @@ const { src, poster, alt, width, height } = Astro.props;
 			if (video.paused) video.play().catch(show); else video.pause();
 			show();
 		});
+		if (box.hasAttribute('data-wait')) {
+			video.addEventListener('click', () => button.click());
+		}
 		button.hidden = false;
 		show();
-		if (!still.matches) video.play().catch(show);   // a browser that refuses autoplay just leaves Play showing
+		if (!still.matches && !box.hasAttribute('data-wait')) video.play().catch(show);   // a browser that refuses autoplay just leaves Play showing
 	}
 </script>
