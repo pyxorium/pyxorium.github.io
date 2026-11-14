@@ -103,6 +103,9 @@
   details summary { cursor: pointer; color: var(--muted); font-size: 14px; }
   #log { font: 12px/1.5 ui-monospace, monospace; white-space: pre-wrap; color: var(--muted); margin-top: 8px; max-height: 300px; overflow: auto; }
   .card-row { justify-content: flex-end; margin-top: 12px; }
+  #revBtn { margin-right: auto; }
+  .jc-len { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; margin-bottom: 4px; }
+  .jc-joke { font-size: 13px; font-style: italic; color: var(--muted); margin-bottom: 8px; }
   button.small { padding: 5px 12px; font-size: 13px; border-radius: 999px; }
   .jcard { margin-top: 10px; padding: 14px; border-radius: 10px; background: var(--bg); border: 1px solid var(--line); overflow-wrap: anywhere; }
   .jc-label { font: 22px/1.35 "Segoe Print", "Bradley Hand", "Comic Sans MS", "Chalkboard SE", cursive; margin-bottom: 4px; }
@@ -186,7 +189,10 @@
       </button>
     </div>
     <button id="turnBtn" class="hidden" style="margin-top:14px;width:100%">Turn the tape</button>
-    <div class="row card-row"><button class="secondary small" id="cardBtn" aria-pressed="false">J-card</button></div>
+    <div class="row card-row">
+      <button class="secondary small hidden" id="revBtn" aria-label="Autoreverse">&#8644; Off</button>
+      <button class="secondary small" id="cardBtn" aria-pressed="false">J-card</button>
+    </div>
     <div class="jcard hidden" id="jcard"></div>
     <ul class="list" id="tracks" style="margin-top:14px"></ul>
     <div class="row">

@@ -5,11 +5,23 @@
 // the side. A tape with sides (tape.json version 2) stops at the end of side A
 // and offers "Turn the tape", like a cassette. Tapes whose tracks don't match
 // are kept as separate tracks.
+//
+// Version 5.5, autoreverse: a tape with two or more sides is joined into ONE
+// file, side A, a 3-second flip (flip.mp3: silence with a soft click, in the
+// Foundry tapes' format), side B, another flip. Off stops at the end of each
+// side and offers "Turn the tape" (as before); Through plays every side and
+// stops at the end of the tape; Loop loops the file. Nothing new ever starts
+// between sides, so it keeps going with the screen off. Tapes whose sides
+// can't be joined with the flip keep one file per side and the old behaviour.
 
 (function () {
   "use strict";
 
-  var APP_VERSION = "5.4";
+  var APP_VERSION = "5.5";
+  var REV_KEY = "tileman-reverse";
+  var REV_MODES = ["off", "through", "loop"];
+  var REV_WORDS = { off: "Off", through: "Through", loop: "Loop" };
+  var FLIP_URL = "flip.mp3";
   var TAPE_CACHE = "tileman-tapes";
   var INDEX_URL = abs("tapes/index.json");
   var LOG_KEY = "tileman-log";
@@ -37,7 +49,16 @@
   // Side 0 keeps the name earlier versions used, so their saved tapes still play.
   function sideKey(t, s) { return abs("tapes/" + t.id + "/side" + (s ? s : "")); }
   function artKey(t) { return abs("tapes/" + t.id + "/art"); }
+  // The whole tape in one file (5.5), for autoreverse.
+  function wholeKey(t) { return abs("tapes/" + t.id + "/tape"); }
   function isSide() { return !!(tape && tape.sides); }
+  function isWhole() { return !!(tape && tape.sides && tape.whole); }
+  // Where side s begins in the loaded file (0 when each side is its own file).
+  function sideAt(s) { return isWhole() ? tape.sides[s].at : 0; }
+
+  // Autoreverse: off, through or loop; one setting for every tape, kept on the phone.
+  var reverse = "off";
+  try { if (REV_MODES.indexOf(localStorage.getItem(REV_KEY)) >= 0) reverse = localStorage.getItem(REV_KEY); } catch (e) {}
 
   // Which side track n is on, and that side.
   function sideNo(n) {
@@ -139,15 +160,31 @@
   function trackTime() {
     if (!isSide()) return audio.currentTime;
     var sd = curSide();
-    return audio.currentTime - sd.starts[idx - sd.first];
+    // In the flip before a side, the side's first song reads 0:00.
+    return Math.max(0, audio.currentTime - sideAt(sideNo(idx)) - sd.starts[idx - sd.first]);
   }
   function trackLength() {
     if (!isSide()) return audio.duration;
     var sd = curSide();
     return sd.durations[idx - sd.first];
   }
-  // The track playing at time t of the current side.
+  // The track playing at time t of the loaded file: the current side, or with
+  // the whole tape in one file, whichever side t falls in. The flip after a
+  // side already counts as the next side (its first song), so the side
+  // indicator changes over as the click plays; the flip after the last side
+  // counts as side A's first song when looping, else as the last song.
   function trackAt(t) {
+    if (isWhole()) {
+      var ss = tape.sides;
+      for (var k = 0; k < ss.length; k++) {
+        if (t < ss[k].at + ss[k].total - 0.05) {
+          var rel = t - ss[k].at, st = ss[k].starts, j = 0;
+          while (j + 1 < st.length && rel >= st[j + 1] - 0.05) j++;
+          return ss[k].first + j;
+        }
+      }
+      return reverse === "loop" ? 0 : tape.tracks.length - 1;
+    }
     var sd = curSide(), s = sd.starts, i = 0;
     while (i + 1 < s.length && t >= s[i + 1] - 0.05) i++;
     return sd.first + i;
@@ -277,6 +314,72 @@
             });
         });
       });
+    });
+  }
+
+  // ---------- the whole tape in one file (autoreverse, 5.5) ----------
+
+  var flipBytes = null;
+  function getFlip() {
+    if (flipBytes) return Promise.resolve(flipBytes);
+    return fetch(FLIP_URL).then(function (r) {
+      if (!r.ok) throw new Error("the flip sound is missing (" + r.status + ")");
+      return r.arrayBuffer();
+    }).then(function (b) { flipBytes = new Uint8Array(b); return flipBytes; });
+  }
+
+  // sideBlobs: one joined side per Blob. Resolves to { blob, ats, flip, total }
+  // or { error }. The file is: side, flip, side, flip, … so a loop flips back.
+  function joinWhole(sideBlobs) {
+    if (!window.Mp3Join) return Promise.resolve({ error: "joining isn't available" });
+    return Promise.all([getFlip()].concat(sideBlobs.map(function (b) { return b.arrayBuffer(); }))).then(function (got) {
+      var flip = got[0], parts = [];
+      got.slice(1).forEach(function (b) { parts.push(new Uint8Array(b)); parts.push(flip); });
+      try {
+        var j = Mp3Join.join(parts);
+        var ats = [];
+        for (var k = 0; k < parts.length; k += 2) ats.push(j.starts[k]);
+        return { blob: new Blob([j.bytes], { type: "audio/mpeg" }), ats: ats, flip: j.durations[1], total: j.total };
+      } catch (e) {
+        return { error: e.message.replace(/^track (\d+)/, function (_, n) {
+          return Number(n) % 2 ? "side " + ((Number(n) + 1) / 2) : "the flip sound";
+        }) };
+      }
+    }).catch(function (e) { return { error: e.message }; });
+  }
+
+  function putWhole(c, t, w) {
+    t.whole = { flip: w.flip, total: w.total };
+    t.sides.forEach(function (sd, s) { sd.at = w.ats[s]; });
+    return c.put(wholeKey(t), new Response(w.blob, { headers: { "Content-Type": "audio/mpeg" } }));
+  }
+
+  // Tapes saved before 5.5 keep one file per side; join them into one the
+  // first time they're opened (from the files on the phone; nothing is
+  // downloaded), then let the side files go.
+  function joinWholeSaved(t) {
+    if (!t.sides || t.sides.length < 2 || t.whole || t.noWhole) return Promise.resolve();
+    return openCache().then(function (c) {
+      return Promise.all(t.sides.map(function (_, s) { return c.match(sideKey(t, s)); })).then(function (rs) {
+        if (rs.some(function (r) { return !r; })) return;
+        return Promise.all(rs.map(function (r) { return r.blob(); })).then(joinWhole).then(function (w) {
+          if (w.error) {
+            t.noWhole = w.error;
+            log("autoreverse isn't available for \"" + t.title + "\": " + w.error);
+            return saveIndex();
+          }
+          return putWhole(c, t, w).then(saveIndex).then(function () {
+            return Promise.all(t.sides.map(function (_, s) { return c.delete(sideKey(t, s)); }));
+          }).then(function () {
+            log("joined the sides of \"" + t.title + "\" into one file for autoreverse (" + fmt(w.total) + ")");
+          });
+        });
+      });
+    }).catch(function (e) {
+      // Leave the tape as it was; it still plays side by side.
+      delete t.whole;
+      if (t.sides) t.sides.forEach(function (sd) { delete sd.at; });
+      log("couldn't join \"" + t.title + "\" into one file: " + e.message);
     });
   }
 
@@ -468,6 +571,9 @@
             if (lab) card.label = String(lab).slice(0, 80);
             if (tj.dedication) card.dedication = String(tj.dedication).slice(0, 200);
             if (tj.notes) card.notes = String(tj.notes).slice(0, 4000);
+            // The tape's length, as printed on a cassette (C60, C90, C120).
+            var len = tj.label && typeof tj.label === "object" ? tj.label.length : null;
+            if (typeof len === "string" && /^C\d{2,3}$/.test(len)) card.length = len;
             return { title: String(tj.title || tile.name || "Untitled"), artist: String(tapeArtist), tracks: tracks, groups: groups, card: card };
           });
       }
@@ -526,7 +632,13 @@
         });
       }, Promise.resolve(null)).then(function (failed) {
         got.joined = failed || { sides: made };
-        return got;
+        if (failed) return got;
+        // Then the whole tape into one file, for autoreverse.
+        say("Joining the sides into one tape…");
+        return joinWhole(made.map(function (m) { return m.blob; })).then(function (w) {
+          got.whole = w;
+          return got;
+        });
       });
     }).then(function (got) {
       say("Saving to this phone…");
@@ -554,6 +666,8 @@
                    durations: j.side.durations, total: j.side.total, format: j.side.format };
         });
       } else if (got.tracks.length > 1) t.split = got.joined.error;
+      var whole = got.whole && !got.whole.error ? got.whole : null;
+      if (got.whole && got.whole.error) t.noWhole = got.whole.error;
 
       // Clear out any earlier copy of this tape first.
       var old = tapes.filter(function (x) { return x.id === t.id; })[0];
@@ -561,7 +675,9 @@
         var clear = old ? removeFiles(c, old) : Promise.resolve();
         return clear.then(function () {
           var puts = [];
-          if (t.sides) {
+          if (whole) {
+            puts.push(putWhole(c, t, whole));
+          } else if (t.sides) {
             got.joined.sides.forEach(function (j, s) {
               puts.push(c.put(sideKey(t, s), new Response(j.blob, { headers: { "Content-Type": "audio/mpeg" } })));
             });
@@ -586,6 +702,8 @@
                 sd.count + (sd.count === 1 ? " track, " : " tracks, ") + fmt(sd.total) + ", " + sd.format);
           });
           else if (t.split) log("kept as separate tracks: " + t.split);
+          if (t.whole) log("joined the whole tape into one file for autoreverse (" + fmt(t.whole.total) + ")");
+          else if (t.noWhole) log("autoreverse isn't available for this tape: " + t.noWhole);
           return t;
         });
       });
@@ -832,6 +950,7 @@
     var dels = t.tracks.map(function (_, i) { return c.delete(trackKey(t, i)); });
     var nSides = Math.max(1, (t.sides || []).length);
     for (var s = 0; s < nSides; s++) dels.push(c.delete(sideKey(t, s)));
+    dels.push(c.delete(wholeKey(t)));
     dels.push(c.delete(artKey(t)));
     return Promise.all(dels);
   }
@@ -846,6 +965,8 @@
   }
 
   function closeTape() {
+    cancelStop();
+    audio.loop = false;
     audio.pause();
     audio.removeAttribute("src"); audio.load();
     clearUrls();
@@ -867,11 +988,13 @@
 
   // The blob: URL of side s. Switching sides lets go of the other side's URL
   // once the player has moved over (see loadTrack).
+  // With the whole tape in one file, every side uses that file ("whole").
   function getSideUrl(s) {
+    if (isWhole()) s = "whole";
     if (sideUrl && sideUrlNo === s) return Promise.resolve(sideUrl);
     var t = tape;
-    return openCache().then(function (c) { return c.match(sideKey(t, s)); }).then(function (r) {
-      if (!r) throw new Error("side " + (s + 1) + " is missing from the phone");
+    return openCache().then(function (c) { return c.match(s === "whole" ? wholeKey(t) : sideKey(t, s)); }).then(function (r) {
+      if (!r) throw new Error((s === "whole" ? "the tape" : "side " + (s + 1)) + " is missing from the phone");
       return r.blob();
     }).then(function (b) {
       if (tape !== t) throw new Error("tape changed");
@@ -900,8 +1023,10 @@
       quietPause = true;
     }
     closeTape();
-    return joinSavedTape(t).then(function () {
+    return joinSavedTape(t).then(function () { return joinWholeSaved(t); }).then(function () {
       tape = t;
+      audio.loop = isWhole() && reverse === "loop";
+      showReverse();
       var pos = readPosition();
       var startIdx = 0, startTime = 0;
       if (pos && pos.tapeId === t.id && pos.idx < t.tracks.length) { startIdx = pos.idx; startTime = pos.time || 0; }
@@ -967,6 +1092,14 @@
       return el;
     };
     if (c && c.label) add("jc-label", c.label);
+    // The length, as printed on a cassette, with each side's playing time.
+    if (c && c.length) {
+      var times = isSide() && tape.sides.length > 1 ? tape.sides.map(function (sd) {
+        return sideName(sd) + " " + fmt(sd.total);
+      }) : [];
+      add("jc-len", [c.length].concat(times).join(" · "));
+      if (c.length === "C120") add("jc-joke", "C120: thin tape, long jams. Don't let the deck eat it.");
+    }
     if (c && c.dedication) add("jc-ded", c.dedication);
     if (c && c.notes) { add("jc-head", "Liner notes", "h3"); add("jc-notes", c.notes); }
     var groups = isSide() ? tape.sides : [{ name: "A", first: 0, count: tape.tracks.length }];
@@ -1021,7 +1154,8 @@
     showTurn(-1);
     if (isSide()) {
       var s = sideNo(n), sd = tape.sides[s];
-      var target = sd.starts[n - sd.first] + (offset || 0);
+      var target = sideAt(s) + sd.starts[n - sd.first] + (offset || 0);
+      cancelStop();
       return getSideUrl(s).then(function (u) {
         if (audio.getAttribute("src") !== u) {
           pendingSeek = target > 0 ? target : null;
@@ -1066,6 +1200,81 @@
     log("turned the tape to " + sideName(sd).replace(/^Side/, "side"));
     loadTrack(sd.first, 0, true);
   });
+
+  // ---------- autoreverse (5.5) ----------
+
+  // The button on the player: Off, Through, Loop; shown only for tapes that
+  // have the whole tape in one file.
+  function showReverse() {
+    var btn = $("revBtn");
+    if (!btn) return;
+    btn.classList.toggle("hidden", !isWhole());
+    btn.textContent = "⇄ " + REV_WORDS[reverse];
+    btn.setAttribute("aria-label", "Autoreverse: " + REV_WORDS[reverse]);
+    btn.setAttribute("title", reverse === "off" ? "Stop at the end of each side"
+      : reverse === "through" ? "Play every side, then stop" : "Keep turning the tape until stopped");
+  }
+  if ($("revBtn")) $("revBtn").addEventListener("click", function () {
+    reverse = REV_MODES[(REV_MODES.indexOf(reverse) + 1) % REV_MODES.length];
+    try { localStorage.setItem(REV_KEY, reverse); } catch (e) {}
+    audio.loop = isWhole() && reverse === "loop";
+    cancelStop();
+    showReverse();
+    log("autoreverse: " + REV_WORDS[reverse]);
+  });
+  showReverse();
+
+  // Off stops at the end of every side; Through at the end of the last side
+  // (before the flip that a loop would use). Checked on every time report and,
+  // in the last moments, with a timer so the stop lands on time.
+  var stopTimer = null;
+  function cancelStop() { if (stopTimer) { clearTimeout(stopTimer); stopTimer = null; } }
+  function stopPoint() {
+    if (!isWhole() || reverse === "loop" || audio.paused) return null;
+    var s = sideNo(idx), sd = tape.sides[s];
+    if (audio.currentTime < sd.at - 0.1) return null;   // in the flip before this side
+    var last = s + 1 >= tape.sides.length;
+    if (reverse === "through" && !last) return null;
+    return { s: s, end: sd.at + sd.total, last: last };
+  }
+  function watchStop() {
+    var p = stopPoint();
+    if (!p) { cancelStop(); return; }
+    var left = p.end - audio.currentTime;
+    if (left <= 0.08) { cancelStop(); endOfSide(p); return; }
+    if (left < 0.7 && !stopTimer) {
+      stopTimer = setTimeout(function () { stopTimer = null; watchStop(); },
+                             Math.max(10, (left - 0.04) * 1000 / (audio.playbackRate || 1)));
+    }
+  }
+  function endOfSide(p) {
+    quietPause = true;
+    audio.pause();
+    var off = audio.currentTime - p.end;
+    var when = " (" + Math.abs(off).toFixed(2) + " s " + (off < 0 ? "before" : "after") + " its end)";
+    if (!p.last) {
+      var next = tape.sides[p.s + 1];
+      log("end of " + sideName(tape.sides[p.s]).replace(/^Side/, "side") + when + screenNote());
+      audio.currentTime = next.at;
+      idx = next.first; markTrack(); setMetadata();
+      showTurn(p.s + 1);
+      savePosition();
+      try { localStorage.setItem(LAST_KEY, JSON.stringify({ playing: false })); } catch (e) {}
+      return;
+    }
+    endOfTape(when);
+  }
+  function endOfTape(when) {
+    log("end of tape" + (typeof when === "string" ? when : "") + screenNote());
+    if (isWhole()) {
+      audio.currentTime = 0;
+      idx = 0; markTrack(); setMetadata();
+    }
+    try {
+      if (tape) localStorage.setItem(POS_KEY, JSON.stringify({ tapeId: tape.id, idx: 0, time: 0 }));
+      localStorage.setItem(LAST_KEY, JSON.stringify({ playing: false }));
+    } catch (e) {}
+  }
 
   // ---------- controls ----------
 
@@ -1121,18 +1330,27 @@
     if (isFinite(len)) loadTrack(idx, $("seek").value / 1000 * len, false);
   });
 
-  var lastSave = 0;
+  var lastSave = 0, lastTime = 0;
   audio.addEventListener("timeupdate", function () {
     // Until the jump to the saved spot has happened, the side reads 0:00; ignore that.
     // Also ignore reports from a player with nothing loaded yet (left over from clearing it).
     if (!tape || pendingSeek !== null || leaving || audio.readyState < 1) return;
+    if (isWhole()) {
+      // A loop jumped back to the start of the file.
+      if (reverse === "loop" && audio.currentTime < lastTime - 5 && !audio.paused) log("looped back to the start of the tape" + screenNote());
+      lastTime = audio.currentTime;
+      watchStop();
+      if (audio.paused && turnTo >= 0) return;   // stopped at the end of a side
+    }
     if (isSide()) {
       var i = trackAt(audio.currentTime);
       if (i !== idx) {
+        var before = sideNo(idx);
         idx = i;
         markTrack();
         setMetadata();
-        log("now on track " + (idx + 1) + " of " + tape.tracks.length + (audio.paused ? "" : " (still playing)") + screenNote());
+        if (isWhole() && sideNo(idx) !== before) log("turned the tape to " + sideName(curSide()).replace(/^Side/, "side") + " (autoreverse)" + screenNote());
+        else log("now on track " + (idx + 1) + " of " + tape.tracks.length + (audio.paused ? "" : " (still playing)") + screenNote());
         savePosition();
       }
     }
@@ -1159,6 +1377,7 @@
   });
   audio.addEventListener("pause", function () {
     if (audio.ended) return;
+    cancelStop();
     $("icon").setAttribute("d", PLAY); $("play").setAttribute("aria-label", "Play");
     if ("mediaSession" in navigator) navigator.mediaSession.playbackState = "paused";
     if (quietPause) { quietPause = false; return; }
@@ -1173,6 +1392,10 @@
     }
     $("icon").setAttribute("d", PLAY); $("play").setAttribute("aria-label", "Play");
     if ("mediaSession" in navigator) navigator.mediaSession.playbackState = "paused";
+    cancelStop();
+    // The whole tape in one file reached its very end (normally the stop
+    // above happens first): back to the start.
+    if (isWhole()) { endOfTape(); return; }
     // The end of a side, with another side to come: stop, like a cassette.
     if (tape && isSide() && sideNo(idx) + 1 < tape.sides.length) {
       var next = tape.sides[sideNo(idx) + 1];
