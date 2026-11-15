@@ -13,11 +13,15 @@
 // stops at the end of the tape; Loop loops the file. Nothing new ever starts
 // between sides, so it keeps going with the screen off. Tapes whose sides
 // can't be joined with the flip keep one file per side and the old behaviour.
+//
+// Version 5.6: "Remove from phone" asks first, in place ("Remove <title>
+// from this phone? …" with Remove and Keep), and sits apart from "Back to
+// tapes", smaller and in the warning colour.
 
 (function () {
   "use strict";
 
-  var APP_VERSION = "5.5";
+  var APP_VERSION = "5.6";
   var REV_KEY = "tileman-reverse";
   var REV_MODES = ["off", "through", "loop"];
   var REV_WORDS = { off: "Off", through: "Through", loop: "Loop" };
@@ -426,6 +430,7 @@
   }
 
   function show(which) {
+    if (which !== "player" && $("removeAsk")) hideRemoveAsk();
     $("shelf").classList.toggle("hidden", which !== "shelf");
     $("add").classList.toggle("hidden", which !== "add");
     $("player").classList.toggle("hidden", which !== "player");
@@ -1301,7 +1306,27 @@
   $("next").addEventListener("click", function () { nextTrack(); });
   $("prev").addEventListener("click", prevTrack);
 
+  // Remove from phone (5.6): the first tap only asks; Remove does it, Keep or leaving the tape doesn't.
+  function hideRemoveAsk() {
+    $("removeAsk").classList.add("hidden");
+    $("removeBtn").disabled = false;
+  }
+  function tapeBytes(t) {
+    return (t.tracks || []).reduce(function (sum, tr) { return sum + (tr.size || 0); }, 0);
+  }
   $("removeBtn").addEventListener("click", function () {
+    if (!tape) return;
+    var bytes = tapeBytes(tape);
+    $("removeQ").textContent = "Remove \u201c" + tape.title + "\u201d from this phone? You can find it and save it again" +
+      (bytes ? " (about " + mb(bytes) + " to download)." : ".");
+    $("removeAsk").classList.remove("hidden");
+    $("removeBtn").disabled = true;
+    $("removeNo").focus();
+    try { $("removeAsk").scrollIntoView({ block: "nearest" }); } catch (e) {}
+  });
+  $("removeNo").addEventListener("click", hideRemoveAsk);
+  $("removeYes").addEventListener("click", function () {
+    hideRemoveAsk();
     if (!tape) return;
     var t = tape;
     closeTape();
