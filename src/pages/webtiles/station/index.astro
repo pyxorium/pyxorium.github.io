@@ -4,7 +4,9 @@
 // Public (in the sitemap). Everything it uses lives in src/station/ and doesn't use the blog's layout or styles.
 // Plan: claude/smallweb-subway-station-plan.md in the Foundry project (ST1 to ST14).
 import '../../../station/station.css';
-import { TILES, SUBWAY_SCRIPT, BUTTONS, pageCsp, raku } from '../../../station/config.js';
+import { TILES, LOOP, SUBWAY_SCRIPT, BUTTONS, pageCsp, raku } from '../../../station/config.js';
+import { pageAlternates } from '../../../lib/at-tags.js';
+import AtTags from '../../../components/AtTags.astro';
 import { TILE_LOAD_DOMAIN } from '../../../lib/tile-load-domain.js';
 // The policy goes on the built page only: Astro's dev server adds inline scripts of its own.
 const csp = import.meta.env.PROD ? pageCsp(TILE_LOAD_DOMAIN) : null;
@@ -50,6 +52,7 @@ const kindOf = (t) => (t.loop ? 'loop' : t.run ? 'run' : 'live');
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 		<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Silkscreen&display=swap" rel="stylesheet" />
+		<AtTags me alternate={pageAlternates([...TILES.map((t) => t.uri), LOOP.signpost], 'Station')} />
 	</head>
 	<body>
 		<div class="wrap" id="station">

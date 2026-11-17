@@ -7,6 +7,9 @@
 import '../../../daisy/daisy-page.css';
 import '../../../daisy/daisy.css';
 import { pageCsp } from '../../../daisy/config.js';
+import { PUBLISHED } from '../../../daisy/published.generated.js';
+import { pageAlternates } from '../../../lib/at-tags.js';
+import AtTags from '../../../components/AtTags.astro';
 // The policy goes on the built page only: Astro's dev server adds inline scripts of its own.
 const csp = import.meta.env.PROD ? pageCsp() : null;
 // The link card. The picture is the player tile's own card art (public/webtiles/daisy/card.png, a copy of
@@ -45,6 +48,7 @@ const CARD = {
 		<link rel="icon" href="/favicon.ico" sizes="any" />
 		<link rel="icon" type="image/png" sizes="32x32" href="/icon-32.png" />
 		<link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
+		<AtTags me alternate={pageAlternates([PUBLISHED.house?.uri, PUBLISHED.player?.uri], 'Daisy')} />
 	</head>
 	<body>
 		<div id="daisy"><noscript><p>This table runs in your browser and needs JavaScript.</p></noscript></div>

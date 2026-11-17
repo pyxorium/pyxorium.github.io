@@ -1,0 +1,23 @@
+---
+// at-tags for a page's <head>: which atproto records the page corresponds to (src/lib/at-tags.js says what each
+// one means). `document` adds standard.site's own check for a blog post, <link rel="site.standard.document">,
+// pointing at the same record as at:canonical. at:me comes from BaseHead.astro on pages that use it; pages with
+// their own head pass `me`.
+import { SITE_ME } from '../lib/at-tags.js';
+
+interface Props {
+	me?: boolean;
+	canonical?: string[];
+	document?: string | null;
+	author?: string[];
+	alternate?: string[];
+}
+
+const { me = false, canonical = [], document = null, author = [], alternate = [] } = Astro.props;
+---
+
+{me && <meta name="at:me" content={SITE_ME} />}
+{canonical.map((uri) => <meta name="at:canonical" content={uri} />)}
+{document && <link rel="site.standard.document" href={document} />}
+{author.map((uri) => <meta name="at:author" content={uri} />)}
+{alternate.map((uri) => <meta name="at:alternate" content={uri} />)}

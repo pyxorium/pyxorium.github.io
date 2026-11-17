@@ -1,6 +1,8 @@
 ---
 import { type CollectionEntry, getCollection, render } from 'astro:content';
 import BlogPost from '../../layouts/BlogPost.astro';
+import { postAtTags } from '../../lib/at-tags.js';
+import { AT_ALTERNATES } from '../../lib/at-alternates.js';
 
 export async function getStaticPaths() {
 	const posts = await getCollection('blog');
@@ -13,8 +15,10 @@ type Props = CollectionEntry<'blog'>;
 
 const post = Astro.props;
 const { Content } = await render(post);
+// at-tags: the post's own record, the records it shows, its author (src/lib/at-tags.js, src/lib/at-alternates.js).
+const atTags = postAtTags({ id: post.id, ...post.data, body: post.body, extra: AT_ALTERNATES[post.id] ?? [] });
 ---
 
-<BlogPost {...post.data}>
+<BlogPost {...post.data} atTags={atTags}>
 	<Content />
 </BlogPost>

@@ -4,6 +4,7 @@
 // links there (claude/raku-rooms-plan.md, RR11 to RR13; the owner's words, RR12). No room code, no sign-in, no
 // tiles, no scripts: its own small policy below. The room's code lives in C:\thunderbird-cafe\rooms-lab (Raku takes
 // it as a package); this page is the site's own now (rooms-lab's site\ and copy-to-site.mjs retired with it).
+import AtTags from '../../../components/AtTags.astro';
 const RAKU = 'https://raku.lexicographer.space/';
 // The policy goes on the built page only (Astro's dev server adds inline scripts of its own).
 const csp = import.meta.env.PROD
@@ -23,6 +24,7 @@ const csp = import.meta.env.PROD
 		<meta name="description" content="Rooms are now a tab in Raku, the browser for web tiles." />
 		<link rel="icon" href="/favicon.ico" sizes="any" />
 		<link rel="icon" type="image/png" sizes="32x32" href="/icon-32.png" />
+		<AtTags me />
 		<style is:global>
 			html, body { margin: 0; background: #171411; }
 			body { color: #efe6d8; font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color-scheme: dark; }

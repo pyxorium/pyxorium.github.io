@@ -14,6 +14,12 @@ const blog = defineCollection({
 			pubDate: z.coerce.date(),
 			updatedDate: z.coerce.date().optional(),
 			heroImage: z.optional(image()),
+			// The post's own site.standard.document record, written by Sequoia when it publishes the post. Read for
+			// the post's at-tags (src/lib/at-tags.js).
+			atUri: z.string().optional(),
+			// The wishes posts' two tiles (also at-tags alternates).
+			bobAtUri: z.string().optional(),
+			aliceAtUri: z.string().optional(),
 		}),
 });
 
