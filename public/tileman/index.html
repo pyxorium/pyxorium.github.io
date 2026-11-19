@@ -108,11 +108,11 @@
   .seekwrap { margin-top: 10px; }
 
   details summary { cursor: pointer; color: var(--muted); font-size: 14px; }
+  .log-mark { color: var(--danger); font-size: 12px; margin-left: 2px; }
   #log { font: 12px/1.5 ui-monospace, monospace; white-space: pre-wrap; color: var(--muted); margin-top: 8px; max-height: 300px; overflow: auto; }
   .card-row { justify-content: flex-end; margin-top: 12px; }
   #revBtn { margin-right: auto; }
   .jc-len { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; margin-bottom: 4px; }
-  .jc-joke { font-size: 13px; font-style: italic; color: var(--muted); margin-bottom: 8px; }
   button.small { padding: 5px 12px; font-size: 13px; border-radius: 999px; }
   .jcard { margin-top: 10px; padding: 14px; border-radius: 10px; background: var(--bg); border: 1px solid var(--line); overflow-wrap: anywhere; }
   .jc-label { font: 22px/1.35 "Segoe Print", "Bradley Hand", "Comic Sans MS", "Chalkboard SE", cursive; margin-bottom: 4px; }
@@ -218,8 +218,9 @@
 
   <!-- The log: hidden; tap the version label in the header to show it. -->
   <section id="logSection" class="hidden">
-    <details id="logBox" open>
-      <summary>Log</summary>
+    <!-- 5.7: starts closed as one line; a red mark when something went wrong. -->
+    <details id="logBox">
+      <summary>Log · <span id="logCount">0 lines</span> <span id="logMark" class="log-mark hidden" role="img" aria-label="something went wrong" title="Something went wrong: open the log to see what">●</span></summary>
       <div id="log"></div>
       <div class="row"><button class="secondary" id="clearLog">Clear log</button></div>
     </details>

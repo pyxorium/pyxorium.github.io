@@ -17,11 +17,16 @@
 // Version 5.6: "Remove from phone" asks first, in place ("Remove <title>
 // from this phone? …" with Remove and Keep), and sits apart from "Back to
 // tapes", smaller and in the warning colour.
+//
+// Version 5.7: the log starts closed, as a one-line bar ("Log · 12 lines"),
+// every time the app opens; a tap opens it. Something going wrong doesn't
+// open it: the bar shows a small red mark instead, until the log is opened
+// (or cleared). And the J-card no longer has its C120 joke line.
 
 (function () {
   "use strict";
 
-  var APP_VERSION = "5.6";
+  var APP_VERSION = "5.7";
   var REV_KEY = "tileman-reverse";
   var REV_MODES = ["off", "through", "loop"];
   var REV_WORDS = { off: "Off", through: "Through", loop: "Loop" };
@@ -94,15 +99,35 @@
   function readLog() {
     try { return JSON.parse(localStorage.getItem(LOG_KEY) || "[]"); } catch (e) { return []; }
   }
-  function log(msg) {
+  // 5.7: the log starts closed, as a one-line bar ("Log · 12 lines"). An
+  // error doesn't open it; the bar gets a small red mark until it's opened.
+  var LOG_ERROR_KEY = "tileman-log-error";
+  function drawLogBar(n) {
+    var count = n == null ? readLog().length : n;
+    $("logCount").textContent = count === 1 ? "1 line" : count + " lines";
+    var marked = false;
+    try { marked = localStorage.getItem(LOG_ERROR_KEY) === "1"; } catch (e) {}
+    $("logMark").classList.toggle("hidden", !marked);
+  }
+  function log(msg, isError) {
     var lines = readLog();
     lines.push(new Date().toTimeString().slice(0, 8) + "  " + msg);
     if (lines.length > 300) lines = lines.slice(-300);
     try { localStorage.setItem(LOG_KEY, JSON.stringify(lines)); } catch (e) {}
+    if (isError && !$("logBox").open) { try { localStorage.setItem(LOG_ERROR_KEY, "1"); } catch (e) {} }
     $("log").textContent = lines.join("\n");
     $("log").scrollTop = $("log").scrollHeight;
+    drawLogBar(lines.length);
   }
   $("log").textContent = readLog().join("\n");
+  $("logBox").open = false;
+  drawLogBar();
+  $("logBox").addEventListener("toggle", function () {
+    if (!$("logBox").open) return;
+    try { localStorage.removeItem(LOG_ERROR_KEY); } catch (e) {}
+    drawLogBar();
+    $("log").scrollTop = $("log").scrollHeight;
+  });
   $("ver").textContent = "v" + APP_VERSION;
   // The log keeps recording, but is out of sight; tapping the version label
   // shows or hides it (it works in the installed app, where the address can't
@@ -126,8 +151,9 @@
     }
   } catch (e) {}
   $("clearLog").addEventListener("click", function () {
-    try { localStorage.removeItem(LOG_KEY); } catch (e) {}
+    try { localStorage.removeItem(LOG_KEY); localStorage.removeItem(LOG_ERROR_KEY); } catch (e) {}
     $("log").textContent = "";
+    drawLogBar(0);
   });
   function screenNote() { return document.hidden ? " (screen off)" : ""; }
 
@@ -154,7 +180,7 @@
 
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("sw.js").catch(function (e) {
-      log("offline support failed to start: " + e.message);
+      log("offline support failed to start: " + e.message, true);
     });
   }
 
@@ -383,7 +409,7 @@
       // Leave the tape as it was; it still plays side by side.
       delete t.whole;
       if (t.sides) t.sides.forEach(function (sd) { delete sd.at; });
-      log("couldn't join \"" + t.title + "\" into one file: " + e.message);
+      log("couldn't join \"" + t.title + "\" into one file: " + e.message, true);
     });
   }
 
@@ -738,7 +764,7 @@
       return openTape(t.id);
     }).catch(function (e) {
       say(e.message, true);
-      log("add failed: " + e.message);
+      log("add failed: " + e.message, true);
     }).then(function () { btn.disabled = false; });
   });
 
@@ -843,7 +869,7 @@
           return openTape(t.id);
         }).catch(function (e) {
           say(e.message, true);
-          log("add failed: " + e.message);
+          log("add failed: " + e.message, true);
         }).then(function () { li.style.opacity = ""; });
       }
       li.addEventListener("click", choose);
@@ -1103,7 +1129,7 @@
         return sideName(sd) + " " + fmt(sd.total);
       }) : [];
       add("jc-len", [c.length].concat(times).join(" · "));
-      if (c.length === "C120") add("jc-joke", "C120: thin tape, long jams. Don't let the deck eat it.");
+      // 5.7: no C120 joke line any more (owner, Nov 17), for every tape.
     }
     if (c && c.dedication) add("jc-ded", c.dedication);
     if (c && c.notes) { add("jc-head", "Liner notes", "h3"); add("jc-notes", c.notes); }
@@ -1146,7 +1172,7 @@
 
   function startPlaying() {
     var p = audio.play();
-    if (p && p.catch) p.catch(function (e) { log("play refused: " + e.name + screenNote()); });
+    if (p && p.catch) p.catch(function (e) { log("play refused: " + e.name + screenNote(), true); });
   }
 
   // Go to track n, offset seconds into it.
@@ -1171,7 +1197,7 @@
         savePosition();
         if (autoplay && audio.paused) startPlaying();
         updatePosition();
-      }).catch(function (e) { log("couldn't load the side: " + e.message); });
+      }).catch(function (e) { log("couldn't load the side: " + e.message, true); });
     }
 
     return getTrackUrl(n).then(function (u) {
@@ -1181,7 +1207,7 @@
       savePosition();
       if (autoplay) startPlaying();
       if (n + 1 < tape.tracks.length) getTrackUrl(n + 1).catch(function () {});
-    }).catch(function (e) { log("couldn't load track " + (n + 1) + ": " + e.message); });
+    }).catch(function (e) { log("couldn't load track " + (n + 1) + ": " + e.message, true); });
   }
 
   // "Turn the tape": shown at the end of a side; -1 hides it.
@@ -1190,7 +1216,7 @@
     var was = turnTo;
     turnTo = s;
     var btn = $("turnBtn");
-    if (!btn) { if (s >= 0) log("the Turn the tape button is missing from the page"); return; }
+    if (!btn) { if (s >= 0) log("the Turn the tape button is missing from the page", true); return; }
     btn.classList.toggle("hidden", s < 0);
     if (s >= 0) btn.textContent = "Turn the tape: play " + sideName(tape.sides[s]).replace(/^Side/, "side");
     if (s >= 0 && was !== s) log("showing \"" + btn.textContent + "\"");
@@ -1440,7 +1466,7 @@
   });
   audio.addEventListener("error", function () {
     var e = audio.error;
-    log("playback error " + (e ? e.code : "?") + screenNote());
+    log("playback error " + (e ? e.code : "?") + screenNote(), true);
   });
 
   // ---------- lock screen ----------
@@ -1530,7 +1556,7 @@
     if (tapes.length === 1) return openTape(tapes[0].id);
     show(tapes.length ? "shelf" : "add");
   }).catch(function (e) {
-    log("couldn't open the shelf: " + e.message);
+    log("couldn't open the shelf: " + e.message, true);
     show("shelf");
   });
 })();
