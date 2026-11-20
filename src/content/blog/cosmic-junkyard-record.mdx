@@ -34,15 +34,15 @@ That's new in this series. In [Seven-Up](/blog/seven-up), the player's tile just
 
 It's a bit like the difference between asking someone to send in a form for you and handing them the form already filled in. They don't need to know how to fill it in, only how to check it's done properly. That's what lets the same path work for more games: each brings its own kind of record, and the host checks it and delivers it.
 
-![Raku's window with Cosmic Junkyard open in its own tab, the game dimmed behind a prompt that reads: Save this run to @thunderbird.cafe? This adds a public record to @thunderbird.cafe's account (a Cosmic Junkyard run record and nothing else). It shows your score (199), the day's course (2026-11-19) and when you played. It includes your moves (46 changes of direction), so anyone can replay the run to check its score. Below: What will be saved, Use another account, and three buttons, Allow once, Always and No.](../../assets/cosmic-junkyard-prompt.png)
+![Screenshot of Raku's window with Cosmic Junkyard open in its own tab, the game dimmed behind a prompt that reads: Save this run to @thunderbird.cafe? This adds a public record to @thunderbird.cafe's account (a Cosmic Junkyard run record and nothing else). It shows your score (199), the day's course (2026-11-19) and when you played. It includes your moves (46 changes of direction), so anyone can replay the run to check its score. Below: What will be saved, Use another account, and three buttons, Allow once, Always and No.](../../assets/cosmic-junkyard-prompt.png)
 
 Raku's prompt says what will be added and offers **Allow once**, **Always** (for that account and game, in this browser) or **No**. The tile never sees your sign-in; Raku does the writing. When it's done, the game says so:
 
-![Cosmic Junkyard's end screen in Raku: Final score: 199, a Play Again button, a button that now reads Saved, the box Include my moves so this run can be checked ticked, and the line Saved to @thunderbird.cafe's account ✓ with a See it link. The player's rpg.actor character, in a green hat, stands below.](../../assets/cosmic-junkyard-saved.png)
+![Screenshot of Cosmic Junkyard's end screen in Raku: Final score: 199, a Play Again button, a button that now reads Saved, the box Include my moves so this run can be checked ticked, and the line Saved to @thunderbird.cafe's account ✓ with a See it link. The player's rpg.actor character, in a green hat, stands below.](../../assets/cosmic-junkyard-saved.png)
 
 **See it** opens the record, a `cafe.thunderbird.cosmicjunkyard.run` in your own repo. Here's one of mine, in PDSls:
 
-![PDSls showing the record: PDS fibercap.us-west.host.bsky.network, repo thunderbird.cafe, collection cafe.thunderbird.cosmicjunkyard.run, record 3n2ozrhmttkwk. The record: $type cafe.thunderbird.cosmicjunkyard.run, createdAt, day 2026-11-19, game with its cid and its uri (the Cosmic Junkyard tile's address), then moves: the first change at step 154, go right, then a note that 75 more changes are skipped here, then frame height 48 and width 48, steps 2603; playedAt; score 336; tally: aliens 5, dodged 35, hit 0, saucers 15.](../../assets/cosmic-junkyard-pdsls.png)
+![Screenshot of PDSls showing the record: PDS fibercap.us-west.host.bsky.network, repo thunderbird.cafe, collection cafe.thunderbird.cosmicjunkyard.run, record 3n2ozrhmttkwk. The record: $type cafe.thunderbird.cosmicjunkyard.run, createdAt, day 2026-11-19, game with its cid and its uri (the Cosmic Junkyard tile's address), then moves: the first change at step 154, go right, then a note that 75 more changes are skipped here, then frame height 48 and width 48, steps 2603; playedAt; score 336; tally: aliens 5, dodged 35, hit 0, saucers 15.](../../assets/cosmic-junkyard-pdsls.png)
 
 As text:
 
@@ -80,7 +80,7 @@ node scripts/check-run.mjs run.json
 
 Here's that run of mine (the 336 above), checked:
 
-![A terminal running node scripts\check-run.mjs backups\run-3n2ozrhmttkwk.json. It prints: Day 2026-11-19, 2603 steps: the replay scores 336 (35 dodged, 0 hit, 15 saucers, 5 aliens). The record says 336: it checks out.](../../assets/cosmic-junkyard-replay.png)
+![Screenshot of a terminal running node scripts\check-run.mjs backups\run-3n2ozrhmttkwk.json. It prints: Day 2026-11-19, 2603 steps: the replay scores 336 (35 dodged, 0 hit, 15 saucers, 5 aliens). The record says 336: it checks out.](../../assets/cosmic-junkyard-replay.png)
 
 A check that passes shows that this score came from these moves, on that day's course, in that version of the game. So it catches a made-up score, a run claimed for a different day, and a changed copy of the game. What it can't tell you is who or what pressed the keys: a perfect run played by a program would check out too.
 
@@ -88,7 +88,7 @@ A check that passes shows that this score came from these moves, on that day's c
 
 Raku has [tile posts](/blog/tile-posts): posts that carry a live tile you can play in place. Cosmic Junkyard works there just as it does in its own tab. Press **Play here** on its post, and you get your character, and **Save this run** at the end. The game's end screen is small at post size, so **Expand** makes it comfortable. Raku's prompt comes up over the whole window, and from **Full screen**, Raku steps out of full screen to ask.
 
-![Cosmic Junkyard playing from its tile post, expanded to fill Raku's window, with the expanded view's bar along the top (Cosmic Junkyard, by @thunderbird.cafe, New tab, Full screen and close). Over the dimmed game, Raku's prompt: Save this run to @thunderbird.cafe? with the score (166) and the day's course, and Allow once, Always and No.](../../assets/cosmic-junkyard-post-expanded.png)
+![Screenshot of Cosmic Junkyard playing from its tile post, expanded to fill Raku's window, with the expanded view's bar along the top (Cosmic Junkyard, by @thunderbird.cafe, New tab, Full screen and close). Over the dimmed game, Raku's prompt: Save this run to @thunderbird.cafe? with the score (166) and the day's course, and Allow once, Always and No.](../../assets/cosmic-junkyard-post-expanded.png)
 
 **[Open Tile posts in Raku](https://raku.lexicographer.space/#t=raku%3Adiscover%2Fposts&a=0)** to find it.
 

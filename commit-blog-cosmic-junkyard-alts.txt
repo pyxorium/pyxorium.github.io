@@ -1,0 +1,6 @@
+cd C:\thunderbird-cafe\pyxorium.github.io
+git add src/content/blog/cosmic-junkyard-record.mdx
+git add commit-blog-cosmic-junkyard-alts.txt
+git status
+git commit -m "Blog: the Cosmic Junkyard post's screenshot alt texts start with Screenshot (so the atproto record's text calls them screenshots, not diagrams)"
+git push
