@@ -37,4 +37,6 @@ export const AT_ALTERNATES = {
 	rooms: [tile(T, '3myn75d2d222d')],
 	// goose.art's zine "chipmunks of maple pass" open in a tab, and a Daisy match in Raku.
 	raku: [tile(GOOSE, '3mxgglpomrm2d'), ...DAISY],
+	// The run the post shows (its JSON, the PDSls screenshot and the replay).
+	'cosmic-junkyard-record': [`at://${T}/cafe.thunderbird.cosmicjunkyard.run/3n2ozrhmttkwk`],
 };

@@ -179,6 +179,16 @@
         "uri": "at://did:plc:6vxjigxrqizmbo56gojxico3/app.bsky.feed.post/3n24zyxgvmw2d",
         "cid": "bafyreigxrbzr6dznn5tt6567icvh6ihw2k3bvw45f5wkim6araro4rtuz4"
       }
+    },
+    "src\\content\\blog\\cosmic-junkyard-record.mdx": {
+      "contentHash": "6d8763dbe1ec8449bb1417dfc674fda4120353546b709e91bb48138c1c9baf6d",
+      "atUri": "at://did:plc:6vxjigxrqizmbo56gojxico3/site.standard.document/3n2pfh3jknp2b",
+      "lastPublished": "2026-11-20T01:06:21.556Z",
+      "slug": "cosmic-junkyard-record",
+      "bskyPostRef": {
+        "uri": "at://did:plc:6vxjigxrqizmbo56gojxico3/app.bsky.feed.post/3n2pfh44zex2b",
+        "cid": "bafyreigzt6qn7nj2r6rssbidb3jlcqcdup3m4bku5wzlsri2wbraypr6mi"
+      }
     }
   },
   "publication": {

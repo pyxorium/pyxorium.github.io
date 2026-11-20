@@ -1,0 +1,9 @@
+cd C:\thunderbird-cafe\pyxorium.github.io
+git add .sequoia-state.json
+git add src/content/blog/cosmic-junkyard-record.mdx
+git add src/lib/at-alternates.js
+git add test/at-tags.test.mjs
+git add commit-blog-cosmic-junkyard-sequoia.txt
+git status
+git commit -m "Record Sequoia publish of the Cosmic Junkyard record post; its at-tags show the run it shows (at-alternates.js, at-tags test)"
+git push
