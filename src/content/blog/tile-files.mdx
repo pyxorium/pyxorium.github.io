@@ -1,0 +1,70 @@
+---
+title: 'Tile files: a web tile you can keep'
+description: 'A web tile can now be a single file. Save one from the Web Tile Foundry or from Raku, open it in Raku with a click or a drag, and send it to anyone.'
+pubDate: 'Nov 20 2026'
+heroImage: '../../assets/tile-files-cover.png'
+---
+
+A web tile usually lives in someone's atproto account, as a record that points at its files. Now a tile can also be a single file: something you can keep in a folder, email to a friend, or copy to your phone. Open it in [Raku](https://raku.lexicographer.space/) and it runs just as it does from an account.
+
+Try it: **[download a sample Glass Lantern](/blog/tile-files/thunderbird-cafe-s-glass-lantern.tile)**, then drag it onto Raku.
+
+## Part 1: what you can do
+
+### Saving a tile as a file
+
+In [the Web Tile Foundry](https://foundry.thunderbird.cafe/), the Publish step now has **Save as .tile**, under Review and publish, and again on the review screen. It works for every kind of tile the Foundry makes: Sprite Walker, Glass Lantern, Coaster Carnival, Zine Scene and Mixtape Burndown.
+
+![Screenshot of the Foundry's Publish step: “Ready? Review your tile's link preview card, then publish ‘@thunderbird.cafe's glass lantern’ to @thunderbird.cafe. Nothing else in your account is changed.” with a Review and publish button. Below a dashed line, a Save as .tile button and its help line: “The whole tile as a file, downloaded to this computer only. It doesn't go to your atproto account. Open it in Raku with the button beside the address box, or drag it onto Raku.” Under it: “Saved ‘thunderbird-cafe-s-glass-lantern.tile’ (1.14 MB) to your downloads.”](../../assets/tile-files-foundry.png)
+
+The file goes to your downloads and nowhere else. It isn't published, and it doesn't go to your atproto account. You can save a tile as a file before you publish it, after, or instead.
+
+In Raku, any published tile can be saved the same way. On a tile's tab, the second small button after the address box is **Save this tile as a file**. It works for anyone's tile, since published tiles are public anyway. Afterwards, Raku says whose tile it is, and the file remembers where it came from.
+
+### Opening one
+
+To open a tile file in Raku, use the first small button after the address box, press Ctrl+O (⌘O on a Mac), or simply drag the file onto Raku. It opens in a new tab:
+
+![Screenshot of Raku with the sample lantern opened from its file. The address box shows thunderbird-cafe-s-glass-lantern.tile, and a note at the top reads “Opened from a file (thunderbird-cafe-s-glass-lantern.tile) · author not verified”. Below it, a green glass lantern, a tetrahedron with silver edges, glows against a warm brown background.](../../assets/tile-files-raku.png)
+
+The note at the top says **Opened from a file · author not verified**, and the address box shows the file's name instead of an `at://` address. Hearts, posting and sharing are hidden, since a file isn't a record anyone can point to. Raku doesn't keep the file: after a reload the tab asks you to open it again.
+
+It works on a phone too. Email the file to yourself, save the attachment, then tap the open button in Raku and pick it. A saved mixtape plays on the phone, both sides.
+
+## Part 2: how it works
+
+### What's inside
+
+A tile file holds the tile's list of contents and every one of its files: the page, its program, its pictures, and for a tape, every song. Each file is stored under the same address it has when the tile is published. An address here is a fingerprint of the file's bytes, so a tile file and a published tile hold exactly the same pieces.
+
+![Diagram of the ways a tile can travel. On the left, the Foundry builds your tile: a list of contents and four files, each with its address (/ the page, /lantern.js, /icon.png, /foundry.json), each address a fingerprint of the file's bytes. A dashed blue Publish arrow leads to your atproto account, holding a record (the list of contents, in your PDS) and the same four files. A solid red Save as .tile arrow, marked “nothing goes to your account”, leads to a .tile file on your computer, holding the same list at the start of the file and the same four files under the same addresses. A solid arrow from the account down to the file is Raku's Save this tile as a file. Into a box at the bottom, “Raku runs it, and from a file every piece is checked against its address first”, come a solid arrow from the file (opens tile files) and a dashed arrow from the account (opens published tiles). A key says dashed lines were already there and solid lines are the current Foundry and Raku updates. A line underneath: every route ends with the same files under the same addresses.](../../assets/tile-files-diagram.png)
+
+When Raku opens a file, it checks every piece against its address, so a file that's been changed or damaged is refused. The format is the one [the tiles spec](https://dasl.ing/tiles.html) describes for a tile in a single file, so it isn't Raku's alone. Other tile tools can read these files too.
+
+### Where it came from
+
+A file saved from Raku also records which account's tile it was, and it carries that account's signed proof: the record exactly as the account's server signed it. Raku doesn't check that proof yet, which is why the note says "author not verified". Checking it, so Raku can say "Published by @handle · verified", may come in a future update.
+
+## Tiles without a server
+
+This blog is mostly about tiles living in atproto accounts, and that's still the main way to share one. But a tile that's also a file has a few advantages of its own:
+
+- **Sharing privately.** Records in an account are public. A file goes only where you send it.
+- **A copy that stays put.** If the published tile is revised or deleted, your file stays exactly as it was.
+- **Trying before publishing.** Save a tile, open it, and show it to someone before it goes anywhere.
+- **Checked when opened.** Every piece is checked against its address, so you know nothing inside has changed.
+
+One honest note: opening a file in Raku still needs Raku to be online. Raku uses its loading server to give each tile its own walled-off space to run in. But the tile's files never leave your computer.
+
+And because everything a tile needs is inside the file, an app made for one kind of tile could open it in airplane mode, the way [Tileman](https://thunderbird.cafe/blog/mixtape-c60/) plays saved tapes.
+
+## Further reading
+
+- [Raku](https://raku.lexicographer.space/), and its code at [pyxorium/raku](https://github.com/pyxorium/raku)
+- [The Web Tile Foundry](https://foundry.thunderbird.cafe/), and its code at [pyxorium/web-tile-foundry](https://github.com/pyxorium/web-tile-foundry)
+- [Raku: a browser for web tiles](/blog/raku/)
+- [Mixtape C60: Your plyr.fm songs on a cassette Web Tile](/blog/mixtape-c60/), which introduced Tileman
+- [Web Tiles, by Robin Berjon](https://berjon.com/web-tiles/)
+- [DASL: Web Tiles specification](https://dasl.ing/tiles.html), including how a tile fits in a single file
+- [DASL: CAR](https://dasl.ing/car.html), the file format underneath a tile file
+- [AT Protocol: Repository](https://atproto.com/specs/repository), on signed commits and proofs for single records

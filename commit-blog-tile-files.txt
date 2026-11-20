@@ -1,0 +1,11 @@
+cd C:\thunderbird-cafe\pyxorium.github.io
+git add src/content/blog/tile-files.mdx
+git add src/assets/tile-files-cover.png
+git add src/assets/tile-files-diagram.png
+git add src/assets/tile-files-foundry.png
+git add src/assets/tile-files-raku.png
+git add public/blog/tile-files/thunderbird-cafe-s-glass-lantern.tile
+git add commit-blog-tile-files.txt
+git status
+git commit -m "Blog: Tile files: a web tile you can keep (the diagram, two screenshots, the cover, a sample Glass Lantern .tile to download)"
+git push
