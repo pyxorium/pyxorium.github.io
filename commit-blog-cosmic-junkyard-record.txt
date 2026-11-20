@@ -1,0 +1,13 @@
+cd C:\thunderbird-cafe\pyxorium.github.io
+git add src/content/blog/cosmic-junkyard-record.mdx
+git add src/assets/cosmic-junkyard-record-cover.png
+git add src/assets/cosmic-junkyard-record.png
+git add src/assets/cosmic-junkyard-prompt.png
+git add src/assets/cosmic-junkyard-saved.png
+git add src/assets/cosmic-junkyard-pdsls.png
+git add src/assets/cosmic-junkyard-replay.png
+git add src/assets/cosmic-junkyard-post-expanded.png
+git add commit-blog-cosmic-junkyard-record.txt
+git status
+git commit -m "Blog: Cosmic Junkyard: a web tile game that makes a record for your account (the diagram, five screenshots, the cover)"
+git push
