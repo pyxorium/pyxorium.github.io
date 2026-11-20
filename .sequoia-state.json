@@ -189,6 +189,16 @@
         "uri": "at://did:plc:6vxjigxrqizmbo56gojxico3/app.bsky.feed.post/3n2pfh44zex2b",
         "cid": "bafyreigzt6qn7nj2r6rssbidb3jlcqcdup3m4bku5wzlsri2wbraypr6mi"
       }
+    },
+    "src\\content\\blog\\tile-files.mdx": {
+      "contentHash": "9b8fcd09b9ca3644a160f9b61622948b8e28f44d5b5eaa0ae2f98829535109e5",
+      "atUri": "at://did:plc:6vxjigxrqizmbo56gojxico3/site.standard.document/3n2ridfza5h2s",
+      "lastPublished": "2026-11-20T21:03:19.439Z",
+      "slug": "tile-files",
+      "bskyPostRef": {
+        "uri": "at://did:plc:6vxjigxrqizmbo56gojxico3/app.bsky.feed.post/3n2ridgorkp2w",
+        "cid": "bafyreicgdrz4dkg7piv4ypkhfqlre2pzlmjffl6vttsn4uayimzz22z4ne"
+      }
     }
   },
   "publication": {

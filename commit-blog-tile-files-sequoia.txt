@@ -1,0 +1,8 @@
+cd C:\thunderbird-cafe\pyxorium.github.io
+git add .sequoia-state.json
+git add src/content/blog/tile-files.mdx
+git add test/at-tags.test.mjs
+git add commit-blog-tile-files-sequoia.txt
+git status
+git commit -m "Record Sequoia publish of the Tile files post (record 3n2ridfza5h2s); its entry in the at-tags test"
+git push

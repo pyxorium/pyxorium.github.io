@@ -39,6 +39,7 @@ const EXPECTED = {
 	'renderer-tiles': [doc('3mzqerccutl2k'), [MAZE_PLACE, SLIDE, tile(T, '3mzp2cmnlwa26'), tile(T, '3mzoty54cln2u')]],
 	rooms: [doc('3mzir2h5j5e2z'), [tile(T, '3myn75d2d222d')]],
 	'seven-up': [doc('3my3evqeicw2v'), [tile(T, '3my27cwible2m'), tile(T, '3my27d43kry2d')]],
+	'tile-files': [doc('3n2ridfza5h2s'), []],
 	'tile-posts': [doc('3n24zywptby2c'), [tile(W, '3n22c4q7vxsrg')]],
 	'ways-portal-loop': [doc('3myzcrzmmll2f'), [tile(P, '3myyjuyr2ja2s'), MAZE_PLACE, FOREST_PLACE, OBELISK, SLIDE]],
 	'web-tile-foundry': [doc('3mwwkptwny32r'), [tile(W, '3mwwhkjfvfq2o')]],
