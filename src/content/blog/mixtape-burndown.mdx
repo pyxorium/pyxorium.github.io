@@ -1,0 +1,121 @@
+---
+title: 'Mixtape Burndown: live shows on a web tile cassette, and one song at a time'
+description: 'Live Music Archive shows, stored as songs in an atproto account, then made into C60, C90 and C120 cassette tiles in the Web Tile Foundry. Plus Tracks, which plays one song at a time in Raku, right in a post.'
+pubDate: 'Nov 21 2026'
+heroImage: '../../assets/mixtape-burndown-cover.png'
+---
+
+import LoopVideo from '../../components/LoopVideo.astro';
+
+On April 20, 2002, Yonder Mountain String Band played the Fillmore in Denver, and someone ran a line from the soundboard. Twenty-four years later, that whole show, 26 songs, is stored as songs in my own atproto account, and it plays on cassette tiles made in [the Web Tile Foundry](https://foundry.thunderbird.cafe/).
+
+In October, [Mixtape C60](/blog/mixtape-c60/) put your plyr.fm songs on a 60-minute cassette web tile. Since then the tapes have grown longer, the tile type has a new name, **Mixtape Burndown**, and the songs can now come from the [Live Music Archive](https://archive.org/details/etree), the Internet Archive's collection of live recordings from bands that allow taping and non-commercial sharing. And a song no longer needs a tape at all: in [Raku](https://raku.lexicographer.space/) it plays on its own, in a tile called Tracks, even right inside a post.
+
+This post goes in the order a song travels: bringing in the Archive, making tapes, and listening.
+
+## Bringing in the Archive
+
+### The importer
+
+The Foundry has a new window under Mixtape Burndown: **Import songs…**. You pick a recording's folder, as you downloaded it from the Archive, and it reads what's there: the FLAC files' tags, and the info file tapers write, with the band, the venue, the date, who taped it, the lineage (the chain from microphone to file) and the setlist with its sets. Most of the form fills itself in. You check it, tick the songs you want, and tick one box saying the recording may be shared.
+
+![Screenshot of the Foundry's importer for a new show. Section 2, Where these came from, filled in from the folder's name, the info file and the songs' tags: Band Imagine, Show name Imagine · Dancin' In The Streets · 2012-07-03, Date 2012-07-03, Venue Dancin' In The Streets, Place Denver, CO, Taper Corey/KIND Recordings, Source and lineage an on-the-fly matrix of the soundboard and an onstage Beyerdynamic microphone, the Archive address and a sharing policy link. Section 3, Songs: all four ticked, Shotgun House, Let Me Love You Baby, Wharf Rat and City Of Tiny Lites, 4 ticked · 38:22 · about 27.66 MB. Section 4, Store them: the box These songs are free to share this way ticked, and a Convert and store 4 songs button.](../../assets/mixtape-burndown-importer.png)
+
+Then each song is converted in your browser and stored in your own account, one record per song, with its audio. Nothing goes through a server of mine.
+
+The YMSB Fillmore show was the first. As FLAC it's 851 MB; stored, it's about 112 MB. Those are the same 26 songs at about an eighth of the size, which is what makes keeping whole shows in an account sensible.
+
+For now the importer is switched on only for my own account, while I find out what real shows throw at it. If you’d like to try the importer now, get in touch. Before long it will be there for anyone using the Foundry, as one more way to bring songs in, alongside plyr.fm.
+
+### What the shows taught it
+
+Real shows have thrown a few things at it already.
+
+**The missing info files.** The Archive's download zips often leave the info file out. Of the first five shows I imported, four came without it. The importer still worked from the tags and the folder name, but the taper, the lineage and the notes stayed empty until I downloaded the info file separately and picked the folder again. So now, when there's no info .txt file, the importer says so, right under what it found, before you go any further.
+
+**Every song is number 1.** Todd Snider's 2005 set at Hardly Strictly Bluegrass came with files named like `1-07 …`, disc 1, track 7. The importer read the "1" and stored every song as track 1. The songs were fine; only their order was lost. A small script put the numbers right in place, and the next Foundry release learned to read that kind of name.
+
+**Not every taper-friendly artist has their own collection.** Molly Tuttle's set at Ninigret Park, at the Rhythm & Roots festival in 2025, isn't in a Live Music Archive band collection of her own. It came from the Archive's Taper's Section, which gathers recordings by taper-friendly artists who don't have one, and the taper shares it on a trade-friendly tracker too. So before ticking the box, I checked. It's a great recording, 2.2 GB of high-resolution FLAC, stored as 64 MB of songs.
+
+By now the account holds 168 songs from ten shows, about 737 MB.
+
+## Making tapes
+
+### C60, C90 and C120
+
+A tape can now be a C60, a C90 or a C120: 30, 45 or 60 minutes a side. The sides are strict, like a real cassette. When a side runs over, the tape won't publish until you move a song. My first C90, *Freaky Friday*, came out at 45:36 on Side A. Moving one song across to Side B fixed it.
+
+### The "Burndown" name
+
+Because of these Foundry updates, the previous name Mixtape C60 no longer fit. The new name, Mixtape Burndown, can represent a chart counting down the work left, as each side's meter now counts the minutes left to fill ("3:18 to burn"). A burndown can also be thought of as a bonfire at the end of a festival night. And you can burn a mix for a friend.
+
+### Choose songs
+
+Songs are picked in a big **Choose songs** window. Shows are grouped, newest first, with Archive and plyr.fm side by side, each marked with a small label, and a filter to show one or the other. Search finds songs by name, and by the venue or place in a recording's details: searching "denver" finds the Fillmore show. You can tick a whole show at once.
+
+![Screenshot of the Choose songs window: a search box, a filter set to All (with plyr.fm and Archive), and meters for Side A, 21:48 of 30:00 with 8:12 to burn, and Side B, empty. On the left, shows newest first: Imagine · Dancin' In The Streets · 2012-07-03 is open, with Shotgun House and Wharf Rat ticked and marked Side A; below it another Imagine show with an Archive label, then Parlor Greens at Jam Cruise and Grateful Dead at Pine Knob with plyr.fm labels. On the right, the tape column lists Side A: Shotgun House 10:03 and Wharf Rat 11:45, each with its show, and Side B: Nothing yet.](../../assets/mixtape-burndown-choose-songs.png)
+
+### The tape desk
+
+A column down the side shows the tape as it will be, Side A and Side B. Drag a song to move it, within a side or across to the other, or drag one in from the library. Widen the column to see each song's show. Removed something by mistake? Undo puts it back.
+
+<LoopVideo src="/blog/mixtape-burndown/mixtape-burndown-desk.mp4" poster="/blog/mixtape-burndown/mixtape-burndown-desk-poster.png" width={594} height={432} waitForPlay alt="A short clip of the tape desk: the side meters across the top (Side A 29:04 of 30:00, Side B 9:19 of 30:00) and the tape column below, with Shotgun House, Wharf Rat and City Of Tiny Lites on Side A and Let Me Love You Baby on Side B. The pointer drags Wharf Rat down; it fades in place, a line shows where it will land, and it drops at the top of Side B. The meters change to 17:19 and 21:04, City Of Tiny Lites moves up to Side A, and the songs whose fades changed show their conversion progress. Then Wharf Rat is dragged back to Side A, and the tape is as it was." />
+
+### What goes on the tape
+
+A tape is one tile, and it carries its own copy of every song, as MP3. An Archive song is converted like any other. When a tape has Archive songs, the Foundry asks a broader question before publishing: that these are my own uploads or recordings, or come from artists who allow non-commercial sharing, and that the tape is free to listen to.
+
+The J-card stays simple on purpose: the liner notes and the songs on each side. Each Archive song's address, source and sharing policy go into the tape's own data, and the full credits are left to Tracks, below.
+
+Try one: **[the Trout Steak Revival C120 in Raku](https://raku.lexicographer.space/#t=at%3A%2F%2Fdid%3Aplc%3Arqbqpaaluty5v47jwciowpik%2Fing.dasl.masl%2F3n2jjchile422&a=0)**, their whole show at Cervantes' Masterpiece Ballroom in Denver, November 30, 2018, with Lindsay Lou and Bridget Law sitting in.
+
+## Listening
+
+### Tracks: one song at a time
+
+Each imported song gets its own record, so it can be played on its own. In Raku, open a song's address and it opens in **Tracks**, a tile that plays songs in the look you choose: a jukebox, a reel-to-reel deck, an oscilloscope, an aurora of light, or plain. Under it are the credits: the taper, the source, the show on the Live Music Archive, the band's sharing policy, and who shared it. It plays songs uploaded through plyr.fm too.
+
+Tracks is a [renderer tile](/blog/renderer-tiles/): Raku hands it the song's record, and Tracks shows it. Nothing is downloaded until you press play; then Raku fetches the song straight from the account's own server, and checks it's the audio the record names.
+
+The newest look, **Aurora**, has three worlds: Tide, Bloom and Prism. Aurora is inspired by [Spectra, by Shimmer Math Labs](https://shimmermathlabs.com/spectra.html), with our own drawing code.
+
+### A song in a post
+
+A song can now be posted to Raku's Tile posts, and played right in the post. Press **Play here**, and Tracks runs in the post's own space, in a compact layout made for it: the picture fills it, with a strip along the bottom for playing. **Expand** gives it the whole window, and the song keeps playing.
+
+![Screenshot of a song post in Raku's Tile posts by @thunderbird.cafe: From the burndown. In the post's slot, Tracks plays No Expectations by Yonder Mountain String Band in its compact layout: the Aurora look's Tide world fills the slot with soft teal, white and rose bands, with Aurora, Tide and Credits menus at the top left, Raku's expand, close and new-tab buttons at the top right, and a strip along the bottom with a pause button, the song's title and band, and a seek bar at 4:20 of 10:19. Under the slot, the song's card: No Expectations, Yonder Mountain String Band · The Fillmore Auditorium, Denver, CO · April 20, 2002 · 10:19, Shared by @pyxorium.com. A heart and a Share button at the bottom.](../../assets/mixtape-burndown-song-post.png)
+
+A song post points at two things: the song, and the Tracks that plays it. So it plays right in Tile posts, and hearts and the post's own page work as for any tile post. To post a song of your own, open it in Raku and press **Post**.
+
+Try it: **[the No Expectations post in Raku](https://raku.lexicographer.space/#t=at%3A%2F%2Fdid%3Aplc%3Arqbqpaaluty5v47jwciowpik%2Fcafe.thunderbird.tile.post%2F3n2smqmn5fko5&a=0)**: press Play here, then ▶. It's Yonder Mountain String Band at the Fillmore, the show this all started with.
+
+### Tapes on the phone: autoreverse
+
+[Tileman](https://thunderbird.cafe/tileman/), the phone player app for tapes, now has autoreverse: **Off** stops at the end of each side, the way a real cassette does; **Through** plays Side A, flips, and plays Side B; **Loop** keeps going. Tileman joins the whole tape into one file on the phone, with a short gap and a soft click for the flip, so it keeps playing with the screen locked.
+
+## For builders
+
+Two ideas carry most of the weight:
+
+- **Opus at 96 kbps.** Songs are stored as Opus in a WebM file, made in the browser with WebCodecs. That's how 851 MB of FLAC becomes about 112 MB that still sounds like the show.
+- **A record type of its own, with plyr.fm's core fields.** plyr.fm reads `fm.plyr.track` records written by any app, which is good interop, and it's why Raku's Tracks web tile plays plyr.fm songs so easily. For Mixtape Burndown, the idea was to include a customized focus on live recordings that would further encompass the concert date, the venue and set, the taper and lineage, the Archive address and the band's sharing policy. So Archive songs are `cafe.thunderbird.audio.track` records, which keep plyr.fm's core fields and add a new section for the show. plyr.fm doesn't pick them up, so they don't appear on your plyr.fm page as uploads. In this design, Tracks reads both `cafe.thunderbird.audio.track` and `fm.plyr.track` records. The lexicon is published from thunderbird.cafe and lives in [the audio-tracks repo](https://github.com/pyxorium/audio-tracks).
+
+## What's next
+
+Smaller tapes: an optional Opus setting for tapes, about a third smaller than MP3, once Tileman can join Opus sides smoothly. And a songs list in Raku, so you can browse an account's songs show by show and play or post any of them.
+
+*Please support bands and venues that allow taping by buying merch and attending shows.*
+
+## Links
+
+- [The Web Tile Foundry](https://foundry.thunderbird.cafe/), and its code at [pyxorium/web-tile-foundry](https://github.com/pyxorium/web-tile-foundry)
+- [Raku](https://raku.lexicographer.space/), and its code at [pyxorium/raku](https://github.com/pyxorium/raku)
+- Tracks' code: [pyxorium/renderer-tiles](https://github.com/pyxorium/renderer-tiles)
+- [Tileman](https://thunderbird.cafe/tileman/), the phone player app for tapes
+- [Mixtape C60: Your plyr.fm songs on a cassette Web Tile](/blog/mixtape-c60/), the first Mixtape post
+- [Renderer tiles: showing atproto records inside Raku](/blog/renderer-tiles/)
+- [Tile posts: a tile you can play, right in the post](/blog/tile-posts/)
+- [Web Tiles, by Robin Berjon](https://berjon.com/web-tiles/)
+- [Tiles Protocol: Data Passing](https://dasl.ing/tp-data.html) (tp-data), how Raku hands Tracks the song's record
+- [The Live Music Archive](https://archive.org/details/etree), and its [Taper's Section](https://archive.org/details/taperssection)
+- [Spectra, by Shimmer Math Labs](https://shimmermathlabs.com/spectra.html), which inspired Aurora
