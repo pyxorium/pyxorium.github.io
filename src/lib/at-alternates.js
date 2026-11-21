@@ -39,4 +39,6 @@ export const AT_ALTERNATES = {
 	raku: [tile(GOOSE, '3mxgglpomrm2d'), ...DAISY],
 	// The run the post shows (its JSON, the PDSls screenshot and the replay).
 	'cosmic-junkyard-record': [`at://${T}/cafe.thunderbird.cosmicjunkyard.run/3n2ozrhmttkwk`],
+	// The C120 tape and the No Expectations song post it invites you to open, and that post's song.
+	'mixtape-burndown': [tile(P, '3n2jjchile422'), `at://${P}/cafe.thunderbird.tile.post/3n2smqmn5fko5`, `at://${P}/cafe.thunderbird.audio.track/3n2cz64eheg2v`],
 };

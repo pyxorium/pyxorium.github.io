@@ -199,6 +199,16 @@
         "uri": "at://did:plc:6vxjigxrqizmbo56gojxico3/app.bsky.feed.post/3n2ridgorkp2w",
         "cid": "bafyreicgdrz4dkg7piv4ypkhfqlre2pzlmjffl6vttsn4uayimzz22z4ne"
       }
+    },
+    "src\\content\\blog\\mixtape-burndown.mdx": {
+      "contentHash": "3dcae1437c441df4d4bc6ffa89ff74c9f99be1e5eaf893548ee99ba0c95d35fb",
+      "atUri": "at://did:plc:6vxjigxrqizmbo56gojxico3/site.standard.document/3n2ttk6z37l2p",
+      "lastPublished": "2026-11-21T19:29:16.879Z",
+      "slug": "mixtape-burndown",
+      "bskyPostRef": {
+        "uri": "at://did:plc:6vxjigxrqizmbo56gojxico3/app.bsky.feed.post/3n2ttk7ml2r26",
+        "cid": "bafyreic4h3izajygrix7lnnpiraq54imoazsioipty5zoiunox54dqwjae"
+      }
     }
   },
   "publication": {
