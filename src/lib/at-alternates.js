@@ -41,4 +41,6 @@ export const AT_ALTERNATES = {
 	'cosmic-junkyard-record': [`at://${T}/cafe.thunderbird.cosmicjunkyard.run/3n2ozrhmttkwk`],
 	// The C120 tape and the No Expectations song post it invites you to open, and that post's song.
 	'mixtape-burndown': [tile(P, '3n2jjchile422'), `at://${P}/cafe.thunderbird.tile.post/3n2smqmn5fko5`, `at://${P}/cafe.thunderbird.audio.track/3n2cz64eheg2v`],
+	// The saved daily game in its PDSls screenshot (the tile comes from its embed).
+	'prism-wasm-web-tile': [`at://${T}/cafe.thunderbird.prism.game/3n2x6qcq6jkxq`],
 };

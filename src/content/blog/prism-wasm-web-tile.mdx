@@ -1,0 +1,113 @@
+---
+title: 'Prism: a dice puzzle that puts Wasm in a web tile'
+description: 'Prism is a dice puzzle web tile whose rules run as a tiny WebAssembly engine shipped inside the tile. Before Raku saves a game to your account, it replays your moves in that same engine to check the score.'
+pubDate: 'Nov 22 2026'
+heroImage: '../../assets/prism-wasm-web-tile-cover.png'
+---
+
+import WebTile from '../../components/WebTile.astro';
+
+Prism is a small dice puzzle that sits in a web tile. A pool of four colored dice waits under a 3 × 4 board. You pick a die and place it on a lit space, and you try to fill the board. Dice that share an edge can't match color or number, a few spaces take only one color or one number, and a full row with all four colors earns a rainbow bonus. Play the daily game, where everyone gets the same dice that day, or free play, with new dice every game.
+
+It plays right here. On this blog page it plays as a guest and doesn't save anything:
+
+<WebTile uri="at://did:plc:6vxjigxrqizmbo56gojxico3/ing.dasl.masl/3n2ww7ntilcx6" height={460} />
+
+To save a game to your account, **[play it in Raku](https://raku.lexicographer.space/#t=at%3A%2F%2Fdid%3Aplc%3A6vxjigxrqizmbo56gojxico3%2Fing.dasl.masl%2F3n2ww7ntilcx6&a=0)**.
+
+What's new is under the board. Prism's rules aren't in its page. They're in a small WebAssembly (Wasm) module, `engine.wasm`, that ships inside the tile with everything else. The tile page plays through it, and when you save a game, Raku runs that same module to replay your moves and check your score before it asks you.
+
+## The rules travel with the game
+
+[Cosmic Junkyard](/blog/cosmic-junkyard-record) handed Raku a record of each run. Prism hands over its rules too.
+
+The engine is 5,470 bytes, written in C and built to WebAssembly. It asks its host for nothing: no clock, no network, no random numbers from outside. The tile page never decides anything itself. It asks the engine which dice are in the pool, which spaces are lit for the die you picked, and what the score is, and it tells the engine where each die goes. Everything else on the page is drawing.
+
+The dice are seeded, so a game can be played again exactly. The daily game's seed comes from the day, worked out inside the engine, so everyone gets the same casts and the same recasts. Free play picks a fresh seed at the start and keeps it with the game. Either way, the same moves on the same dice give the same board and score, in any browser and on any host.
+
+The rules started as Prism in [House Dice](https://pyxorium.tngl.io/dicestreak/)'s Dice Lab, which now plays on a bigger board. This tile goes back to Prism's original 3 × 4 board, and House Dice's own rule functions became the reference the engine had to match: over 100,000 test games, nearly a million moves, the two agreed after every one.
+
+Because the rules live in their own file, the page around them is free to change. Prism was originally built to have one look, and later modified to have three looks: Classic, Prism light (a slow spectrum behind the board, with glass dice) and Retro CRT (scanlines and a pixel font). Adding them meant republishing the tile's page, but `engine.wasm` didn't change by a single byte, so its fingerprint stayed the same, Raku had nothing to re-approve, and a saved game checks out the same whichever look it was played in.
+
+![Screenshots of the same Prism game partway through, side by side in its three looks, each with eight dice placed and a teal three picked from the pool, its one legal space lit at the top right. Classic: dark dice with glowing pips. Prism light: the same board over a soft blue-green spectrum, the dice with faint rainbow rims. Retro CRT: green-tinted scanlines, square pixel pips and a pixel font.](../../assets/prism-wasm-web-tile-looks.png)
+
+## How Raku checks a game before saving it
+
+When a game ends, the end screen offers **Save this game**. Prism puts together a small record (daily or free play, the day or the seed, your moves, the finished board and its score) and hands it to Raku. Then Raku:
+
+1. checks that the record comes from Prism's own tile and has exactly the right shape (a daily game must be today's or yesterday's);
+2. looks up the engine the tile was published with. Its CID, a fingerprint of the file's exact bytes, must be on Raku's list of approved Prism engines. Raku fetches the file and checks the bytes match that fingerprint;
+3. runs the engine boxed off, in a worker of its own: no imports, at most 1 MB of memory to start, stopped after one second;
+4. replays your moves in it, from the day or the seed. The board and every part of the score must come out exactly as the record says;
+5. only then asks you;
+6. for a daily game, checks that the account you're saving to hasn't already saved a daily game for that day;
+7. writes the record to your account, adding the game's address and version, the engine's CID and the time.
+
+![Screenshot of Raku's window with Prism open in its own tab, the finished game dimmed behind a box that reads: Save this game to @thunderbird.cafe? Prism · daily, Nov 22. This adds a public record to @thunderbird.cafe's account (a Prism game record and nothing else). It shows your score (11) for the daily game for Nov 22 (the same dice for everyone), your board and your 10 moves, so anyone can replay the game with Prism's own engine to check its score. Below: What will be saved, Use another account, and three buttons, Allow once, Always and No, with a note that Always saves Prism games for this account without asking, in this browser only.](../../assets/prism-wasm-web-tile-save.png)
+
+One daily game a day is saved to each account. Free play games can be saved any time. Try to save a second daily game and Raku says so, instead of saving it:
+
+![Screenshot of the same game in Raku after Allow once, the score 11 dimmed behind a box titled Not saved: @thunderbird.cafe has already saved the daily Prism game for Nov 22. One daily game a day is saved to each account; free play games can be saved any time. Below: Use another account, and Close.](../../assets/prism-wasm-web-tile-not-saved.png)
+
+Here's how it got here. The first Cosmic Junkyard, in October, handed over nothing: it played, and no score was saved. Since Nov 19 it hands Raku its record, and Raku checks the record's shape with its own copy of the game's record check. Its rules, though, are mixed into its page, so Raku can't run them. Anyone can check a score later, by replaying the moves with the game's own script, but Raku can't before asking. Prism hands over its rules too, as their own file, so Raku checks the score itself, before asking, with the game's own rules. Raku doesn't keep a copy of Prism's rules at all.
+
+![Diagram of how the tile hands over more at each step, with a key: blue, nothing; red, its record; violet, its rules, as Wasm. Cosmic Junkyard, Oct 2, in blue: the game tile hands over nothing, its rules mixed into its page; the page runs the game, nothing to check; your account, faded, nothing saved. Cosmic Junkyard, Nov 19, in red: the game tile hands over its record, its rules still mixed into its page; Raku checks the record's shape and asks you, but can't run rules mixed into a page, so can't check the score; your account keeps the record. A note: its score can be checked later, by replaying the moves with the game's own script. Prism, Nov 22, in violet: the game tile hands over its record, and its rules, as Wasm, their own file, engine.wasm; two arrows, the record and engine.wasm by CID; Raku checks the record's shape, runs the game's own engine.wasm (approved by CID), and the replayed score must match, then asks you; your account keeps the record, with the engine's CID. The account boxes sit inside a dashed outline labelled The network. Below, What Wasm opens up, in dashed boxes: in teal, Prism's same engine.wasm goes by CID to another host, a server, an app or another tile browser, since any host that runs Wasm can check the same game; in amber, another game with its own engine.wasm goes by CID to Raku, which checks it too, once it approves that engine. Two lines underneath: the tile never writes anything itself, it has no network and no sign-in; Raku runs the engine boxed off, with no network, at most one second and 1 MB.](../../assets/prism-wasm-web-tile-diagram.png)
+
+The bottom of the diagram is what Wasm unlocks. The same `engine.wasm` can check a Prism game in any host that runs Wasm, not only Raku. And another game could ship its rules the same way: Raku would check it too, once it approves that engine.
+
+## Who decides what
+
+Handing over the rules as their own file moves one piece of the work, the checking, to the host. It doesn't move who decides. For example, the web tile publisher still decides what the rules are. The host still decides which rule engines it accepts and how often it saves a record. And the player still decides whether their record is saved at all. As the next paragraphs show, having the web tile hand over the rules to the host makes those choices easier to see.
+
+**Raku decides for Raku, not for everyone.** Your record lands in your own account, and it's yours to delete. On atproto, any account can write any record, and no server checks a Prism score. What Raku decides is only what it writes for you and what it stands behind. Another host could approve other engines, or none, and that's the web tiles balance: inside a host, the host is in control; across hosts, you're free, because the tile can go anywhere.
+
+**A fingerprint makes approval honest.** Raku approves an engine by its CID, so approving means approving exactly this code, and anyone can check the same bytes. Approving an account instead would mean trusting whatever it publishes next. That's also why the new looks needed nothing from Raku. A change to the rules would be a new engine with a new CID, and Raku would have to choose to accept it.
+
+**A check makes a precise claim.** A check that passes says: these moves, under this engine, on these dice, give this board and score. It doesn't say a person made the moves, or that it was their first try at that day's dice. That's why Raku also limits daily saves to one a day. It's a narrow claim from someone you can choose to believe.
+
+## Built on the Game Host Kit
+
+Beyond the kit's own example, Prism is the first game built on the Game Host Kit from the start. The kit is a small, written-down set of messages between a game tile and the page that hosts it (hello, who's playing, whether the host can save, save this record, open the saved record), with a helper file a game copies as it is. Prism's copy is unchanged. Cosmic Junkyard came first, and the kit was written down from its messages.
+
+The kit is still in development, and [its repo is on Tangled](https://tangled.org/colorado.atprotocol.space/game-host-kit). Checking a game with its engine isn't part of the kit yet. Prism shows how it could become an optional piece: a host that can check games, for any game that ships its rules.
+
+## What's public
+
+Your saved games live in your own account, and like other records there, they're public. A record shows the day (or the free play seed), your moves, your board, your score, which tile played it and which engine checked it. The moves are always included, because they're what lets anyone replay the game. Nothing is saved until you say yes.
+
+![Screenshot of PDSls showing the record: PDS fibercap.us-west.host.bsky.network, repo thunderbird.cafe, collection cafe.thunderbird.prism.game, record 3n2x6qcq6jkxq, 2026-11-22. The record: $type cafe.thunderbird.prism.game; board, twelve cells from violet-3, empty, teal-2 to violet-5 and teal-6; createdAt; day 2026-11-22; empty 4; engine bafkreierrxyrejorlhz5svmjoytchpk7cdcxifubhplz44lhj6u4l6uhra; filled 8; game with its cid and its uri (the Prism tile's address); mode daily; moves, eight numbers from 46 to 9; rainbowRows 0; score 4.](../../assets/prism-wasm-web-tile-pdsls.png)
+
+That's one of my daily games. Its 8 moves, replayed in the engine on Nov 22's dice, give exactly that board and a score of 4.
+
+## For game developers
+
+[The game's repo](https://github.com/pyxorium/prism-tile) has the engine's C source, the built `engine.wasm`, a JavaScript reference, the record and its lexicon, and a README on checking a saved game.
+
+The engine's calls are plain numbers in and out: `start(seed)`, `seed_for_day(year, month, day)`, the pool and board to read, `legal_mask(die)`, `place(die, cell)`, and the score parts. A move is one number: the die's place in the pool × 12 + the cell. To check a saved game, in any language that runs WebAssembly:
+
+1. fetch the tile's `/engine.wasm` (it asks for no imports) and check it's an engine you accept;
+2. work out the seed: `seed_for_day` for a daily game, the record's `seed` for free play;
+3. write the moves into `replay_moves()` and call `replay(seed, count)`;
+4. compare the board and score parts with the record's.
+
+A saved game is a `cafe.thunderbird.prism.game` record. The game sends its own fields, and the host adds `$type`, `createdAt`, `game` (the tile's address and exact version) and, in Raku, `engine` (the CID it checked with).
+
+Approving by CID is what makes this safe to run in a host: Raku's list for Prism names one engine. Changing Prism's page leaves the engine and its CID alone, so Raku needs no update. Only a change to the rules would.
+
+One honest caveat, as with Cosmic Junkyard: Raku isn't fully general yet. Prism's collection joined Raku's permission set, so people already signed in approve "Raku" once more, and Raku keeps a small Prism file with the record's shape, the daily window and the labels. What it doesn't need any more is a copy of the game's rules.
+
+## What's next
+
+- **Sharing a score.** A way to share a finished daily game might come next, perhaps as a tile post, so friends can play the same dice.
+- **Approved engines as published records.** Today Raku keeps its own list. A list like that could be an ordinary record anyone publishes and any host follows, much as labelers work on atproto, so approving engines isn't one app's private job.
+- **More games that ship their rules,** and checking with an engine as an optional part of the Game Host Kit.
+
+## Links
+
+- [Prism in Raku](https://raku.lexicographer.space/#t=at%3A%2F%2Fdid%3Aplc%3A6vxjigxrqizmbo56gojxico3%2Fing.dasl.masl%2F3n2ww7ntilcx6&a=0), and its code at [pyxorium/prism-tile](https://github.com/pyxorium/prism-tile)
+- [Raku](https://raku.lexicographer.space/), and its code at [pyxorium/raku](https://github.com/pyxorium/raku)
+- [The Game Host Kit](https://tangled.org/colorado.atprotocol.space/game-host-kit), on Tangled
+- [Cosmic Junkyard: a web tile game that makes a record for your account](/blog/cosmic-junkyard-record/)
+- [Web Tiles, by Robin Berjon](https://berjon.com/web-tiles/)
+- [DASL: Web Tiles specification](https://dasl.ing/tiles.html)
+- [WebAssembly](https://webassembly.org/)
