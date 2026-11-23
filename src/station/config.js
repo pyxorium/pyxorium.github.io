@@ -1,7 +1,7 @@
 // config.js: Thunderbird Café Station (/webtiles/station/), a stop on the Smallweb Subway's Creatives Club line.
 // Plan: claude/smallweb-subway-station-plan.md in the Foundry project (ST1 to ST14).
 //
-// The eight tiles, in the order agreed with the owner (ST4, ST9, ST11). `run` tiles (heavy WebGL) show their banner
+// The tiles, in the order agreed with the owner (ST4, ST9, ST11; Prism added after Cosmic Junkyard Nov 22 2026, nine now). `run` tiles (heavy WebGL) show their banner
 // with ▶ RUN and load only when clicked; the others load as they come near (ST5). The maze's card carries the loop
 // to Winter Forest and back (ST6, ST13). Pictures come straight from each account's server, as the Live Gallery
 // does (src/lib/tile-gallery/render.js), except Pong's, a screenshot kept with this page (ST16; it replaced the
@@ -46,6 +46,13 @@ export const TILES = [
     picture: blob('thunderbird', 'bafkreifoaqthvrudur5hkpxxkad2hom53c3kxebyvecw26zfs5skrbqc7a'),
     caption: 'Dodge falling dice, catch saucers and aliens.',
     post: { href: '/blog/cosmic-junkyard-tile/', label: 'read the post' },
+  },
+  {
+    id: 'prism', name: 'Prism',
+    uri: tile('thunderbird', '3n2ww7ntilcx6'), cid: 'bafyreia5fyumcp3pfklfm2idh7y6hbpa2yi7yifex3ad6ivc74kk3kodgy',
+    picture: blob('thunderbird', 'bafkreiawicxxz4a3fbjvhw6cpvkebwttlvd3nogdopu5qv4w6dpwpnj6fa'), pictureAlt: 'The Prism dice puzzle: colored dice on a three by four board, glowing over a soft spectrum',
+    caption: 'A dice puzzle: fill the board, no matching neighbors. Today’s dice are the same for everyone.',
+    post: null,
   },
   {
     id: 'lantern', name: 'Glass Lantern',
