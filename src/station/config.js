@@ -52,7 +52,7 @@ export const TILES = [
     uri: tile('thunderbird', '3n2ww7ntilcx6'), cid: 'bafyreia5fyumcp3pfklfm2idh7y6hbpa2yi7yifex3ad6ivc74kk3kodgy',
     picture: blob('thunderbird', 'bafkreiawicxxz4a3fbjvhw6cpvkebwttlvd3nogdopu5qv4w6dpwpnj6fa'), pictureAlt: 'The Prism dice puzzle: colored dice on a three by four board, glowing over a soft spectrum',
     caption: 'A dice puzzle: fill the board, no matching neighbors. Today’s dice are the same for everyone.',
-    post: null,
+    post: { href: '/blog/prism-wasm-web-tile/', label: 'read the post' },
   },
   {
     id: 'lantern', name: 'Glass Lantern',

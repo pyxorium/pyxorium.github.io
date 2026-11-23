@@ -36,6 +36,7 @@ const EXPECTED = {
 	'live-pong': [doc('3mzlvloylkq2g'), [tile(T, '3mzl5yvfay72f')]],
 	'mixtape-burndown': [doc('3n2ttk6z37l2p'), [tile(P, '3n2jjchile422'), `at://${P}/cafe.thunderbird.tile.post/3n2smqmn5fko5`, `at://${P}/cafe.thunderbird.audio.track/3n2cz64eheg2v`]],
 	'mixtape-c60': [doc('3mxau3yctbh2w'), [tile(P, '3mx7opazqwe2a')]],
+	'prism-wasm-web-tile': [doc('3n2xjaqx5dj2a'), [tile(T, '3n2ww7ntilcx6'), `at://${T}/cafe.thunderbird.prism.game/3n2x6qcq6jkxq`]],
 	raku: [doc('3mykkt54p5t26'), [tile(G, '3mxgglpomrm2d'), tile(T, '3myfnyphiuw2t'), tile(T, '3myfnywxt6v2r')]],
 	'renderer-tiles': [doc('3mzqerccutl2k'), [MAZE_PLACE, SLIDE, tile(T, '3mzp2cmnlwa26'), tile(T, '3mzoty54cln2u')]],
 	rooms: [doc('3mzir2h5j5e2z'), [tile(T, '3myn75d2d222d')]],

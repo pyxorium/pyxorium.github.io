@@ -209,6 +209,16 @@
         "uri": "at://did:plc:6vxjigxrqizmbo56gojxico3/app.bsky.feed.post/3n2ttk7ml2r26",
         "cid": "bafyreic4h3izajygrix7lnnpiraq54imoazsioipty5zoiunox54dqwjae"
       }
+    },
+    "src\\content\\blog\\prism-wasm-web-tile.mdx": {
+      "contentHash": "d305282233f151adb08dbd97ea24c3dbbfd0ef799e8e4407e2b98027eca9eadf",
+      "atUri": "at://did:plc:6vxjigxrqizmbo56gojxico3/site.standard.document/3n2xjaqx5dj2a",
+      "lastPublished": "2026-11-23T06:35:41.579Z",
+      "slug": "prism-wasm-web-tile",
+      "bskyPostRef": {
+        "uri": "at://did:plc:6vxjigxrqizmbo56gojxico3/app.bsky.feed.post/3n2xjarsmc62t",
+        "cid": "bafyreigk3zd5eqjm5roygmuetrawn6l2t4xn6ubq562pwfewlufh375epm"
+      }
     }
   },
   "publication": {
