@@ -1,7 +1,7 @@
 // config.js: Thunderbird Café Station (/webtiles/station/), a stop on the Smallweb Subway's Creatives Club line.
 // Plan: claude/smallweb-subway-station-plan.md in the Foundry project (ST1 to ST14).
 //
-// The tiles, in the order agreed with the owner (ST4, ST9, ST11; Prism added after Cosmic Junkyard Nov 22 2026, nine now). `run` tiles (heavy WebGL) show their banner
+// The tiles, in the order agreed with the owner (ST4, ST9, ST11; Prism added after Cosmic Junkyard Nov 22 2026; popcorn tea, an Atmochi pet, after Prism Nov 23; ten now). `run` tiles (heavy WebGL) show their banner
 // with ▶ RUN and load only when clicked; the others load as they come near (ST5). The maze's card carries the loop
 // to Winter Forest and back (ST6, ST13). Pictures come straight from each account's server, as the Live Gallery
 // does (src/lib/tile-gallery/render.js), except Pong's, a screenshot kept with this page (ST16; it replaced the
@@ -53,6 +53,15 @@ export const TILES = [
     picture: blob('thunderbird', 'bafkreiawicxxz4a3fbjvhw6cpvkebwttlvd3nogdopu5qv4w6dpwpnj6fa'), pictureAlt: 'The Prism dice puzzle: colored dice on a three by four board, glowing over a soft spectrum',
     caption: 'A dice puzzle: fill the board, no matching neighbors. Today’s dice are the same for everyone.',
     post: { href: '/blog/prism-wasm-web-tile/', label: 'read the post' },
+  },
+  {
+    // Atmochi (atmochi.pet, Ari Gonzalez): a pet minted from @thunderbird.cafe Nov 23 2026. The tile is a snapshot
+    // of the pet when minted (it reads no records); the link credits the app (claude/atmochi-station-notes.md).
+    id: 'atmochi', name: 'popcorn tea',
+    uri: tile('thunderbird', '3n2yhmimdxc22'), cid: 'bafyreigwgvxq6ftcfofvuh6al5mru2udh6opv4oiu5luvk4d37kohj5yhy',
+    picture: blob('thunderbird', 'bafkreiek7kszjjnq7eiasqgl4sc5y7sdund4puaell6igyez4qppbwmila'),
+    caption: 'popcorn tea, an Atmochi pet that eats records from atproto apps (like Prism). Tap to say hi.',
+    post: { href: 'https://atmochi.pet/', label: 'about Atmochi' },
   },
   {
     id: 'lantern', name: 'Glass Lantern',
