@@ -55,11 +55,14 @@ export const TILES = [
     post: { href: '/blog/prism-wasm-web-tile/', label: 'read the post' },
   },
   {
-    // Atmochi (atmochi.pet, Ari Gonzalez): a pet minted from @thunderbird.cafe Nov 23 2026. The tile is a snapshot
-    // of the pet when minted (it reads no records); the link credits the app (claude/atmochi-station-notes.md).
+    // Atmochi (atmochi.pet, Ari Gonzalez): a pet minted from @thunderbird.cafe Nov 23 2026; the link credits the app
+    // (claude/atmochi-station-notes.md). Each version of the tile is a snapshot of the pet (it reads no records), and
+    // Atmochi rewrites this same record whenever the pet or its room changes, so the card follows it. No still picture
+    // (AT5, Nov 24): the old banner's blob is gone at once after a rewrite, so a fixed picture would soon be a dead
+    // link; the frame stays dark until the tile shows. The CID is the first version's.
     id: 'atmochi', name: 'popcorn tea',
     uri: tile('thunderbird', '3n2yhmimdxc22'), cid: 'bafyreigwgvxq6ftcfofvuh6al5mru2udh6opv4oiu5luvk4d37kohj5yhy',
-    picture: blob('thunderbird', 'bafkreiek7kszjjnq7eiasqgl4sc5y7sdund4puaell6igyez4qppbwmila'),
+    picture: null,
     caption: 'popcorn tea, an Atmochi pet that eats records from atproto apps (like Prism). Tap to say hi.',
     post: { href: 'https://atmochi.pet/', label: 'about Atmochi' },
   },
