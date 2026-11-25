@@ -55,13 +55,13 @@ export const TILES = [
     post: { href: '/blog/prism-wasm-web-tile/', label: 'read the post' },
   },
   {
-    // Contagion (claude/contagion-tile-plan.md): the banner is the tile's own /banner.jpg. No post yet: "read the
-    // post" comes with the blog post. The CID is the version revised Nov 25 UTC (the account line, CT23).
+    // Contagion (claude/contagion-tile-plan.md): the banner is the tile's own /banner.jpg; "read the post" since the
+    // blog post (Nov 25 2026). The CID is the version revised Nov 25 UTC (the account line, CT23).
     id: 'contagion', name: 'Contagion',
     uri: tile('thunderbird', '3n33t44ehtksx'), cid: 'bafyreiahhuwrtzj3ikbvle4rft2ziblj6c4ermmyi6f7dh4hy236fu5iiq',
     picture: blob('thunderbird', 'bafkreib6cbmbxvrfj7rnncuss4rqlk235c6iswr3mmdg74gd3nnaivmaxq'), pictureAlt: 'The Contagion dice game: emoji dice on a black four by four board, with keep buttons below',
     caption: 'Push your luck: protect your resources, but keep the 🦠 contained. Today’s dice are the same for everyone.',
-    post: null,
+    post: { href: '/blog/contagion-web-tile-promises/', label: 'read the post' },
   },
   {
     // Atmochi (atmochi.pet, Ari Gonzalez): a pet minted from @thunderbird.cafe Nov 23 2026; the link credits the app

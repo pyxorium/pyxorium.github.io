@@ -27,6 +27,7 @@ const SLIDE = `at://${T}/cafe.thunderbird.way.signpost/winter-forest.slide`;
 
 // Every post: its own record, and what it shows after the publication (in order: embeds, wishes, AT_ALTERNATES).
 const EXPECTED = {
+	'contagion-web-tile-promises': [doc('3n35ohldcmp2h'), [tile(T, '3n33t44ehtksx'), `at://${T}/cafe.thunderbird.contagion.game/3n35fdoxrgcj2`]],
 	'cosmic-junkyard-record': [doc('3n2pfh3jknp2b'), [tile(T, '3mwvoqidyqd24'), `at://${T}/cafe.thunderbird.cosmicjunkyard.run/3n2ozrhmttkwk`]],
 	'cosmic-junkyard-tile': [doc('3mwvrzywwxc2d'), [tile(T, '3mwvoqidyqd24')]],
 	'cross-tile-intrazine': [doc('3mxtw5l6in62n'), [tile(P, '3mxsmot7wxa22')]],
