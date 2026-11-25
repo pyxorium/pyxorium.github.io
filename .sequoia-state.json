@@ -221,10 +221,14 @@
       }
     },
     "src\\content\\blog\\contagion-web-tile-promises.mdx": {
-      "contentHash": "ae3384a04e9d2bfe26b9f2e5f06b6cb7dcd7ed606125c9852996b34bc8dd302d",
+      "contentHash": "5c9d4e75309040af3b9278c7d3feabb4a52e6219b46ccbb13da4d30c503c8579",
       "atUri": "at://did:plc:6vxjigxrqizmbo56gojxico3/site.standard.document/3n35ohldcmp2h",
-      "lastPublished": "2026-11-25T17:24:57.864Z",
-      "slug": "contagion-web-tile-promises"
+      "lastPublished": "2026-11-25T17:42:46.534Z",
+      "slug": "contagion-web-tile-promises",
+      "bskyPostRef": {
+        "uri": "at://did:plc:6vxjigxrqizmbo56gojxico3/app.bsky.feed.post/3n35phh4fgs25",
+        "cid": "bafyreicaf5jjaudwtamggdoxqykx4jxow3ol32y5plokobk4hsfvtsm2ry"
+      }
     }
   },
   "publication": {
