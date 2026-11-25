@@ -1,0 +1,9 @@
+cd C:\thunderbird-cafe\pyxorium.github.io
+node --test test/at-tags.test.mjs
+git add src/station/config.js
+git add src/pages/webtiles/station/index.astro
+git add test/at-tags.test.mjs
+git add commit-station-contagion.txt
+git status
+git commit -m "Station: Contagion after Prism (eleven tiles; its banner, caption and the marquee; no post yet)"
+git push

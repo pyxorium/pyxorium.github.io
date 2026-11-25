@@ -148,7 +148,7 @@ test('the Seven-Up, Daisy and Station pages', () => {
 	assert.deepEqual(pageAlternates([SEVENUP.house?.uri, SEVENUP.player?.uri]), [tile(T, '3my27cwible2m'), tile(T, '3my27d43kry2d')]);
 	assert.deepEqual(pageAlternates([DAISY.house?.uri, DAISY.player?.uri]), [tile(T, '3myfnyphiuw2t'), tile(T, '3myfnywxt6v2r')]);
 	const station = pageAlternates([...STATION.map((t) => t.uri), LOOP.signpost]);
-	assert.equal(station.length, 11);   // ten tiles (Prism since Nov 22, popcorn tea since Nov 23) and the slide's signpost
+	assert.equal(station.length, 12);   // eleven tiles (Prism since Nov 22, popcorn tea since Nov 23, Contagion since Nov 24) and the slide's signpost
 	assert.equal(station.at(-1), SLIDE);
 	assert.deepEqual(pageAlternates([null, tile(T, '3my27cwible2m'), tile(T, '3my27cwible2m')]), [tile(T, '3my27cwible2m')]);
 });

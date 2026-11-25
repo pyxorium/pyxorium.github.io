@@ -1,7 +1,7 @@
 // config.js: Thunderbird Café Station (/webtiles/station/), a stop on the Smallweb Subway's Creatives Club line.
 // Plan: claude/smallweb-subway-station-plan.md in the Foundry project (ST1 to ST14).
 //
-// The tiles, in the order agreed with the owner (ST4, ST9, ST11; Prism added after Cosmic Junkyard Nov 22 2026; popcorn tea, an Atmochi pet, after Prism Nov 23; ten now). `run` tiles (heavy WebGL) show their banner
+// The tiles, in the order agreed with the owner (ST4, ST9, ST11; Prism added after Cosmic Junkyard Nov 22 2026; popcorn tea, an Atmochi pet, after Prism Nov 23; Contagion right after Prism Nov 24; eleven now). `run` tiles (heavy WebGL) show their banner
 // with ▶ RUN and load only when clicked; the others load as they come near (ST5). The maze's card carries the loop
 // to Winter Forest and back (ST6, ST13). Pictures come straight from each account's server, as the Live Gallery
 // does (src/lib/tile-gallery/render.js), except Pong's, a screenshot kept with this page (ST16; it replaced the
@@ -53,6 +53,15 @@ export const TILES = [
     picture: blob('thunderbird', 'bafkreiawicxxz4a3fbjvhw6cpvkebwttlvd3nogdopu5qv4w6dpwpnj6fa'), pictureAlt: 'The Prism dice puzzle: colored dice on a three by four board, glowing over a soft spectrum',
     caption: 'A dice puzzle: fill the board, no matching neighbors. Today’s dice are the same for everyone.',
     post: { href: '/blog/prism-wasm-web-tile/', label: 'read the post' },
+  },
+  {
+    // Contagion (claude/contagion-tile-plan.md): the banner is the tile's own /banner.jpg. No post yet: "read the
+    // post" comes with the blog post. The CID is the version revised Nov 25 UTC (the account line, CT23).
+    id: 'contagion', name: 'Contagion',
+    uri: tile('thunderbird', '3n33t44ehtksx'), cid: 'bafyreiahhuwrtzj3ikbvle4rft2ziblj6c4ermmyi6f7dh4hy236fu5iiq',
+    picture: blob('thunderbird', 'bafkreib6cbmbxvrfj7rnncuss4rqlk235c6iswr3mmdg74gd3nnaivmaxq'), pictureAlt: 'The Contagion dice game: emoji dice on a black four by four board, with keep buttons below',
+    caption: 'Push your luck: protect your resources, but keep the 🦠 contained. Today’s dice are the same for everyone.',
+    post: null,
   },
   {
     // Atmochi (atmochi.pet, Ari Gonzalez): a pet minted from @thunderbird.cafe Nov 23 2026; the link credits the app
