@@ -2,8 +2,12 @@
 // A wide table in a blog post (first used by the Daisy post): smaller type, light rules, and
 // sideways scrolling on narrow screens instead of squeezed columns. Wrap a Markdown table:
 // <JobsTable>, a blank line, the table, a blank line, </JobsTable>.
+// The last row is tinted soft peach (Daisy's new row; stronger since Nov 25) unless a post passes tintLast={false};
+// a post can pass its own colour, e.g. tint="#fdf3ee".
+interface Props { tintLast?: boolean; tint?: string }
+const { tintLast = true, tint = '#f9e2d5' } = Astro.props;
 ---
-<div class="jobs-table"><slot /></div>
+<div class:list={['jobs-table', { 'tint-last': tintLast }]} style={`--last-tint: ${tint}`}><slot /></div>
 
 <style>
 	.jobs-table {
@@ -37,6 +41,8 @@
 	}
 	.jobs-table :global(tr:last-child td) {
 		border-bottom: none;
-		background: #fdf3ee;
+	}
+	.jobs-table.tint-last :global(tr:last-child td) {
+		background: var(--last-tint);
 	}
 </style>

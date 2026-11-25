@@ -1,0 +1,215 @@
+---
+title: 'Contagion: a web tile game that brings its own promises'
+description: "Contagion is a push-your-luck dice web tile that ships its record's shape, its rules and its promises inside the tile. Raku approves all three by their fingerprints, keeps the game's promises as its own, and checks every saved game against them."
+pubDate: 'Nov 25 2026'
+heroImage: '../../assets/contagion-web-tile-promises-cover.png'
+---
+
+import WebTile from '../../components/WebTile.astro';
+import JobsTable from '../../components/JobsTable.astro';
+
+Contagion is a push-your-luck dice game in a web tile. Sixteen dice roll at once. Every contamination 🦠 is set aside, and you keep one type of what's left: defense ⚗️, or one of three resources, home 🏠, hospital 🏥 and water 🚰. Then you roll the rest again, or bank. Keep enough defense to cover the contamination and your resources score. Play the daily game, where everyone gets the same dice that day, or free play, with new dice every game. It has sounds too, made in the page with Web Audio, with a mute button in the bar.
+
+It plays right here. On this blog page it plays as a guest and doesn't save anything:
+
+<WebTile uri="at://did:plc:6vxjigxrqizmbo56gojxico3/ing.dasl.masl/3n33t44ehtksx" height={540} />
+
+To save a game to your account, **[play it in Raku](https://raku.lexicographer.space/#t=at%3A%2F%2Fdid%3Aplc%3A6vxjigxrqizmbo56gojxico3%2Fing.dasl.masl%2F3n33t44ehtksx&a=0)**.
+
+What's new is a small file beside the game, `declaration.json`. In it, the game says plainly what it will and won't do: it uses no network, it saves one kind of record, at most one daily game a day, and it doesn't need to know who's playing. Raku reads that file, checks it against its own limits, and approves it together with the game's engine and its record's lexicon, by their fingerprints. From then on, those promises are Raku's to keep. Raku keeps no copy of anything about Contagion: not its rules, not its record's shape, not its limits.
+
+## Each game hands over a little more
+
+This is the third game in a row that saves to your account through Raku, and each one has handed Raku a little more. [Cosmic Junkyard](/blog/cosmic-junkyard-record/) hands over its record. [Prism](/blog/prism-wasm-web-tile/) hands over its record and its rules, as a small WebAssembly engine. Contagion hands over its record, its record's lexicon, its rules and its promises.
+
+Most of the promises aren't new. Cosmic Junkyard and Prism kept nearly the same limits, but those limits lived in Raku's own code, one entry and one file per game. Contagion states them itself, and Raku holds it to them:
+
+<JobsTable>
+
+| Promise | Cosmic Junkyard | Prism | Contagion |
+|---|---|---|---|
+| No network | kept by its own page policy; Raku isn't told | kept by its own page policy; Raku isn't told | stated in its declaration (`"network": "none"`); Raku saves only declared games that say so; its page policy and the tile loader keep it |
+| One record type | in Raku's code | in Raku's code | stated (`writes`); Raku checks it against the collection it approved |
+| The record's shape | Raku's own file for the game | Raku's own file for the game | the tile's own lexicon copy, followed by Raku's one general checker |
+| One daily game a day | no daily game | in Raku's code (America/Denver, today or yesterday) | stated (`houseRules`): the same rule, as data |
+| Reads | none | your own Prism games, by Raku, for the once-a-day rule (in Raku's code) | stated (`reads`): your own Contagion games, by Raku, for the once-a-day rule |
+| Engine limits | no engine | in Raku's code (64 KB, 1 MB, one second, no imports) | stated (`engine.limits`), within Raku's own ceilings |
+| Who's playing | plays as your rpg.actor character | told: "Playing as @…" | not told (`"identity": "none"`) |
+
+</JobsTable>
+
+The last row is the one promise that's new in kind. More on it below.
+
+![Diagram of how the tile hands over more with each game or version, with a key: blue, nothing; red, its record, and its lexicon; violet, its rules, as Wasm; ochre, its promises. Cosmic Junkyard, Oct 2, in blue: the game tile hands over nothing, its rules mixed into its page; the page runs the game, nothing to check; your account, faded, nothing saved. Cosmic Junkyard, Nov 19, in red: the game tile hands over its record, its rules still mixed into its page; Raku checks the record's shape and asks you, but can't run rules mixed into a page, so can't check the score; your account keeps the record. A note: its score can be checked later, by replaying the moves with the game's own script. Prism, Nov 22, in violet: the game tile hands over its record, and its rules, as Wasm, their own file, engine.wasm; two arrows, the record, and engine.wasm by CID; Raku checks the record's shape, replays the moves in the game's own engine.wasm (approved by CID), and the replayed score must match, then asks you; your account keeps the record, with the engine's CID. Contagion, Nov 24, in ochre: the game tile hands over its record, its rules, as Wasm, and its promises, their own file, declaration.json; four arrows, the record, the lexicon by CID, engine.wasm by CID, and declaration.json by CID; Raku approves the lexicon, engine.wasm and declaration.json together, as one set, by CID; checks the record's shape against the tile's own lexicon, with one general checker and no Contagion code of its own; replays the moves in the game's own engine.wasm, asking the standard questions, and every field must match; keeps the declaration's promises within its own ceilings; then asks you; your account keeps the record, with the engine's CID. The account boxes sit inside a dashed outline labelled The network. Three lines underneath: the tile never writes anything itself, it has no network and no sign-in; Raku runs the engine boxed off, with no network, at most one second and 1 MB; a declaration can only narrow Raku's own limits, never widen them.](../../assets/contagion-web-tile-promises-diagram.png)
+
+In the diagram, "hands over" means the files ship from inside the tile, for the host to take. Raku fetches each one from the tile's own published files and checks its bytes against its fingerprint. The tile sends Raku only the record.
+
+## The declaration file
+
+A promise has someone who makes it, someone it's made to, and someone who keeps it. Here there are two:
+
+<JobsTable tintLast={false}>
+
+| The promise | Made by | Made to | Kept by |
+|---|---|---|---|
+| The game's: what it will and won't do | the publisher (thunderbird.cafe), in `declaration.json` | the player, in one sentence shown before saving; any host, as a request | the tile keeps "no network" itself; the host keeps the rest |
+| The host's: to keep the game's promises | Raku, by approving that exact declaration | the player | Raku |
+
+</JobsTable>
+
+So, for each promise: made by the publisher, addressed to the player, kept by the host. The game brings its promises, and Raku keeps them.
+
+Here's most of the file, word for word (the engine's part is shown further down, and [the whole file is in the repo](https://github.com/pyxorium/contagion-tile/blob/main/tile/declaration.json)):
+
+```json
+{
+  "declaration": 1,
+  "name": "Contagion",
+  "about": "What this game tile asks of a host, and promises. A host (Raku, or any other) approves this file, the engine and the lexicon copy together, by their CIDs, and may only narrow what is declared here, never widen it.",
+  "statement": "No network. Saves one game record. Doesn't see your account.",
+  "network": "none",
+  "identity": "none",
+  "engine": { … },
+  "lexicon": { "path": "/cafe.thunderbird.contagion.game.json", "id": "cafe.thunderbird.contagion.game" },
+  "writes": {
+    "collection": "cafe.thunderbird.contagion.game",
+    "perSave": 1,
+    "maxBytes": 4096,
+    "hostAdds": ["$type", "game", "engine", "createdAt"]
+  },
+  "reads": [
+    {
+      "collection": "cafe.thunderbird.contagion.game",
+      "whose": "the player's own",
+      "by": "the host",
+      "why": "the once-a-day rule for daily games"
+    }
+  ],
+  "houseRules": {
+    "modes": {
+      "daily": { "requires": ["day"], "forbids": ["seed"] },
+      "free": { "requires": ["seed"], "forbids": ["day"] }
+    },
+    "daily": {
+      "atMost": 1,
+      "per": "day",
+      "dayField": "day",
+      "timeZone": "America/Denver",
+      "window": ["today", "yesterday"]
+    },
+    "free": { "atMost": null }
+  }
+}
+```
+
+Each part, and who keeps it:
+
+- **`statement`** is the one sentence the player reads. It's the game's own words, shown in Raku's save prompt.
+- **`network: none`.** The tile's page has its own policy that allows nothing from outside its own files, and the tile loader adds its own on top. Raku can't watch a page's network, so it doesn't try: it saves only declared games that say `none`.
+- **`identity: none`.** Raku doesn't tell the game who's playing (more below).
+- **`writes`.** One record type, one record per save, at most 4,096 bytes. The game sends its own fields, and the host adds the four it names.
+- **`reads`.** The tile reads nothing. Raku reads your own Contagion games, and only to apply the once-a-day rule.
+- **`houseRules`.** A daily game has a day and no seed, and free play a seed and no day. At most one daily game a day, on Denver's calendar, for today or yesterday. Free play, any number.
+
+Raku keeps its own ceilings for any declared game, and a declaration can only ask for a narrower scope, never a broader one. Contagion's records are capped at 4,096 bytes, for example, well under Raku's 16 KB. A declaration that asked for the network, or for more than Raku allows, wouldn't be approved.
+
+![Screenshot of Raku's save prompt for Contagion: Save this game to @thunderbird.cafe? Contagion · daily, Nov 25. This adds a public record to @thunderbird.cafe's account (a Contagion game record and nothing else). The engine's own check: Contagion · daily, Nov 25: contained, score 3. The record holds your moves, so anyone can replay the game with Contagion's own engine to check it. No network. Saves one game record. Doesn't see your account. Below: What will be saved, Use another account, and three buttons, Allow once, Always and No, with a note that Always saves Contagion games for this account without asking, in this browser only.](../../assets/contagion-web-tile-promises-save.png)
+
+The Save prompt is put together from three voices. Raku says what will be written and where. The engine gives the game's label and its own check of the score. The declaration gives the last sentence, the game's promise, word for word.
+
+The idea of declaring up front is currently being discussed in the tiles community. [sōm](https://bsky.app/profile/hyl.st)'s draft "[Tiles Protocol: ATProto](https://greengale.app/hyl.st/3mzpo4rhdud2n)" (an unofficial proposal, published on GreenGale in November) has a tile list the kinds of record access it needs, each with a purpose, in its manifest, for the host to inspect before running the tile. The two line up in their main ideas: what a tile will do is stated up front, the host enforces it, it's never wider than the host allows, it names the record types it writes, and the text meant for people is treated with care (sōm's draft shows `purpose` as untrusted text; Contagion's one `statement` appears in the save prompt). They differ in scope and in trust. In sōm's draft, the declaration lives in the manifest and covers record access in general, for any host to grant under its own policy, and the host can be asked what's allowed right now. Contagion's is its own file, for one game, and also declares an engine and its limits, house rules and identity. Raku doesn't grant any declaration: it approves one exact declaration, by its fingerprint, together with the engine and the lexicon. A general permission list any host can grant, and a narrow promise for one game approved by its exact fingerprint.
+
+## Not told who's playing
+
+When Raku runs Prism, it tells the game who's signed in, and Prism shows "Playing as @…" in its bar. Contagion's declaration says `"identity": "none"`, so Raku doesn't tell it. Raku isn't telling this game who you are, and the bar says so:
+
+![Screenshot of two cropped bars from two different screens, each with a dashed outline and a wavy top edge. Above, Contagion's: the bottom edge of its black board on yellow, a mute button, Contagion doesn't see your account, and Daily · Nov 25. Below, Prism's, on dark: pick a die from the pool, draws 9 of 24, then a Classic pill, Playing as @thunderbird.cafe, and Daily · Nov 25.](../../assets/contagion-web-tile-promises-bar.png)
+
+In the current Game Host Kit terms, Raku answers Contagion with `host` and never sends `player`, and that's fixed in Raku's entry for the game from the first message. When you save, Raku still knows whose account the record goes to, because you're signed in to Raku, not to the game.
+
+One honest limit: "Contagion doesn't see your account" is the tile's own line. The tile shows it when its host answers without offering who's playing. It's true here because Raku keeps the promise. Another host could ignore the declaration and tell the game anyway, and then the line wouldn't show.
+
+## Raku approves the set, by fingerprint
+
+Raku approves Contagion's three files together, as one set: the declaration, the engine and the lexicon copy, each by its CID, a fingerprint of the file's exact bytes. The declaration's CID picks the set. Then the engine and the lexicon at the paths the declaration names must be that set's, and each file's bytes must match its fingerprint.
+
+Changing the page needs nothing from Raku. Contagion's sounds were made louder after launch, a new version of the tile, and none of the three files changed. But changing a promise means changing the declaration, which changes its CID, and Raku would have to approve the new set before saving another game. A game can't quietly widen what it asks for.
+
+## Questions any host can ask
+
+Prism's engine answered Prism-shaped questions, and Raku kept a small Prism file that knew how to ask them. Contagion's engine also answers the **standard questions**, the same way any engine built to them would:
+
+- **Is this game valid, and what's its result?** The host gives the moves, and the day or the seed. The engine replays them, and either returns the record's own fields, exactly as the game sends them, or says in plain words what's wrong.
+- **How do you describe it?** A label and a line, in the game's own words: "Contagion · daily, Nov 25" and "…: contained, score 3".
+
+Raku then compares the engine's answer with the record, field by field: every field, not just the score. The record's shape comes from the tile's own lexicon copy, read by Raku's one general checker. None of this needs Raku to know anything about Contagion: not its moves, not its fields, not its scoring.
+
+## What's public, and what a check claims
+
+Your saved games live in your own account, and like other records there, they're public. A record shows the day (or the free play seed), your moves, the result, which tile played it and which engine checked it. Nothing is saved until you say yes.
+
+![Screenshot of PDSls showing the record: PDS fibercap.us-west.host.bsky.network, repo thunderbird.cafe, collection cafe.thunderbird.contagion.game, record 3n35fdoxrgcj2, 2026-11-25. The record: $type cafe.thunderbird.contagion.game; createdAt 2026-11-25T14:40:27.696Z; day 2026-11-25; ending emptied; engine bafkreifms2aawbaemihyu7jnvk6zmpv3iuxsqcsjozo7brvdk5j4t5vrta; exhaustionBonus true; fullSetBonus false; game, with its cid and its uri (the Contagion tile's address); grid, starting with two empty cells.](../../assets/contagion-web-tile-promises-pdsls.png)
+
+That's a daily game from this morning. Its five moves, replayed in the engine on Nov 25's dice, give exactly that record: the grid emptied, contained, a score of 3.
+
+A check that passes says: these moves, under this engine, give this result. It doesn't say a person made the moves, or that it was their first try at that day's dice.
+
+## For game developers
+
+Both sides, the game's and the host's, are in the open.
+
+**The engine's standard calls.** The host writes the moves, one byte each, at `std_input()`, then calls `std_check_daily(year, month, day, count)` or `std_check_free(seed, count)`. A 1 means valid, and `std_output()` holds the record's own fields as JSON. A 0 means not valid, and the output holds the reason in words. Then `std_label()` and `std_line()` give the game's own words, and `std_move_name(code)` the engine's word for each move.
+
+**The declaration's engine block**, word for word:
+
+```json
+  "engine": {
+    "path": "/engine.wasm",
+    "standard": 1,
+    "imports": "none",
+    "limits": { "bytes": 65536, "memoryBytes": 1048576, "milliseconds": 1000 },
+    "essentials": {
+      "daily": { "call": "std_check_daily", "args": ["year", "month", "day", "moveCount"], "fields": ["mode", "day", "moves"] },
+      "free": { "call": "std_check_free", "args": ["seed", "moveCount"], "fields": ["mode", "seed", "moves"] }
+    },
+    "moves": { "field": "moves", "input": "std_input", "encoding": "the position of each word in the lexicon's list of moves, one byte each" },
+    "answers": {
+      "result": "std_output: on a valid game, the record's fields as JSON, exactly as the game sends them",
+      "reason": "std_output: on an invalid game, the reason in plain words",
+      "label": "std_label",
+      "line": "std_line"
+    }
+  },
+```
+
+**The lexicon copy in the tile** (`/cafe.thunderbird.contagion.game.json`, the same lexicon published from thunderbird.cafe) lists the moves as words, in a fixed order: `roll`, `bank`, `defense`, `home`, `hospital`, `water`. A host turns each word into its position in that list before asking the engine, so it never needs to know what the moves mean.
+
+**Raku's ceilings** for any declared game: an engine of at most 64 KB, 1 MB of memory and 1,000 ms; a declaration of at most 16 KB, a lexicon of 64 KB and a record of 16 KB; at most 64 moves; at most one daily game a day, for today or yesterday. They're `RAKU_CEILINGS` in Raku's `src/games/declared-game.js`, the general checker, which holds no copy of Contagion's rules.
+
+One honest caveat: Raku isn't "drop in any game" yet. A new declared game still needs Raku to add it: its approved set of CIDs, an entry in Raku's list of games it saves, and its collection in Raku's one permission set, so people already signed in approve "Raku" once more. What a new game no longer needs is any code of its own in Raku.
+
+[Contagion's repo](https://github.com/pyxorium/contagion-tile) has the engine's C source, the built `engine.wasm`, the declaration, the lexicon, and a README with the standard questions.
+
+## What's next
+
+Lay the three parts of a promise side by side, and today they don't line up. The game's promise is made by the publisher, in public, and fixed by its fingerprint. It's addressed to the player. And it's kept by Raku. But Raku's side is silent and private. Raku says nothing in its own voice: the bar's line and the prompt's last sentence are the game's words. And what Raku has bound itself to lives only in its code, so nobody outside can see it, or tell later which promises a saved game was made under.
+
+Each next idea fills one of those gaps:
+
+- **A notice in Raku's own voice.** "Raku isn't telling this game who you are", said by Raku. Then the one who says it is the one who keeps it.
+- **The declaration's fingerprint in each saved record.** Anyone reading a record later could see exactly which promises it was saved under.
+- **Raku's approvals as public records.** The keeper's promise made in public too: to players, to publishers ("Raku will keep your declaration"), and to other hosts, which could follow the same list, much as labelers work on atproto. Then the keeping can be checked, not only trusted.
+
+Today the game's promise is public and Raku's is private. Next, Raku's becomes public too. That will come with a new game, so the difference shows against Contagion, which stays as it is. And in Raku, a general path for declared games, so adding one means approving its files rather than changing Raku's code.
+
+## Links
+
+- [Contagion in Raku](https://raku.lexicographer.space/#t=at%3A%2F%2Fdid%3Aplc%3A6vxjigxrqizmbo56gojxico3%2Fing.dasl.masl%2F3n33t44ehtksx&a=0), and its code at [pyxorium/contagion-tile](https://github.com/pyxorium/contagion-tile)
+- [Raku](https://raku.lexicographer.space/), and its code at [pyxorium/raku](https://github.com/pyxorium/raku)
+- [The Game Host Kit](https://tangled.org/colorado.atprotocol.space/game-host-kit), on Tangled
+- [Tiles Protocol: ATProto](https://greengale.app/hyl.st/3mzpo4rhdud2n), by sōm, on GreenGale
+- [Prism: a dice puzzle that puts Wasm in a web tile](/blog/prism-wasm-web-tile/)
+- [Cosmic Junkyard: a web tile game that makes a record for your account](/blog/cosmic-junkyard-record/)
+- [House Dice](https://pyxorium.tngl.io/dicestreak/), where Contagion comes from
+- [Web Tiles, by Robin Berjon](https://berjon.com/web-tiles/)
+- [DASL: Web Tiles specification](https://dasl.ing/tiles.html)
